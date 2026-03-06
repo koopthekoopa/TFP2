@@ -1,0 +1,47 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/include/**",
+                "${workspaceFolder}/context_std/**",
+                "${workspaceFolder}/context_sdk/**",
+                "${workspaceFolder}/Runtime.PPCEABI.H/**"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++03",
+            "intelliSenseMode": "linux-clang-x86",
+            "compilerPath": "",
+            "configurationProvider": "ms-vscode.makefile-tools"
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/include/**",
+                "${workspaceFolder}/context_std/**",
+                "${workspaceFolder}/context_sdk/**",
+                "${workspaceFolder}/Runtime.PPCEABI.H/**"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++03",
+            "intelliSenseMode": "windows-clang-x86",
+            "compilerPath": "",
+            "configurationProvider": "ms-vscode.makefile-tools"
+        },
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/include/**",
+                "${workspaceFolder}/context_std/**",
+                "${workspaceFolder}/context_sdk/**",
+                "${workspaceFolder}/Runtime.PPCEABI.H/**"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++03",
+            "intelliSenseMode": "macos-clang-x86",
+            "compilerPath": "",
+            "configurationProvider": "ms-vscode.makefile-tools"
+        }
+    ],
+    "version": 4
+}

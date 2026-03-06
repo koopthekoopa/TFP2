@@ -1,0 +1,32 @@
+#ifndef MSL_CWCHAR_H
+#define MSL_CWCHAR_H
+
+#include <wchar.h>
+
+#ifdef __cplusplus
+
+namespace std {
+    using   ::fwide;
+
+    using   ::wmemcpy;
+    using   ::wmemset;
+    using   ::wmemchr;
+
+    using   ::wcslen;
+    using   ::wcscpy;
+    using   ::wcsncpy;
+    using   ::wcscat;
+    using   ::wcsncat;
+    using   ::wcsncmp;
+    using   ::wcschr;
+    using   ::wcsstr;
+
+    using   ::swprintf;
+    using   ::vswprintf;
+
+    using   ::wcsnicmp;
+} // namespace std
+
+#endif
+
+#endif // MSL_CWCHAR_H
