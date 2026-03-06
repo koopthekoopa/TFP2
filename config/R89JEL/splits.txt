@@ -4883,22 +4883,22 @@ atok/atok_eng.c:
 	.data       start:0x80712ED0 end:0x80713030
 	.bss        start:0x80878928 end:0x808859E0
 
-atok/MonPE\ApLib.c:
+atok/MonPE/ApLib.c:
 	.text       start:0x8038E86C end:0x8038F448
 	.rodata     start:0x80556170 end:0x80556260
 
-atok/MonPE\ApAICore.c:
+atok/MonPE/ApAICore.c:
 	.text       start:0x8038F448 end:0x8038FB8C
 
-atok/MonPE\ApAIDic.c:
+atok/MonPE/ApAIDic.c:
 	.text       start:0x8038FB8C end:0x8038FDE8
 	.rodata     start:0x80556260 end:0x80556268
 
-atok/MonPE\ApCore.c:
+atok/MonPE/ApCore.c:
 	.text       start:0x8038FDE8 end:0x80392BC4
 	.rodata     start:0x80556268 end:0x80556370
 
-atok/MonPE\ApDic.c:
+atok/MonPE/ApDic.c:
 	.text       start:0x80392BC4 end:0x80392DD0
 	.rodata     start:0x80556370 end:0x80556378
 
@@ -7152,235 +7152,235 @@ MSL_C.PPCEABI.bare.H/extras.c:
 	extabindex  start:0x80007C08 end:0x80007C14
 	.text       start:0x8050A32C end:0x8050A57C
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\e_acos.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_acos.c:
 	.text       start:0x8050A57C end:0x8050A840
 	.sdata2     start:0x80999678 end:0x80999700
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\e_asin.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_asin.c:
 	.text       start:0x8050A840 end:0x8050AAD8
 	.sdata2     start:0x80999700 end:0x80999788
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\e_atan2.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_atan2.c:
 	.text       start:0x8050AAD8 end:0x8050AD48
 	.sdata2     start:0x80999788 end:0x809997E0
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\e_fmod.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_fmod.c:
 	.text       start:0x8050AD48 end:0x8050B078
 	.rodata     start:0x80561D00 end:0x80561D10
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\e_log.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_log.c:
 	.text       start:0x8050B078 end:0x8050B32C
 	.sbss       start:0x80993558 end:0x80993560
 	.sdata2     start:0x809997E0 end:0x80999860
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\e_log10.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_log10.c:
 	.text       start:0x8050B32C end:0x8050B440
 	.sbss       start:0x80993560 end:0x80993568
 	.sdata2     start:0x80999860 end:0x80999890
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\e_pow.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_pow.c:
 	.text       start:0x8050B440 end:0x8050BC88
 	.rodata     start:0x80561D10 end:0x80561D40
 	.sdata2     start:0x80999890 end:0x809999A0
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\e_rem_pio2.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_rem_pio2.c:
 	.text       start:0x8050BC88 end:0x8050C020
 	.rodata     start:0x80561D40 end:0x80561EC8
 	.sdata2     start:0x809999A0 end:0x809999F8
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\k_cos.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/k_cos.c:
 	.text       start:0x8050C020 end:0x8050C130
 	.sdata2     start:0x809999F8 end:0x80999A40
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\k_rem_pio2.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/k_rem_pio2.c:
 	.text       start:0x8050C130 end:0x8050D83C
 	.rodata     start:0x80561EC8 end:0x80561F18
 	.sdata2     start:0x80999A40 end:0x80999A80
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\k_sin.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/k_sin.c:
 	.text       start:0x8050D83C end:0x8050D8FC
 	.sdata2     start:0x80999A80 end:0x80999AB8
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\k_tan.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/k_tan.c:
 	.text       start:0x8050D8FC end:0x8050DB54
 	.rodata     start:0x80561F18 end:0x80561F80
 	.sdata2     start:0x80999AB8 end:0x80999AF0
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\s_atan.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_atan.c:
 	.text       start:0x8050DB54 end:0x8050DD94
 	.rodata     start:0x80561F80 end:0x80562018
 	.sdata2     start:0x80999AF0 end:0x80999B18
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\s_ceil.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_ceil.c:
 	.text       start:0x8050DD94 end:0x8050DED4
 	.sdata2     start:0x80999B18 end:0x80999B28
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\s_copysign.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_copysign.c:
 	.text       start:0x8050DED4 end:0x8050DF00
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\s_cos.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_cos.c:
 	.text       start:0x8050DF00 end:0x8050DFD4
 	.sdata2     start:0x80999B28 end:0x80999B30
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\s_floor.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_floor.c:
 	.text       start:0x8050DFD4 end:0x8050E118
 	.sdata2     start:0x80999B30 end:0x80999B40
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\s_frexp.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_frexp.c:
 	.text       start:0x8050E118 end:0x8050E1A0
 	.sdata2     start:0x80999B40 end:0x80999B48
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\s_ldexp.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_ldexp.c:
 	.text       start:0x8050E1A0 end:0x8050E30C
 	.sdata2     start:0x80999B48 end:0x80999B70
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\s_modf.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_modf.c:
 	.text       start:0x8050E30C end:0x8050E408
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\s_sin.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_sin.c:
 	.text       start:0x8050E408 end:0x8050E4E0
 	.sdata2     start:0x80999B70 end:0x80999B78
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\s_tan.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/s_tan.c:
 	.text       start:0x8050E4E0 end:0x8050E558
 	.sdata2     start:0x80999B78 end:0x80999B80
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\w_acos.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_acos.c:
 	.text       start:0x8050E558 end:0x8050E55C
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\w_asin.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_asin.c:
 	.text       start:0x8050E55C end:0x8050E560
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\w_atan2.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_atan2.c:
 	.text       start:0x8050E560 end:0x8050E564
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\w_fmod.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_fmod.c:
 	.text       start:0x8050E564 end:0x8050E568
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\w_log10.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_log10.c:
 	.text       start:0x8050E568 end:0x8050E56C
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\w_pow.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_pow.c:
 	.text       start:0x8050E56C end:0x8050E570
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\e_sqrt.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_sqrt.c:
 	.text       start:0x8050E570 end:0x8050E7B8
 	.sdata2     start:0x80999B80 end:0x80999B88
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\PPC_EABI\SRC\math_ppc.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/PPC_EABI/SRC/math_ppc.c:
 	.text       start:0x8050E7B8 end:0x8050E7BC
 
-MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support\MSL\MSL_C\MSL_Common_Embedded\Math\Double_precision\w_sqrt.c:
+MSL_C.PPCEABI.bare.H/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.c:
 	.text       start:0x8050E7BC end:0x8050E7C0
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\mainloop.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/mainloop.c:
 	.text       start:0x8050E7C0 end:0x8050E8B8
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\nubevent.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/nubevent.c:
 	.text       start:0x8050E8B8 end:0x8050EAE0
 	.bss        start:0x8098C2D0 end:0x8098C2F8
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\nubinit.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/nubinit.c:
 	.text       start:0x8050EAE0 end:0x8050EC64
 	.rodata     start:0x80562018 end:0x80562038
 	.bss        start:0x8098C2F8 end:0x8098C300
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\msg.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/msg.c:
 	.text       start:0x8050EC64 end:0x8050EC90
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\msgbuf.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/msgbuf.c:
 	.text       start:0x8050EC90 end:0x8050F4CC
 	.rodata     start:0x80562038 end:0x80562058
 	.bss        start:0x8098C300 end:0x8098DCB0
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\serpoll.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/serpoll.c:
 	.text       start:0x8050F4CC end:0x8050F678
 	.bss        start:0x8098DCB0 end:0x8098DCC8
 	.sbss       start:0x80993568 end:0x80993570
 
-TRK_Hollywood_Revolution/MetroTRK\Os\dolphin\usr_put.c:
+TRK_Hollywood_Revolution/MetroTRK/Os/dolphin/usr_put.c:
 	.text       start:0x8050F678 end:0x8050F704
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\dispatch.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/dispatch.c:
 	.text       start:0x8050F704 end:0x8050F84C
 	.data       start:0x80758D28 end:0x80758D98
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\msghndlr.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/msghndlr.c:
 	.text       start:0x8050F84C end:0x80510928
 	.rodata     start:0x80562058 end:0x80562090
 	.data       start:0x80758D98 end:0x80758DD0
 	.bss        start:0x8098DCC8 end:0x8098DCD0
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\support.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/support.c:
 	.text       start:0x80510928 end:0x80510FDC
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\mutex_TRK.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/mutex_TRK.c:
 	.text       start:0x80510FDC end:0x80510FF4
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\notify.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/notify.c:
 	.text       start:0x80510FF4 end:0x8051108C
 
-TRK_Hollywood_Revolution/MetroTRK\Processor\ppc\Generic\flush_cache.c:
+TRK_Hollywood_Revolution/MetroTRK/Processor/ppc/Generic/flush_cache.c:
 	.text       start:0x8051108C end:0x805110C4
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\mem_TRK.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/mem_TRK.c:
 	.init       start:0x8000450C end:0x80004560
 	.text       start:0x805110C4 end:0x8051117C
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\string_TRK.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/string_TRK.c:
 	.text       start:0x8051117C end:0x80511198
 
-TRK_Hollywood_Revolution/MetroTRK\Processor\ppc\Generic\targimpl.c:
+TRK_Hollywood_Revolution/MetroTRK/Processor/ppc/Generic/targimpl.c:
 	.text       start:0x80511198 end:0x80512BB0
 	.rodata     start:0x80562090 end:0x80562118
 	.data       start:0x80758DD0 end:0x80758E00
 	.bss        start:0x8098DCD0 end:0x8098E250
 
-TRK_Hollywood_Revolution/MetroTRK\Processor\ppc\Export\targsupp.c:
+TRK_Hollywood_Revolution/MetroTRK/Processor/ppc/Export/targsupp.c:
 	.text       start:0x80512BB0 end:0x80512BD0
 
-TRK_Hollywood_Revolution/MetroTRK\Processor\ppc\Generic\mpc_7xx_603e.c:
+TRK_Hollywood_Revolution/MetroTRK/Processor/ppc/Generic/mpc_7xx_603e.c:
 	.text       start:0x80512BD0 end:0x80512F40
 
-TRK_Hollywood_Revolution/MetroTRK\Export\mslsupp.c:
+TRK_Hollywood_Revolution/MetroTRK/Export/mslsupp.c:
 	.text       start:0x80512F40 end:0x805130B8
 
-TRK_Hollywood_Revolution/MetroTRK\Processor\ppc\Generic\__exception.c:
+TRK_Hollywood_Revolution/MetroTRK/Processor/ppc/Generic/__exception.c:
 	.init       start:0x80004560 end:0x80006494
 
-TRK_Hollywood_Revolution/MetroTRK\Os\dolphin\dolphin_trk.c:
+TRK_Hollywood_Revolution/MetroTRK/Os/dolphin/dolphin_trk.c:
 	.init       start:0x80006494 end:0x800064C0
 	.text       start:0x805130B8 end:0x805133D4
 	.data       start:0x80758E00 end:0x80758E40
 	.bss        start:0x8098E250 end:0x8098E258
 
-TRK_Hollywood_Revolution/MetroTRK\Portable\main_TRK.c:
+TRK_Hollywood_Revolution/MetroTRK/Portable/main_TRK.c:
 	.text       start:0x805133D4 end:0x80513418
 	.bss        start:0x8098E258 end:0x8098E260
 
-TRK_Hollywood_Revolution/MetroTRK\Os\dolphin\dolphin_trk_glue.c:
+TRK_Hollywood_Revolution/MetroTRK/Os/dolphin/dolphin_trk_glue.c:
 	.text       start:0x80513418 end:0x805138D8
 	.rodata     start:0x80562118 end:0x80562220
 	.data       start:0x80758E40 end:0x80758E68
 	.bss        start:0x8098E260 end:0x8098E268
 
-TRK_Hollywood_Revolution/MetroTRK\Os\dolphin\targcont.c:
+TRK_Hollywood_Revolution/MetroTRK/Os/dolphin/targcont.c:
 	.text       start:0x805138D8 end:0x8051390C
 
-TRK_Hollywood_Revolution/MetroTRK\Os\dolphin\target_options.c:
+TRK_Hollywood_Revolution/MetroTRK/Os/dolphin/target_options.c:
 	.text       start:0x8051390C end:0x80513928
 	.bss        start:0x8098E268 end:0x8098E270
 
-TRK_Hollywood_Revolution/MetroTRK\Os\dolphin\UDP_Stubs.c:
+TRK_Hollywood_Revolution/MetroTRK/Os/dolphin/UDP_Stubs.c:
 	.text       start:0x80513928 end:0x80513970
 
-TRK_Hollywood_Revolution/exi2\GCN\EXI2_GDEV_GCN\main.c:
+TRK_Hollywood_Revolution/exi2/GCN/EXI2_GDEV_GCN/main.c:
 	.text       start:0x80513970 end:0x80513C30
 	.bss        start:0x8098E270 end:0x8098E78C
 	.sbss       start:0x80993570 end:0x80993574
 
-TRK_Hollywood_Revolution/runtime_libs\gamedev\cust_connection\utils\common\CircleBuffer.c:
+TRK_Hollywood_Revolution/runtime_libs/gamedev/cust_connection/utils/common/CircleBuffer.c:
 	.text       start:0x80513C30 end:0x80513E98
 
-TRK_Hollywood_Revolution/runtime_libs\gamedev\cust_connection\utils\gc\MWCriticalSection_gc.c:
+TRK_Hollywood_Revolution/runtime_libs/gamedev/cust_connection/utils/gc/MWCriticalSection_gc.c:
 	.text       start:0x80513E98 end:0x80513EF0
