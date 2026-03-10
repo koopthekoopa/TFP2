@@ -1,4 +1,4 @@
-Tokyo Friend Park 2 - libraries  
+Tokyo Friend Park 2 - Debug  
 [![Build Status]][actions] [![Discord Badge]][discord]
 =============
 
@@ -8,7 +8,7 @@ Tokyo Friend Park 2 - libraries
 [Discord Badge]: https://img.shields.io/discord/727908905392275526?color=%237289DA&logo=discord&logoColor=%23FFFFFF
 [discord]: https://discord.gg/hKx3FJJgrV
 
-A decompilation of the libraries from Tokyo Friend Park 2.
+A decompilation of the debug build of Tokyo Friend Park 2.
 
 This repository does **not** contain any game assets or assembly whatsoever. An existing copy of the game is required.
 

@@ -250,6 +250,14 @@ cflags_sdk = [
     "-g",
 ]
 
+cflags_rfl = [
+    *cflags_base,
+    "-opt off",
+    "-cpp_exceptions off",
+    "-inline off",
+    "-g",
+]
+
 config.linker_version = "GC/3.0a5.2"
 
 
@@ -259,6 +267,15 @@ def SDKLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
         "lib": lib_name,
         "mw_version": config.linker_version,
         "cflags": cflags_sdk,
+        "progress_category": "sdk",
+        "objects": objects,
+    }
+
+def RFLLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
+    return {
+        "lib": lib_name,
+        "mw_version": config.linker_version,
+        "cflags": cflags_rfl,
         "progress_category": "sdk",
         "objects": objects,
     }
@@ -289,21 +306,57 @@ config.libs = [
     },
     
     SDKLib("vf", [
-            Object(NonMatching, "vf/pf_clib.c"),
-            Object(NonMatching, "vf/pf_code.c"),
-            Object(NonMatching, "vf/pf_service.c"),
-            Object(NonMatching, "vf/pf_str.c"),
-            Object(NonMatching, "vf/pf_w_clib.c"),
+            Object(Matching,    "vf/pf_clib.c"),
+            Object(Matching,    "vf/pf_code.c"),
+            Object(Equivalent,  "vf/pf_service.c"),
+            Object(Matching,    "vf/pf_str.c"),
+            Object(Matching,    "vf/pf_w_clib.c"),
             Object(NonMatching, "vf/pf_driver.c"),
             Object(NonMatching, "vf/pdm_bpb.c"),
             Object(NonMatching, "vf/pdm_disk.c"),
             Object(NonMatching, "vf/pdm_partition.c"),
             Object(NonMatching, "vf/pdm_mbr.c"),
-            Object(NonMatching, "vf/pdm_diskmng.c"),
+            Object(NonMatching, "vf/pdm_dskmng.c"),
             Object(NonMatching, "vf/pf_cache.c"),
+            Object(NonMatching, "vf/pf_cluster.c"),
             Object(NonMatching, "vf/pf_dir.c"),
             Object(NonMatching, "vf/pf_entry.c"),
             Object(NonMatching, "vf/pf_entry_iterator.c"),
+            Object(NonMatching, "vf/pf_fat.c"),
+            Object(NonMatching, "vf/pf_fat12.c"),
+            Object(NonMatching, "vf/pf_fat16.c"),
+            Object(NonMatching, "vf/pf_fat32.c"),
+            Object(NonMatching, "vf/pf_fatfs.c"),
+            Object(NonMatching, "vf/pf_file.c"),
+            Object(NonMatching, "vf/pf_path.c"),
+            Object(NonMatching, "vf/pf_sector.c"),
+            Object(NonMatching, "vf/pf_volume.c"),
+            Object(NonMatching, "vf/pf_cp932.c"),
+            Object(NonMatching, "vf/pf_api_util.c"),
+            Object(NonMatching, "vf/pf_attach.c"),
+            Object(NonMatching, "vf/pf_detach.c"),
+            Object(NonMatching, "vf/pf_errnum.c"),
+            Object(NonMatching, "vf/pf_fclose.c"),
+            Object(NonMatching, "vf/pf_finfo.c"),
+            Object(NonMatching, "vf/pf_fopen.c"),
+            Object(NonMatching, "vf/pf_format.c"),
+            Object(NonMatching, "vf/pf_fread.c"),
+            Object(NonMatching, "vf/pf_fseek.c"),
+            Object(NonMatching, "vf/pf_fwrite.c"),
+            Object(NonMatching, "vf/pf_getdev.c"),
+            Object(NonMatching, "vf/pf_init_prfile2.c"),
+            Object(NonMatching, "vf/pf_mkdir.c"),
+            Object(NonMatching, "vf/pf_remove.c"),
+            Object(NonMatching, "vf/pf_unmount.c"),
+            Object(NonMatching, "vf/pf_filelock.c"),
+            Object(NonMatching, "vf/pf_system.c"),
+            Object(NonMatching, "vf/d_vf.c"),
+            Object(NonMatching, "vf/d_vf_sys.c"),
+            Object(NonMatching, "vf/d_hash.c"),
+            Object(NonMatching, "vf/d_time.c"),
+            Object(NonMatching, "vf/d_common.c"),
+            Object(NonMatching, "vf/nand_drv.c"),
+            Object(NonMatching, "vf/sd_drv.c"),
         ]
     ),
     

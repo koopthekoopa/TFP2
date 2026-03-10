@@ -1,0 +1,24 @@
+#ifndef REVOLUTION_MTX_GEO_TYPES_H
+#define REVOLUTION_MTX_GEO_TYPES_H
+
+#include <revolution/types.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct {
+    f32 x, y, z;
+} Vec, *VecPtr, Point3d, *Point3dPtr;
+
+typedef f32 Mtx[3][4];
+typedef f32 (*MtxPtr)[4];
+
+typedef f32 Mtx44[4][4];
+typedef f32 (*Mtx4Ptr)[4];
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // REVOLUTION_MTX_GEO_TYPES_H
