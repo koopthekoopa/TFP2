@@ -356,7 +356,7 @@ config.libs = [
             Object(NonMatching, "vf/d_time.c"),
             Object(NonMatching, "vf/d_common.c"),
             Object(NonMatching, "vf/nand_drv.c"),
-            Object(NonMatching, "vf/sd_drv.c"),
+            Object(Matching,    "vf/sd_drv.c"),
         ]
     ),
     
