@@ -311,7 +311,7 @@ config.libs = [
             Object(Equivalent,  "vf/pf_service.c"),
             Object(Matching,    "vf/pf_str.c"),
             Object(Matching,    "vf/pf_w_clib.c"),
-            Object(NonMatching, "vf/pf_driver.c"),
+            Object(Matching,    "vf/pf_driver.c"),
             Object(Equivalent,  "vf/pdm_bpb.c"),
             Object(NonMatching, "vf/pdm_disk.c"),
             Object(NonMatching, "vf/pdm_partition.c"),

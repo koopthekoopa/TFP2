@@ -62,7 +62,7 @@ static void VFipdm_bpb_calculate_specific_bpb_fields(PDM_BPB* p_bpb) {
 }
 
 // DEBUG NON MATCHING
-long VFipdm_bpb_load_string(const pf_u8* buf /* r3 */, pf_u32 length /* r4 */, pf_u8* p_string /* r5 */) {
+pf_s32 VFipdm_bpb_load_string(const pf_u8* buf /* r3 */, pf_u32 length /* r4 */, pf_u8* p_string /* r5 */) {
     // Local variables
     pf_u32 i;  // r31
 
@@ -78,9 +78,8 @@ long VFipdm_bpb_load_string(const pf_u8* buf /* r3 */, pf_u32 length /* r4 */, p
 }
 
 // DEBUG NON MATCHING
-long VFipdm_bpb_get_bpb_information(pf_u8* buf /* r30 */, struct PDM_BPB* p_bpb /* r31 */) {
-    // Local variables
-    long err;  // r29
+pf_s32 VFipdm_bpb_get_bpb_information(pf_u8* buf /* r30 */, PDM_BPB* p_bpb /* r31 */) {
+    pf_s32 err;  // r29
 
     if ((buf == PF_NULL) || (p_bpb == PF_NULL)) {
         return 1;
@@ -164,7 +163,7 @@ long VFipdm_bpb_get_bpb_information(pf_u8* buf /* r30 */, struct PDM_BPB* p_bpb 
     return err;
 }
 
-long VFipdm_bpb_get_fsinfo_information(pf_u8* buf, PDM_FSINFO* p_fsinfo) {
+pf_s32 VFipdm_bpb_get_fsinfo_information(pf_u8* buf, PDM_FSINFO* p_fsinfo) {
     if (buf == PF_NULL || p_fsinfo == PF_NULL) {
         return 1;
     }
@@ -173,7 +172,7 @@ long VFipdm_bpb_get_fsinfo_information(pf_u8* buf, PDM_FSINFO* p_fsinfo) {
     return 0;
 }
 
-long VFipdm_bpb_set_fsinfo_information(PDM_FSINFO* p_fsinfo, pf_u8* buf) {
+pf_s32 VFipdm_bpb_set_fsinfo_information(PDM_FSINFO* p_fsinfo, pf_u8* buf) {
     if (buf == PF_NULL || p_fsinfo == PF_NULL) {
         return 1;
     }
@@ -202,7 +201,7 @@ long VFipdm_bpb_set_fsinfo_information(PDM_FSINFO* p_fsinfo, pf_u8* buf) {
     return 0;
 }
 
-long VFipdm_bpb_check_boot_sector(pf_u8* buf, pf_u32* is_boot) {
+pf_s32 VFipdm_bpb_check_boot_sector(pf_u8* buf, pf_u32* is_boot) {
     pf_u16 byte_per_sector;
     pf_u16 sector_per_cluster;
     pf_u8 media;
@@ -235,7 +234,7 @@ long VFipdm_bpb_check_boot_sector(pf_u8* buf, pf_u32* is_boot) {
 }
 
 // DEBUG NON MATCHING
-long VFipdm_bpb_check_fsinfo_sector(pf_u8* buf /* r3 */, pf_u32* is_fsinfo /* r4 */) {
+pf_s32 VFipdm_bpb_check_fsinfo_sector(pf_u8* buf /* r3 */, pf_u32* is_fsinfo /* r4 */) {
     // Local variables
     pf_u32 lead_sig;    // r31
     pf_u32 struct_sig;  // r30
