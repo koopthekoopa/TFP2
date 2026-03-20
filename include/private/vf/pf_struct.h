@@ -1,7 +1,6 @@
 #ifndef VF_PF_UNSORTED_STRUCTS_H
 #define VF_PF_UNSORTED_STRUCTS_H
 
-// unsorted structs
 #include <private/vf/pf_types.h>
 
 typedef enum /* @enum$182pf_str_c */ {
@@ -10,6 +9,36 @@ typedef enum /* @enum$182pf_str_c */ {
     FAT_32 = 2,
     FAT_ERR = -1,
 } PF_FAT_TYPE;
+
+struct PF_SYS_DATE {
+    // total size: 0x6
+    unsigned short sys_year; // offset 0x0, size 0x2
+    unsigned short sys_month; // offset 0x2, size 0x2
+    unsigned short sys_day; // offset 0x4, size 0x2
+};
+struct PF_SYS_TIME {
+    // total size: 0x8
+    unsigned short sys_hour; // offset 0x0, size 0x2
+    unsigned short sys_min; // offset 0x2, size 0x2
+    unsigned short sys_sec; // offset 0x4, size 0x2
+    unsigned short sys_ms; // offset 0x6, size 0x2
+};
+struct PF_CACHE_SETTING {
+    // total size: 0x14
+    struct PF_CACHE_PAGE * pages; // offset 0x0, size 0x4
+    unsigned char (* buffers)[512]; // offset 0x4, size 0x4
+    unsigned short num_fat_pages; // offset 0x8, size 0x2
+    unsigned short num_data_pages; // offset 0xA, size 0x2
+    unsigned long num_fat_buf_size; // offset 0xC, size 0x4
+    unsigned long num_data_buf_size; // offset 0x10, size 0x4
+};
+struct PF_DRV_TBL {
+    // total size: 0xC
+    void * p_part; // offset 0x0, size 0x4
+    struct PF_CACHE_SETTING * cache; // offset 0x4, size 0x4
+    signed char drive; // offset 0x8, size 0x1
+    unsigned char stat; // offset 0x9, size 0x1
+};
 struct PF_BPB {
     // total size: 0x38
     unsigned short bytes_per_sector; // offset 0x0, size 0x2
@@ -109,6 +138,25 @@ struct PF_FILE {
     long last_error; // offset 0x18, size 0x4
     struct PF_CURSOR cursor; // offset 0x1C, size 0x10
     unsigned short lock_count; // offset 0x2C, size 0x2
+};
+struct PF_INFO {
+    // total size: 0x20
+    unsigned long file_size; // offset 0x0, size 0x4
+    unsigned long io_pointer; // offset 0x4, size 0x4
+    unsigned long empty_size; // offset 0x8, size 0x4
+    unsigned long allocated_size; // offset 0xC, size 0x4
+    unsigned long lock_mode; // offset 0x10, size 0x4
+    struct PF_FILE * lock_owner; // offset 0x14, size 0x4
+    unsigned long lock_count; // offset 0x18, size 0x4
+    unsigned long lock_tcount; // offset 0x1C, size 0x4
+};
+
+struct PF_DEV_INF {
+    // total size: 0x10
+    unsigned long cls; // offset 0x0, size 0x4
+    unsigned long ecl; // offset 0x4, size 0x4
+    unsigned long bps; // offset 0x8, size 0x4
+    unsigned long spc; // offset 0xC, size 0x4
 };
 struct PF_LOCK {
     // total size: 0x10

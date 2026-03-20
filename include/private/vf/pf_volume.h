@@ -53,4 +53,18 @@ struct PF_VOLUME_SET {
 
 extern struct PF_VOLUME_SET VFipf_vol_set;
 
+long VFiPFVOL_InitModule(unsigned long config /* r29 */, void * param /* r1+0x8 */);
+long VFiPFVOL_CheckForRead(struct PF_VOLUME * p_vol /* r30 */);
+long VFiPFVOL_CheckForWrite(struct PF_VOLUME * p_vol /* r31 */);
+long VFiPFVOL_GetCurrentDir(struct PF_VOLUME * p_vol /* r31 */, struct PF_DIR_ENT * p_current_dir /* r29 */);
+void VFiPFVOL_SetCurrentVolume(struct PF_VOLUME * p_vol /* r30 */);
+struct PF_VOLUME * VFiPFVOL_GetCurrentVolume();
+struct PF_VOLUME * VFiPFVOL_GetVolumeFromDrvChar(signed char drv_char /* r1+0x8 */);
+void VFiPFVOL_LoadVolumeLabelFromBuf(const unsigned char * buf /* r1+0x8 */, struct PF_VOLUME * p_vol /* r31 */);
+long VFiPFVOL_getdev(signed char drv_char /* r1+0x8 */, struct PF_DEV_INF * dev_inf /* r30 */);
+long VFiPFVOL_attach(struct PF_DRV_TBL * p_drv /* r31 */);
+long VFiPFVOL_detach(signed char drv_char /* r1+0x8 */);
+long VFiPFVOL_format(signed char drv_char /* r1+0x8 */, const unsigned char * param /* r1+0xC */);
+long VFiPFVOL_unmount(signed char drv_char /* r1+0x8 */, unsigned long mode /* r28 */);
+
 #endif // VF_PF_VOLUME_H

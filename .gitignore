@@ -38,5 +38,6 @@ compile_commands.json
 /*.txt
 *.exe
 *.zip
+*.7z
 *.sh
 *.bat

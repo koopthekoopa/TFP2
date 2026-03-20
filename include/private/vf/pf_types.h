@@ -3,6 +3,7 @@
 
 // unsorted structs
 #include <private/vf/pf_struct.h>
+#include <private/vf/pdm_struct.h>
 
 typedef signed char         pf_s8;
 typedef signed short        pf_s16;
