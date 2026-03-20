@@ -10,7 +10,7 @@ void VFiPF_LE16_TO_U16_STR(pf_u8* sSrc, pf_u32 num) {
 
     for (cnt; cnt < num; cnt += 2) {
         tmp_src = sSrc[cnt];
-        sSrc[cnt] = sSrc[cnt+1];
-        sSrc[cnt+1] = tmp_src;
+        sSrc[cnt] = sSrc[cnt + 1];
+        sSrc[cnt + 1] = tmp_src;
     }
 }

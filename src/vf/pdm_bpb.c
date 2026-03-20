@@ -1,9 +1,9 @@
 #include <private/vf/pdm_bpb.h>
 
-static void VFipdm_bpb_calculate_common_bpb_fields(struct PDM_BPB * p_bpb /* r3 */) {
+static void VFipdm_bpb_calculate_common_bpb_fields(struct PDM_BPB* p_bpb /* r3 */) {
     // Local variables
-    unsigned long num_data_sectors; // r30
-    unsigned short val; // r31
+    unsigned long num_data_sectors;  // r30
+    unsigned short val;              // r31
 
     p_bpb->log2_bytes_per_sector = 0;
     val = p_bpb->bytes_per_sector;
@@ -18,7 +18,7 @@ static void VFipdm_bpb_calculate_common_bpb_fields(struct PDM_BPB * p_bpb /* r3 
         p_bpb->log2_sectors_per_cluster++;
     }
 
-    p_bpb->num_root_dir_sectors = ((p_bpb->num_root_dir_entries * 32) + (p_bpb->bytes_per_sector-1)) >> p_bpb->log2_bytes_per_sector;
+    p_bpb->num_root_dir_sectors = ((p_bpb->bytes_per_sector - 1) + (p_bpb->num_root_dir_entries * 32)) >> p_bpb->log2_bytes_per_sector;
     p_bpb->first_data_sector = (p_bpb->num_FATs * p_bpb->sectors_per_FAT) + (p_bpb->num_root_dir_sectors + p_bpb->num_reserved_sectors);
     num_data_sectors = p_bpb->total_sectors - p_bpb->first_data_sector;
     p_bpb->num_clusters = num_data_sectors >> p_bpb->log2_sectors_per_cluster;
@@ -35,7 +35,7 @@ static void VFipdm_bpb_calculate_common_bpb_fields(struct PDM_BPB * p_bpb /* r3 
 }
 
 // Range: 0x803C1308 -> 0x803C13B8
-static void VFipdm_bpb_calculate_specific_bpb_fields(struct PDM_BPB * p_bpb /* r3 */) {
+static void VFipdm_bpb_calculate_specific_bpb_fields(struct PDM_BPB* p_bpb /* r3 */) {
     switch (p_bpb->fat_type) {
         case PDM_FAT_12:
         case PDM_FAT_16: {
@@ -62,9 +62,9 @@ static void VFipdm_bpb_calculate_specific_bpb_fields(struct PDM_BPB * p_bpb /* r
 }
 
 // Range: 0x803C13B8 -> 0x803C140C
-long VFipdm_bpb_load_string(const unsigned char * buf /* r3 */, unsigned long length /* r4 */, unsigned char * p_string /* r5 */) {
+long VFipdm_bpb_load_string(const unsigned char* buf /* r3 */, unsigned long length /* r4 */, unsigned char* p_string /* r5 */) {
     // Local variables
-    unsigned long i; // r31
+    unsigned long i;  // r31
 
     if (buf == PF_NULL || p_string == PF_NULL || length == 0) {
         return 1;
@@ -78,9 +78,9 @@ long VFipdm_bpb_load_string(const unsigned char * buf /* r3 */, unsigned long le
 }
 
 // Range: 0x803C140C -> 0x803C1824
-long VFipdm_bpb_get_bpb_information(unsigned char * buf /* r30 */, struct PDM_BPB * p_bpb /* r31 */) {
+long VFipdm_bpb_get_bpb_information(unsigned char* buf /* r30 */, struct PDM_BPB* p_bpb /* r31 */) {
     // Local variables
-    long err; // r29
+    long err;  // r29
 
     if ((buf == PF_NULL) || (p_bpb == PF_NULL)) {
         return 1;
@@ -165,25 +165,25 @@ long VFipdm_bpb_get_bpb_information(unsigned char * buf /* r30 */, struct PDM_BP
 }
 
 // Range: 0x803C1824 -> 0x803C189C
-long VFipdm_bpb_get_fsinfo_information(unsigned char * buf /* r3 */, struct PDM_FSINFO * p_fsinfo /* r4 */) {
-
+long VFipdm_bpb_get_fsinfo_information(unsigned char* buf /* r3 */, struct PDM_FSINFO* p_fsinfo /* r4 */) {
 }
 
 // Range: 0x803C189C -> 0x803C1994
-long VFipdm_bpb_set_fsinfo_information(struct PDM_FSINFO * p_fsinfo /* r3 */, unsigned char * buf /* r4 */) {}
+long VFipdm_bpb_set_fsinfo_information(struct PDM_FSINFO* p_fsinfo /* r3 */, unsigned char* buf /* r4 */) {
+}
 
 // Range: 0x803C1994 -> 0x803C1B58
-long VFipdm_bpb_check_boot_sector(unsigned char * buf /* r3 */, unsigned long * is_boot /* r4 */) {
+long VFipdm_bpb_check_boot_sector(unsigned char* buf /* r3 */, unsigned long* is_boot /* r4 */) {
     // Local variables
-    unsigned short byte_per_sector; // r29
-    unsigned short sector_per_cluster; // r30
-    unsigned char media; // r31
+    unsigned short byte_per_sector;     // r29
+    unsigned short sector_per_cluster;  // r30
+    unsigned char media;                // r31
 }
 
 // Range: 0x803C1B58 -> 0x803C1C48
-long VFipdm_bpb_check_fsinfo_sector(unsigned char * buf /* r3 */, unsigned long * is_fsinfo /* r4 */) {
+long VFipdm_bpb_check_fsinfo_sector(unsigned char* buf /* r3 */, unsigned long* is_fsinfo /* r4 */) {
     // Local variables
-    unsigned long lead_sig; // r31
-    unsigned long struct_sig; // r30
-    unsigned long trail_sig; // r29
+    unsigned long lead_sig;    // r31
+    unsigned long struct_sig;  // r30
+    unsigned long trail_sig;   // r29
 }

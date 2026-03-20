@@ -1,5 +1,6 @@
 #include <private/vf/pf_types.h>
 
+// clang-format off
 const pf_u8 VFipf_valid_fn_char[96] = {
     1, 3, 0, 3, 3, 3, 3, 3, 3, 3, 0, 1, 1, 3, 3, 0,
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1, 0, 1, 0, 0,
@@ -7,7 +8,8 @@ const pf_u8 VFipf_valid_fn_char[96] = {
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 0, 1, 3, 3,
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 0,
-}; 
+};
+// clang-format on
 
 pf_s32 VFiPFCODE_Combine_Width(pf_s16 oem_width, pf_s16 uni_width) {
     return (oem_width << 16) + uni_width;

@@ -41,3 +41,4 @@ compile_commands.json
 *.7z
 *.sh
 *.bat
+*.lnk

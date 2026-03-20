@@ -17,4 +17,4 @@ extern void __init_user();
 }
 #endif
 
-#endif // PPC_EABI_INIT_H
+#endif  // PPC_EABI_INIT_H

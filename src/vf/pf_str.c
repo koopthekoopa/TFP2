@@ -1,7 +1,8 @@
 #include <private/vf/pf_types.h>
 
-#include <private/vf/pf_volume.h>
 #include <private/vf/pf_clib.h>
+#include <private/vf/pf_volume.h>
+#include <private/vf/pf_w_clib.h>
 
 #include <private/vf/pf_str.h>
 
@@ -16,8 +17,7 @@ pf_u32 VFiPFSTR_GetCodeMode(struct PF_STR* p_str) {
 void VFiPFSTR_SetLocalStr(struct PF_STR* p_str, pf_s8* p_local) {
     if (VFiPFSTR_GetCodeMode(p_str) == 1 || p_local == PF_NULL) {
         p_str->p_local = p_str->p_head;
-    }
-    else {
+    } else {
         p_str->p_local = p_local;
     }
 }
@@ -26,11 +26,9 @@ pf_s8* VFiPFSTR_GetStrPos(struct PF_STR* p_str, pf_u32 target) {
     pf_s8* p_pos;
     if (target == 1) {
         p_pos = (pf_s8*)p_str->p_head;
-    }
-    else if (target == 2) {
+    } else if (target == 2) {
         p_pos = (pf_s8*)p_str->p_tail;
-    }
-    else {
+    } else {
         p_pos = (pf_s8*)p_str->p_local;
     }
     return p_pos;
@@ -52,8 +50,7 @@ void VFiPFSTR_MoveStrPos(struct PF_STR* p_str, pf_s16 num_char) {
             offset++;
             num_char--;
         }
-    }
-    else {
+    } else {
         wp = (pf_u16*)p_str->p_head;
 
         for (cnt = 0; cnt < num_char; cnt++) {
@@ -74,12 +71,10 @@ pf_s32 VFiPFSTR_InitStr(struct PF_STR* p_str, const pf_s8* s, pf_u32 code_mode) 
     if (code_mode == 1) {
         p_str->p_head = s;
         p_str->p_tail = &s[VFipf_strlen(s)];
-    }
-    else if (code_mode == 2) {
+    } else if (code_mode == 2) {
         p_str->p_head = s;
         p_str->p_tail = s + (VFipf_w_strlen(s) * 2);
-    }
-    else {
+    } else {
         return 10;
     }
 
@@ -98,8 +93,7 @@ pf_u16 VFiPFSTR_StrNumChar(struct PF_STR* p_str, pf_u32 target) {
 
     if (target == 1) {
         p = (pf_s8*)p_str->p_head;
-    }
-    else {
+    } else {
         p = (pf_s8*)p_str->p_tail;
     }
 
@@ -110,8 +104,7 @@ pf_u16 VFiPFSTR_StrNumChar(struct PF_STR* p_str, pf_u32 target) {
             }
             p++;
         }
-    }
-    else {
+    } else {
         for (cnt = 0; (pf_s8)p[0] != 0 || (pf_s8)p[1] != 0; cnt++) {
             width = VFipf_vol_set.codeset.unicode_char_width((pf_u16*)p);
             p += width;
@@ -132,8 +125,7 @@ pf_s32 VFiPFSTR_StrCmp(const struct PF_STR* p_str, const pf_s8* s) {
         p1 = p_str->p_head;
         p2 = s;
         ret = VFipf_strcmp(p1, p2);
-    }
-    else {
+    } else {
         wp = (pf_u16*)p_str->p_head;
 
         do {
@@ -143,7 +135,7 @@ pf_s32 VFiPFSTR_StrCmp(const struct PF_STR* p_str, const pf_s8* s) {
             if (*wp++ != wc) {
                 break;
             }
-        } while (*(wp-1) != 0 && wc != 0);
+        } while (*(wp - 1) != 0 && wc != 0);
 
         wp--;
         ret = *wp - wc;
@@ -162,21 +154,17 @@ pf_s32 VFiPFSTR_StrNCmp(struct PF_STR* p_str, const pf_s8* s, pf_u32 target, pf_
     if (p_str->code_mode == 1 || target == 3) {
         if (target == 1) {
             p1 = &p_str->p_head[offset];
-        }
-        else if (target == 2) {
+        } else if (target == 2) {
             p1 = &p_str->p_tail[offset];
-        }
-        else {
+        } else {
             p1 = &p_str->p_local[offset];
         }
         p2 = s;
         ret = VFipf_strncmp(p1, p2, num);
-    }
-    else {
+    } else {
         if (target == 1) {
             wp = (pf_u16*)p_str->p_head + offset;
-        }
-        else {
+        } else {
             wp = (pf_u16*)p_str->p_tail + offset;
         }
 
@@ -188,7 +176,7 @@ pf_s32 VFiPFSTR_StrNCmp(struct PF_STR* p_str, const pf_s8* s, pf_u32 target, pf_
             if (*wp++ != wc || num == 0) {
                 break;
             }
-        } while (*(wp-1) != 0 && wc != 0);
+        } while (*(wp - 1) != 0 && wc != 0);
 
         wp--;
         ret = *wp - wc;
@@ -208,14 +196,13 @@ void VFiPFSTR_ToUpperNStr(struct PF_STR* p_str, pf_u16 num, pf_s8* dest) {
         for (; num != 0 && *p != 0; p++, num--) {
             *dest++ = VFipf_toupper(*p);
         }
-    }
-    else {
+    } else {
         wp = (pf_u16*)p_str->p_head;
 
         for (; num != 0 && *wp != 0; wp++, num--) {
             wc = (*wp >= 'a' && *wp <= 'z') ? *wp + ('A' - 'a') : *wp;
             *(dest) = (pf_u8)wc;
-            *(dest+1) = (pf_u8)(wc >> 8);
+            *(dest + 1) = (pf_u8)(wc >> 8);
             dest += 2;
         }
         *dest = 0;
