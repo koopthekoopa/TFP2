@@ -1,9 +1,10 @@
 #include <private/vf/pdm_bpb.h>
 
-static void VFipdm_bpb_calculate_common_bpb_fields(struct PDM_BPB* p_bpb /* r3 */) {
+// DEBUG NON MATCHING
+static void VFipdm_bpb_calculate_common_bpb_fields(PDM_BPB* p_bpb /* r3 */) {
     // Local variables
-    unsigned long num_data_sectors;  // r30
-    unsigned short val;              // r31
+    pf_u32 num_data_sectors;  // r30
+    pf_u16 val;               // r31
 
     p_bpb->log2_bytes_per_sector = 0;
     val = p_bpb->bytes_per_sector;
@@ -34,8 +35,7 @@ static void VFipdm_bpb_calculate_common_bpb_fields(struct PDM_BPB* p_bpb /* r3 *
     p_bpb->fat_type = PDM_FAT_32;
 }
 
-// Range: 0x803C1308 -> 0x803C13B8
-static void VFipdm_bpb_calculate_specific_bpb_fields(struct PDM_BPB* p_bpb /* r3 */) {
+static void VFipdm_bpb_calculate_specific_bpb_fields(PDM_BPB* p_bpb) {
     switch (p_bpb->fat_type) {
         case PDM_FAT_12:
         case PDM_FAT_16: {
@@ -61,10 +61,10 @@ static void VFipdm_bpb_calculate_specific_bpb_fields(struct PDM_BPB* p_bpb /* r3
     }
 }
 
-// Range: 0x803C13B8 -> 0x803C140C
-long VFipdm_bpb_load_string(const unsigned char* buf /* r3 */, unsigned long length /* r4 */, unsigned char* p_string /* r5 */) {
+// DEBUG NON MATCHING
+long VFipdm_bpb_load_string(const pf_u8* buf /* r3 */, pf_u32 length /* r4 */, pf_u8* p_string /* r5 */) {
     // Local variables
-    unsigned long i;  // r31
+    pf_u32 i;  // r31
 
     if (buf == PF_NULL || p_string == PF_NULL || length == 0) {
         return 1;
@@ -77,8 +77,8 @@ long VFipdm_bpb_load_string(const unsigned char* buf /* r3 */, unsigned long len
     return 0;
 }
 
-// Range: 0x803C140C -> 0x803C1824
-long VFipdm_bpb_get_bpb_information(unsigned char* buf /* r30 */, struct PDM_BPB* p_bpb /* r31 */) {
+// DEBUG NON MATCHING
+long VFipdm_bpb_get_bpb_information(pf_u8* buf /* r30 */, struct PDM_BPB* p_bpb /* r31 */) {
     // Local variables
     long err;  // r29
 
@@ -88,23 +88,23 @@ long VFipdm_bpb_get_bpb_information(unsigned char* buf /* r30 */, struct PDM_BPB
     err = 0;
     VFipdm_bpb_load_string(buf, 3U, p_bpb->jump_boot);
     VFipdm_bpb_load_string(buf + 3, 8U, p_bpb->oem_name);
-    p_bpb->bytes_per_sector = (pf_u16)buf[11] | ((pf_u16)buf[12] << 8);
-    p_bpb->sectors_per_cluster = buf[13];
-    p_bpb->num_reserved_sectors = buf[14] | ((pf_u16)buf[15] << 8);
-    p_bpb->num_FATs = buf[16];
-    p_bpb->num_root_dir_entries = buf[17] | ((pf_u16)buf[18] << 8);
-    p_bpb->total_sectors16 = buf[19] | ((pf_u16)buf[20] << 8);
-    p_bpb->media = buf[21];
-    p_bpb->sectors_per_FAT16 = buf[22] | ((pf_u16)buf[23] << 8);
-    p_bpb->sector_per_track = buf[24] | ((pf_u16)buf[25] << 8);
-    p_bpb->num_heads = buf[26] | ((pf_u16)buf[27] << 8);
-    p_bpb->num_hidden_sectors = (buf[31] << 0x18) | ((buf[30] << 0x10) | (buf[28] | (buf[29] << 8)));
-    p_bpb->total_sectors32 = (buf[35] << 0x18) | ((buf[34] << 0x10) | (buf[32] | (buf[33] << 8)));
+    p_bpb->bytes_per_sector = (pf_u16)buf[0x0B] | ((pf_u16)buf[0x0C] << 8);
+    p_bpb->sectors_per_cluster = buf[0x0D];
+    p_bpb->num_reserved_sectors = buf[0x0E] | ((pf_u16)buf[0x0F] << 8);
+    p_bpb->num_FATs = buf[0x10];
+    p_bpb->num_root_dir_entries = buf[0x11] | ((pf_u16)buf[0x12] << 8);
+    p_bpb->total_sectors16 = buf[0x13] | ((pf_u16)buf[0x14] << 8);
+    p_bpb->media = buf[0x15];
+    p_bpb->sectors_per_FAT16 = buf[0x16] | ((pf_u16)buf[0x17] << 8);
+    p_bpb->sector_per_track = buf[0x18] | ((pf_u16)buf[0x19] << 8);
+    p_bpb->num_heads = buf[0x1A] | ((pf_u16)buf[0x1B] << 8);
+    p_bpb->num_hidden_sectors = (buf[0x1F] << 0x18) | ((buf[0x1E] << 0x10) | (buf[0x1C] | (buf[0x1D] << 8)));
+    p_bpb->total_sectors32 = (buf[0x23] << 0x18) | ((buf[0x22] << 0x10) | (buf[0x20] | (buf[0x21] << 8)));
 
     p_bpb->total_sectors = p_bpb->total_sectors16 == 0 ? p_bpb->total_sectors32 : p_bpb->total_sectors16;
 
     if (p_bpb->sectors_per_FAT16 == 0) {
-        p_bpb->sectors_per_FAT32 = (buf[39] << 0x18) | ((buf[38] << 0x10) | (buf[36] | (buf[37] << 8)));
+        p_bpb->sectors_per_FAT32 = (buf[0x27] << 0x18) | ((buf[0x26] << 0x10) | (buf[0x24] | (buf[0x25] << 8)));
         p_bpb->sectors_per_FAT = p_bpb->sectors_per_FAT32;
     } else {
         p_bpb->sectors_per_FAT32 = 0;
@@ -137,11 +137,11 @@ long VFipdm_bpb_get_bpb_information(unsigned char* buf /* r30 */, struct PDM_BPB
             if (p_bpb->total_sectors16 != 0 || p_bpb->sectors_per_FAT16 != 0) {
                 err = 4;
             }
-            p_bpb->ext_flags = (buf[40] | ((pf_u16)buf[41] << 8));
+            p_bpb->ext_flags = (buf[0x28] | ((pf_u16)buf[0x29] << 8));
             p_bpb->fs_version = (buf[0x2A] | ((pf_u16)buf[0x2B] << 8));
-            p_bpb->root_dir_cluster = (buf[47] << 24) | ((buf[46] << 16) | (buf[44] | (buf[45] << 8)));
-            p_bpb->fs_info_sector = (buf[48] | ((pf_u16)buf[49] << 8));
-            p_bpb->backup_boot_sector = (buf[50] | ((pf_u16)buf[51] << 8));
+            p_bpb->root_dir_cluster = (buf[0x2F] << 24) | ((buf[0x2E] << 16) | (buf[0x2C] | (buf[0x2D] << 8)));
+            p_bpb->fs_info_sector = (buf[0x30] | ((pf_u16)buf[0x31] << 8));
+            p_bpb->backup_boot_sector = (buf[0x32] | ((pf_u16)buf[0x33] << 8));
             p_bpb->drive = buf[0x40];
             p_bpb->boot_sig = buf[0x42];
             p_bpb->vol_id = ((buf[0x46] << 0x18) | ((buf[0x45] << 0x10) | (buf[0x43] | (buf[0x44] << 8))));
@@ -164,26 +164,93 @@ long VFipdm_bpb_get_bpb_information(unsigned char* buf /* r30 */, struct PDM_BPB
     return err;
 }
 
-// Range: 0x803C1824 -> 0x803C189C
-long VFipdm_bpb_get_fsinfo_information(unsigned char* buf /* r3 */, struct PDM_FSINFO* p_fsinfo /* r4 */) {
+long VFipdm_bpb_get_fsinfo_information(pf_u8* buf, PDM_FSINFO* p_fsinfo) {
+    if (buf == PF_NULL || p_fsinfo == PF_NULL) {
+        return 1;
+    }
+    p_fsinfo->free_count = (buf[0x1EB] << 0x18) | ((buf[0x1EA] << 0x10) | (buf[0x1E8] | (buf[0x1E9] << 8)));
+    p_fsinfo->next_free = (buf[0x1EF] << 0x18) | ((buf[0x1EE] << 0x10) | (buf[0x1EC] | (buf[0x1ED] << 8)));
+    return 0;
 }
 
-// Range: 0x803C189C -> 0x803C1994
-long VFipdm_bpb_set_fsinfo_information(struct PDM_FSINFO* p_fsinfo /* r3 */, unsigned char* buf /* r4 */) {
+long VFipdm_bpb_set_fsinfo_information(PDM_FSINFO* p_fsinfo, pf_u8* buf) {
+    if (buf == PF_NULL || p_fsinfo == PF_NULL) {
+        return 1;
+    }
+
+    buf[0x00] = 0x52;
+    buf[0x01] = 0x52;
+    buf[0x02] = 0x61;
+    buf[0x03] = 0x41;
+    buf[0x1E4] = 0x72;
+    buf[0x1E5] = 0x72;
+    buf[0x1E6] = 0x41;
+    buf[0x1E7] = 0x61;
+    buf[0x1E8] = p_fsinfo->free_count;
+    buf[0x1E9] = p_fsinfo->free_count >> 8;
+    buf[0x1EA] = p_fsinfo->free_count >> 0x10;
+    buf[0x1EB] = p_fsinfo->free_count >> 0x18;
+    buf[0x1EC] = p_fsinfo->next_free;
+    buf[0x1ED] = p_fsinfo->next_free >> 8;
+    buf[0x1EE] = p_fsinfo->next_free >> 0x10;
+    buf[0x1EF] = p_fsinfo->next_free >> 0x18;
+    buf[0x1FC] = 0;
+    buf[0x1FD] = 0;
+    buf[0x1FE] = 0x55;
+    buf[0x1FF] = 0xAA;
+
+    return 0;
 }
 
-// Range: 0x803C1994 -> 0x803C1B58
-long VFipdm_bpb_check_boot_sector(unsigned char* buf /* r3 */, unsigned long* is_boot /* r4 */) {
+long VFipdm_bpb_check_boot_sector(pf_u8* buf, pf_u32* is_boot) {
+    pf_u16 byte_per_sector;
+    pf_u16 sector_per_cluster;
+    pf_u8 media;
+
+    if ((buf == PF_NULL) || (is_boot == PF_NULL)) {
+        return 1;
+    }
+    *is_boot = 1;
+    if (((buf[0x00] != 0xEB) || (buf[0x2] != 0x90)) && (buf[0x0] != 0xE9)) {
+        *is_boot = 0;
+    }
+    if ((buf[0x1FE] != 0x55) || (buf[0x1FF] != 0xAA)) {
+        *is_boot = 0;
+    }
+    byte_per_sector = buf[0xB] | ((pf_u16)buf[0xC] << 8);
+    if ((byte_per_sector != 0x200) && (byte_per_sector != 0x400) && (byte_per_sector != 0x800) && (byte_per_sector != 0x1000)) {
+        *is_boot = 0;
+    }
+    sector_per_cluster = buf[0xD];
+    if ((sector_per_cluster != 1) && (sector_per_cluster != 2) && (sector_per_cluster != 4) && (sector_per_cluster != 8) &&
+        (sector_per_cluster != 0x10) && (sector_per_cluster != 0x20) && (sector_per_cluster != 0x40) && (sector_per_cluster != 0x80)) {
+        *is_boot = 0;
+    }
+    media = buf[0x15];
+    if ((media != 0xF0) && (media != 0xF8) && (media != 0xF9) && (media != 0xFA) && (media != 0xFB) && (media != 0xFC) && (media != 0xFD) &&
+        (media != 0xFE) && (media != 0xFF)) {
+        *is_boot = 0;
+    }
+    return 0;
+}
+
+// DEBUG NON MATCHING
+long VFipdm_bpb_check_fsinfo_sector(pf_u8* buf /* r3 */, pf_u32* is_fsinfo /* r4 */) {
     // Local variables
-    unsigned short byte_per_sector;     // r29
-    unsigned short sector_per_cluster;  // r30
-    unsigned char media;                // r31
-}
+    pf_u32 lead_sig;    // r31
+    pf_u32 struct_sig;  // r30
+    pf_u32 trail_sig;   // r29
 
-// Range: 0x803C1B58 -> 0x803C1C48
-long VFipdm_bpb_check_fsinfo_sector(unsigned char* buf /* r3 */, unsigned long* is_fsinfo /* r4 */) {
-    // Local variables
-    unsigned long lead_sig;    // r31
-    unsigned long struct_sig;  // r30
-    unsigned long trail_sig;   // r29
+    if ((buf == PF_NULL) || (is_fsinfo == PF_NULL)) {
+        return 1;
+    }
+    lead_sig = (buf[0x3] << 0x18) | ((buf[0x2] << 0x10) | (buf[0x00] | (buf[0x1] << 8)));
+    struct_sig = (buf[0x1E7] << 0x18) | ((buf[0x1E6] << 0x10) | (buf[0x1E4] | (buf[0x1E5] << 8)));
+    trail_sig = (buf[0x1FF] << 0x18) | ((buf[0x1FE] << 0x10) | (buf[0x1FC] | (buf[0x1FD] << 8)));
+    if (((lead_sig + 0xBE9F0000) == 0x5252) && ((struct_sig + 0x9EBF0000) == 0x7272) && ((trail_sig + 0x55AB0000) == 0)) {
+        *is_fsinfo = 1;
+    } else {
+        *is_fsinfo = 0;
+    }
+    return 0;
 }

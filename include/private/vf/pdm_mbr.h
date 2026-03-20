@@ -1,26 +1,26 @@
 #ifndef VF_PDM_MBR_H
 #define VF_PDM_MBR_H
 
-#include <private/vf/pf_types.h>
+#include <private/vf/pdm_struct.h>
 
-struct PDM_MBR {
+typedef struct PDM_MBR {
     // total size: 0x58
-    unsigned long current_sector;            // offset 0x0, size 0x4
-    unsigned long epbr_base_sector;          // offset 0x4, size 0x4
-    struct PDM_PART_TBL partition_table[4];  // offset 0x8, size 0x50
-};
+    pf_u32 current_sector;            // offset 0x0, size 0x4
+    pf_u32 epbr_base_sector;          // offset 0x4, size 0x4
+    PDM_PART_TBL partition_table[4];  // offset 0x8, size 0x50
+} PDM_MBR;
 
-struct PDM_MBR_SEC {
+typedef struct PDM_MBR_SEC {
     // total size: 0x200
-    unsigned char bootprg[446];       // offset 0x0, size 0x1BE
-    unsigned char partition_tbl[64];  // offset 0x1BE, size 0x40
-    unsigned char signature1;         // offset 0x1FE, size 0x1
-    unsigned char signature2;         // offset 0x1FF, size 0x1
-};
+    pf_u8 bootprg[446];       // offset 0x0, size 0x1BE
+    pf_u8 partition_tbl[64];  // offset 0x1BE, size 0x40
+    pf_u8 signature1;         // offset 0x1FE, size 0x1
+    pf_u8 signature2;         // offset 0x1FF, size 0x1
+} PDM_MBR_SEC;
 
-long VFipdm_mbr_get_table(unsigned char* buf /* r3 */, unsigned long sector /* r4 */, struct PDM_MBR* p_mbr_tbl /* r5 */);
-long VFipdm_mbr_get_mbr_part_table(struct PDM_DISK* p_disk /* r30 */, struct PDM_MBR* p_mbr_tbl /* r29 */);
-long VFipdm_mbr_get_epbr_part_table(struct PDM_DISK* p_disk /* r27 */, struct PDM_MBR* p_mbr_tbl /* r30 */);
-long VFipdm_mbr_check_master_boot_record(struct PDM_DISK* p_disk /* r25 */, unsigned char* buf /* r26 */, unsigned long* is_master_boot /* r31 */);
+pf_s32 VFipdm_mbr_get_table(pf_u8* buf, pf_u32 sector, PDM_MBR* p_mbr_tbl);
+pf_s32 VFipdm_mbr_get_mbr_part_table(PDM_DISK* p_disk, PDM_MBR* p_mbr_tbl);
+pf_s32 VFipdm_mbr_get_epbr_part_table(PDM_DISK* p_disk, PDM_MBR* p_mbr_tbl);
+pf_s32 VFipdm_mbr_check_master_boot_record(PDM_DISK* p_disk, pf_u8* buf, pf_u32* is_master_boot);
 
 #endif  // VF_PDM_MBR_H

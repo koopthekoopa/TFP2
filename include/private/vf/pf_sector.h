@@ -4,15 +4,9 @@
 #include <private/vf/pf_str.h>
 #include <private/vf/pf_types.h>
 
-long VFiPFSEC_ReadFAT(struct PF_VOLUME* p_vol /* r31 */, unsigned char* p_buf /* r29 */, unsigned long sector /* r1+0x8 */,
-                      unsigned short offset /* r1+0xC */, unsigned short size /* r1+0xE */);
-long VFiPFSEC_ReadData(struct PF_VOLUME* p_vol /* r31 */, unsigned char* p_buf /* r24 */, unsigned long sector /* r26 */,
-                       unsigned short offset /* r23 */, unsigned long size /* r28 */, unsigned long* p_success_size /* r30 */,
-                       unsigned long set_sig /* r22 */);
-long VFiPFSEC_WriteFAT(struct PF_VOLUME* p_vol /* r30 */, const unsigned char* p_buf /* r29 */, unsigned long sector /* r1+0x8 */,
-                       unsigned short offset /* r1+0xC */, unsigned short size /* r1+0xE */);
-long VFiPFSEC_WriteData(struct PF_VOLUME* p_vol /* r31 */, const unsigned char* p_buf /* r24 */, unsigned long sector /* r25 */,
-                        unsigned short offset /* r22 */, unsigned long size /* r26 */, unsigned long* p_success_size /* r29 */,
-                        unsigned long set_sig /* r23 */);
+pf_s32 VFiPFSEC_ReadFAT(PF_VOLUME* p_vol, pf_u8* p_buf, pf_u32 sector, pf_u16 offset);
+pf_s32 VFiPFSEC_ReadData(PF_VOLUME* p_vol, pf_u8* p_buf, pf_u32 sector, pf_u16 offset, pf_u32 size, pf_u32* p_success_size, pf_u32 set_sig);
+pf_s32 VFiPFSEC_WriteFAT(PF_VOLUME* p_vol, const pf_u8* p_buf, pf_u32 sector, pf_u16 offset);
+pf_s32 VFiPFSEC_WriteData(PF_VOLUME* p_vol, const pf_u8* p_buf, pf_u32 sector, pf_u16 offset, pf_u32 size, pf_u32* p_success_size, pf_u32 set_sig);
 
 #endif  // VF_PF_SECTOR_H

@@ -1,32 +1,53 @@
 #ifndef VF_PF_ENTRY_H
 #define VF_PF_ENTRY_H
 
-#include <private/vf/pf_entry_iterator.h>
+#include <private/vf/pf_fat.h>
 #include <private/vf/pf_types.h>
 
-void VFiPFENT_SetDotEntry(unsigned char* entry /* r3 */);
-void VFiPFENT_SetDotDotEntry(unsigned char* entry /* r3 */);
-unsigned char VFiPFENT_CalcCheckSum(struct PF_DIR_ENT* p_ent /* r1+0x8 */);
-void VFiPFENT_LoadShortNameFromBuf(struct PF_DIR_ENT* p_ent /* r31 */, const unsigned char* buf /* r30 */);
-void VFiPFENT_loadEntryNumericFieldsFromBuf(struct PF_DIR_ENT* p_ent /* r3 */, const unsigned char* buf /* r4 */);
-void VFiPFENT_StoreEntryNumericFieldsToBuf(unsigned char* buf /* r3 */, const struct PF_DIR_ENT* p_ent /* r4 */);
-long VFiPFENT_LoadLFNEntryFieldsFromBuf(struct PF_DIR_ENT* p_ent /* r31 */, const unsigned char* buf /* r27 */);
-void VFiPFENT_storeLFNEntryFieldsToBuf(unsigned char* buf /* r31 */, struct PF_DIR_ENT* p_ent /* r1+0x8 */, unsigned char ord /* r27 */,
-                                       unsigned char sum /* r1+0xC */, unsigned long is_last /* r26 */);
-long VFiPFENT_findEntryPos(struct PF_FFD* p_ffd /* r27 */, struct PF_DIR_ENT* p_ent /* r29 */, unsigned long index_search_from /* r1+0x8 */,
-                           struct PF_STR* p_pattern /* r26 */, unsigned char attr_required /* r23 */, unsigned char attr_unwanted /* r24 */,
-                           unsigned long* p_lpos /* r30 */, unsigned long* p_ppos /* r31 */);
-long VFiPFENT_findEntry(struct PF_FFD* p_ffd /* r1+0x8 */, struct PF_DIR_ENT* p_ent /* r1+0xC */, unsigned long index_search_from /* r1+0x10 */,
-                        struct PF_STR* p_pattern /* r1+0x14 */, unsigned char attr_required /* r1+0x18 */, unsigned char attr_unwanted /* r1+0x19 */);
-long VFiPFENT_allocateEntryPos(struct PF_DIR_ENT* p_ent /* r27 */, unsigned char num_entries /* r24 */, struct PF_FFD* p_ffd /* r31 */,
-                               unsigned long* p_next_chain /* r28 */, struct PF_STR* p_filename /* r22 */, unsigned long* p_pos /* r23 */);
-long VFiPFENT_allocateEntry(struct PF_DIR_ENT* p_ent /* r1+0x8 */, unsigned char num_entries /* r1+0xC */, struct PF_FFD* p_ffd /* r1+0x10 */,
-                            unsigned long* p_next_chain /* r1+0x14 */, struct PF_STR* p_filename /* r1+0x18 */);
-long VFiPFENT_GetRootDir(struct PF_VOLUME* p_vol /* r3 */, struct PF_DIR_ENT* p_ent /* r4 */);
-long VFiPFENT_MakeRootDir(struct PF_VOLUME* p_vol /* r31 */);
-long VFiPFENT_updateEntry(struct PF_DIR_ENT* p_ent /* r31 */, unsigned long flag /* r1+0x8 */);
-long VFiPFENT_AdjustSFN(struct PF_DIR_ENT* p_ent /* r1+0x8 */, signed char* p_short_name /* r30 */);
-long VFiPFENT_RemoveEntry(struct PF_DIR_ENT* p_ent /* r31 */, struct PF_ENT_ITER* p_iter /* r28 */);
-unsigned char VFiPFENT_getcurrentDateTimeForEnt(unsigned short* p_date /* r30 */, unsigned short* p_time /* r31 */);
+typedef struct PF_ENT_ITER PF_ENT_ITER;
+
+typedef struct PF_DIR_ENT {
+    // total size: 0x240
+    pf_u16 long_name[261];    // offset 0x0, size 0x20A
+    pf_u8 num_entry_LFNs;     // offset 0x20A, size 0x1
+    pf_u8 ordinal;            // offset 0x20B, size 0x1
+    pf_u8 check_sum;          // offset 0x20C, size 0x1
+    pf_u8 align_pad[1];       // offset 0x20D, size 0x1
+    pf_s8 short_name[13];     // offset 0x20E, size 0xD
+    pf_u8 small_letter_flag;  // offset 0x21B, size 0x1
+    pf_u8 attr;               // offset 0x21C, size 0x1
+    pf_u8 create_time_ms;     // offset 0x21D, size 0x1
+    pf_u16 create_time;       // offset 0x21E, size 0x2
+    pf_u16 create_date;       // offset 0x220, size 0x2
+    pf_u16 access_date;       // offset 0x222, size 0x2
+    pf_u16 modify_time;       // offset 0x224, size 0x2
+    pf_u16 modify_date;       // offset 0x226, size 0x2
+    pf_u32 file_size;         // offset 0x228, size 0x4
+    PF_VOLUME* p_vol;         // offset 0x22C, size 0x4
+    pf_u32 path_len;          // offset 0x230, size 0x4
+    pf_u32 start_cluster;     // offset 0x234, size 0x4
+    pf_u32 entry_sector;      // offset 0x238, size 0x4
+    pf_u16 entry_offset;      // offset 0x23C, size 0x2
+} PF_DIR_ENT;
+
+void VFiPFENT_SetDotEntry(pf_u8* entry);
+void VFiPFENT_SetDotDotEntry(pf_u8* entry);
+pf_u8 VFiPFENT_CalcCheckSum(PF_DIR_ENT* p_ent);
+void VFiPFENT_LoadShortNameFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf);
+void VFiPFENT_loadEntryNumericFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf);
+void VFiPFENT_StoreEntryNumericFieldsToBuf(pf_u8* buf, const PF_DIR_ENT* p_ent);
+pf_s32 VFiPFENT_LoadLFNEntryFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf);
+void VFiPFENT_storeLFNEntryFieldsToBuf(pf_u8* buf, PF_DIR_ENT* p_ent, pf_u8 ord, pf_u8 sum, pf_u32 is_last);
+pf_s32 VFiPFENT_findEntryPos(PF_FFD* p_ffd, PF_DIR_ENT* p_ent, pf_u32 index_search_from, PF_STR* p_pattern, pf_u8 attr_required, pf_u8 attr_unwanted,
+                             pf_u32* p_lpos, pf_u32* p_ppos);
+pf_s32 VFiPFENT_findEntry(PF_FFD* p_ffd, pf_u32 index_search_from, PF_STR* p_pattern);
+pf_s32 VFiPFENT_allocateEntryPos(PF_DIR_ENT* p_ent, pf_u8 num_entries, PF_FFD* p_ffd, pf_u32* p_next_chain, PF_STR* p_filename, pf_u32* p_pos);
+pf_s32 VFiPFENT_allocateEntry(PF_DIR_ENT* p_ent, PF_FFD* p_ffd, pf_u32* p_next_chain);
+pf_s32 VFiPFENT_GetRootDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent);
+pf_s32 VFiPFENT_MakeRootDir(PF_VOLUME* p_vol);
+pf_s32 VFiPFENT_updateEntry(PF_DIR_ENT* p_ent, pf_u32 flag);
+pf_s32 VFiPFENT_AdjustSFN(PF_DIR_ENT* p_ent, pf_s8* p_short_name);
+pf_s32 VFiPFENT_RemoveEntry(PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter);
+pf_u8 VFiPFENT_getcurrentDateTimeForEnt(pf_u16* p_date, pf_u16* p_time);
 
 #endif  // VF_PF_ENTRY_H

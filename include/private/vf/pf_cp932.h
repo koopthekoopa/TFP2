@@ -3,11 +3,11 @@
 
 #include <private/vf/pf_types.h>
 
-long VFiPFCODE_CP932_OEM2Unicode(const signed char* cp932_src /* r26 */, unsigned short* uc_dst /* r30 */);
-long VFiPFCODE_CP932_Unicode2OEM(const unsigned short* uc_src /* r26 */, signed char* cp932_dst /* r30 */);
-long VFiPFCODE_CP932_OEMCharWidth(const signed char* buf /* r1+0x8 */);
-unsigned long VFiPFCODE_CP932_isOEMMBchar(signed char cp932 /* r3 */, unsigned long num /* r4 */);
-long VFiPFCODE_CP932_UnicodeCharWidth(const unsigned short* buf /* r1+0x8 */);
-unsigned long VFiPFCODE_CP932_isUnicodeMBchar(unsigned short uc_src /* r3 */, unsigned long num /* r4 */);
+pf_s32 VFiPFCODE_CP932_OEM2Unicode(const pf_s8* cp932_src, pf_u16* uc_dst);
+pf_s32 VFiPFCODE_CP932_Unicode2OEM(const pf_u16* uc_src, pf_s8* cp932_dst);
+pf_s32 VFiPFCODE_CP932_OEMCharWidth(const pf_s8* buf);
+pf_u32 VFiPFCODE_CP932_isOEMMBchar(pf_s8 cp932, pf_u32 num);
+pf_s32 VFiPFCODE_CP932_UnicodeCharWidth(const pf_u16* buf);
+pf_u32 VFiPFCODE_CP932_isUnicodeMBchar(pf_u16 uc_src, pf_u32 num);
 
 #endif  // VF_PF_CP932_H

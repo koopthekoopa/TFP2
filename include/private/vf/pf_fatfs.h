@@ -3,6 +3,6 @@
 
 #include <private/vf/pf_types.h>
 
-long VFiPFFATFS_initializeFATFS(unsigned long config /* r1+0x8 */, void* param /* r1+0xC */);
+pf_s32 VFiPFFATFS_initializeFATFS(pf_u32 config);
 
 #endif  // VF_PF_FAT_FILESYSTEM_H

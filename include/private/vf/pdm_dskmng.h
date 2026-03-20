@@ -1,24 +1,67 @@
 #ifndef VF_PDM_DISK_MANAGER_H
 #define VF_PDM_DISK_MANAGER_H
 
-#include <private/vf/pf_types.h>
+#include <private/vf/pdm_struct.h>
 
-struct PDM_DISK_SET {
-    // total size: 0xB64
-    unsigned short num_partition;                      // offset 0x0, size 0x2
-    unsigned short num_allocated_disk;                 // offset 0x2, size 0x2
-    struct PDM_DISK_HANDLE disk_handle[26];            // offset 0x4, size 0xD0
-    struct PDM_PARTITION_HANDLE partition_handle[26];  // offset 0xD4, size 0xD0
-    struct PDM_DISK disk[26];                          // offset 0x1A4, size 0x548
-    struct PDM_PARTITION partition[26];                // offset 0x6EC, size 0x478
+typedef struct PDM_PARTITION PDM_PARTITION;
+
+struct PDM_PARTITION {
+    // total size: 0x2C
+    pf_u32 status;                    // offset 0x0, size 0x4
+    PDM_DISK* p_disk;                 // offset 0x4, size 0x4
+    pf_u32 signature;                 // offset 0x8, size 0x4
+    pf_u16 part_id;                   // offset 0xC, size 0x2
+    pf_u16 open_part_cnt;             // offset 0xE, size 0x2
+    PDM_PARTITION* part_lock_handle;  // offset 0x10, size 0x4
+    pf_u32 start_sector;              // offset 0x14, size 0x4
+    pf_u32 total_sector;              // offset 0x18, size 0x4
+    pf_u32 mbr_sector;                // offset 0x1C, size 0x4
+    pf_u8 partition_type;             // offset 0x20, size 0x1
+    pf_s32 driver_last_error;         // offset 0x24, size 0x4
+    void* p_vol;                      // offset 0x28, size 0x4
 };
 
-struct PDM_DISK_SET VFipdm_disk_set;  // size: 0xB64, address: 0x80889A98
-// Range: 0x803C4654 -> 0x803C46F0
-long VFipdm_init_diskmanager(unsigned long config /* r1+0x8 */, void* param /* r1+0xC */);
-long VFipdm_open_disk(struct PDM_INIT_DISK* p_init_disk_tbl /* r1+0x8 */, struct PDM_DISK** pp_disk /* r30 */);
-long VFipdm_close_disk(struct PDM_DISK* p_disk /* r30 */);
-long VFipdm_open_partition(struct PDM_DISK* p_disk /* r29 */, long part_id /* r1+0x8 */, struct PDM_PARTITION** pp_part /* r30 */);
-long VFipdm_close_partition(struct PDM_PARTITION* p_part /* r30 */);
+/*typedef*/ struct PDM_DISK {
+    // total size: 0x34
+    pf_u32 status;                   // offset 0x0, size 0x4
+    PDM_DISK_TBL disk_tbl;           // offset 0x4, size 0x8
+    pf_u32 signature;                // offset 0xC, size 0x4
+    pf_u16 open_disk_cnt;            // offset 0x10, size 0x2
+    pf_u16 disk_lock_cnt;            // offset 0x12, size 0x2
+    PDM_DISK* disk_lock_handle;      // offset 0x14, size 0x4
+    PDM_DISK_INFO disk_info;         // offset 0x18, size 0x14
+    PDM_INIT_DISK* p_init_disk_tbl;  // offset 0x2C, size 0x4
+    PDM_PARTITION* p_cur_part;       // offset 0x30, size 0x4
+} /*PDM_DISK*/;
+
+typedef struct PDM_DISK_HANDLE {
+    // total size: 0x8
+    pf_u32 signature;  // offset 0x0, size 0x4
+    PDM_DISK* handle;  // offset 0x4, size 0x4
+} PDM_DISK_HANDLE;
+
+typedef struct PDM_PARTITION_HANDLE {
+    // total size: 0x8
+    pf_u32 signature;       // offset 0x0, size 0x4
+    PDM_PARTITION* handle;  // offset 0x4, size 0x4
+} PDM_PARTITION_HANDLE;
+
+typedef struct PDM_DISK_SET {
+    // total size: 0xB64
+    pf_u16 num_partition;                       // offset 0x0, size 0x2
+    pf_u16 num_allocated_disk;                  // offset 0x2, size 0x2
+    PDM_DISK_HANDLE disk_handle[26];            // offset 0x4, size 0xD0
+    PDM_PARTITION_HANDLE partition_handle[26];  // offset 0xD4, size 0xD0
+    PDM_DISK disk[26];                          // offset 0x1A4, size 0x548
+    PDM_PARTITION partition[26];                // offset 0x6EC, size 0x478
+} PDM_DISK_SET;
+
+extern PDM_DISK_SET VFipdm_disk_set;
+
+pf_s32 VFipdm_init_diskmanager(pf_u32 config);
+pf_s32 VFipdm_open_disk(PDM_INIT_DISK* p_init_disk_tbl, PDM_DISK** pp_disk);
+pf_s32 VFipdm_close_disk(PDM_DISK* p_disk);
+pf_s32 VFipdm_open_partition(PDM_DISK* p_disk, pf_s32 part_id, PDM_PARTITION** pp_part);
+pf_s32 VFipdm_close_partition(PDM_PARTITION* p_part);
 
 #endif  // VF_PDM_DISK_MANAGER_H

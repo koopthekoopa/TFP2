@@ -6,15 +6,15 @@
 
 #include <private/vf/pf_str.h>
 
-void VFiPFSTR_SetCodeMode(struct PF_STR* p_str, pf_u32 code_mode) {
+void VFiPFSTR_SetCodeMode(PF_STR* p_str, pf_u32 code_mode) {
     p_str->code_mode = code_mode;
 }
 
-pf_u32 VFiPFSTR_GetCodeMode(struct PF_STR* p_str) {
+pf_u32 VFiPFSTR_GetCodeMode(PF_STR* p_str) {
     return p_str->code_mode;
 }
 
-void VFiPFSTR_SetLocalStr(struct PF_STR* p_str, pf_s8* p_local) {
+void VFiPFSTR_SetLocalStr(PF_STR* p_str, pf_s8* p_local) {
     if (VFiPFSTR_GetCodeMode(p_str) == 1 || p_local == PF_NULL) {
         p_str->p_local = p_str->p_head;
     } else {
@@ -22,7 +22,7 @@ void VFiPFSTR_SetLocalStr(struct PF_STR* p_str, pf_s8* p_local) {
     }
 }
 
-pf_s8* VFiPFSTR_GetStrPos(struct PF_STR* p_str, pf_u32 target) {
+pf_s8* VFiPFSTR_GetStrPos(PF_STR* p_str, pf_u32 target) {
     pf_s8* p_pos;
     if (target == 1) {
         p_pos = (pf_s8*)p_str->p_head;
@@ -34,7 +34,7 @@ pf_s8* VFiPFSTR_GetStrPos(struct PF_STR* p_str, pf_u32 target) {
     return p_pos;
 }
 
-void VFiPFSTR_MoveStrPos(struct PF_STR* p_str, pf_s16 num_char) {
+void VFiPFSTR_MoveStrPos(PF_STR* p_str, pf_s16 num_char) {
     pf_s16 cnt;
     pf_s16 offset = 0;
     pf_s32 width;
@@ -63,7 +63,7 @@ void VFiPFSTR_MoveStrPos(struct PF_STR* p_str, pf_s16 num_char) {
     p_str->p_head = &p_str->p_head[offset];
 }
 
-pf_s32 VFiPFSTR_InitStr(struct PF_STR* p_str, const pf_s8* s, pf_u32 code_mode) {
+pf_s32 VFiPFSTR_InitStr(PF_STR* p_str, const pf_s8* s, pf_u32 code_mode) {
     if (p_str == PF_NULL || s == PF_NULL) {
         return 10;
     }
@@ -73,7 +73,7 @@ pf_s32 VFiPFSTR_InitStr(struct PF_STR* p_str, const pf_s8* s, pf_u32 code_mode) 
         p_str->p_tail = &s[VFipf_strlen(s)];
     } else if (code_mode == 2) {
         p_str->p_head = s;
-        p_str->p_tail = s + (VFipf_w_strlen(s) * 2);
+        p_str->p_tail = s + (VFipf_w_strlen((pf_u16*)s) * 2);
     } else {
         return 10;
     }
@@ -82,11 +82,11 @@ pf_s32 VFiPFSTR_InitStr(struct PF_STR* p_str, const pf_s8* s, pf_u32 code_mode) 
     return 0;
 }
 
-pf_u16 VFiPFSTR_StrLen(struct PF_STR* p_str) {
+pf_u16 VFiPFSTR_StrLen(PF_STR* p_str) {
     return (pf_u16)(p_str->p_tail - p_str->p_head);
 }
 
-pf_u16 VFiPFSTR_StrNumChar(struct PF_STR* p_str, pf_u32 target) {
+pf_u16 VFiPFSTR_StrNumChar(PF_STR* p_str, pf_u32 target) {
     pf_s8* p;
     pf_u16 cnt;
     pf_s32 width;
@@ -114,7 +114,7 @@ pf_u16 VFiPFSTR_StrNumChar(struct PF_STR* p_str, pf_u32 target) {
     return cnt;
 }
 
-pf_s32 VFiPFSTR_StrCmp(const struct PF_STR* p_str, const pf_s8* s) {
+pf_s32 VFiPFSTR_StrCmp(const PF_STR* p_str, const pf_s8* s) {
     pf_u16 wc;
     const pf_u16* wp;
     const pf_s8* p1;
@@ -144,7 +144,7 @@ pf_s32 VFiPFSTR_StrCmp(const struct PF_STR* p_str, const pf_s8* s) {
     return ret;
 }
 
-pf_s32 VFiPFSTR_StrNCmp(struct PF_STR* p_str, const pf_s8* s, pf_u32 target, pf_s16 offset, pf_u16 num) {
+pf_s32 VFiPFSTR_StrNCmp(PF_STR* p_str, const pf_s8* s, pf_u32 target, pf_s16 offset, pf_u16 num) {
     pf_u16 wc;
     const pf_u16* wp;
     const pf_s8* p1;
@@ -185,7 +185,7 @@ pf_s32 VFiPFSTR_StrNCmp(struct PF_STR* p_str, const pf_s8* s, pf_u32 target, pf_
     return ret;
 }
 
-void VFiPFSTR_ToUpperNStr(struct PF_STR* p_str, pf_u16 num, pf_s8* dest) {
+void VFiPFSTR_ToUpperNStr(PF_STR* p_str, pf_u16 num, pf_s8* dest) {
     pf_u16 wc;
     const pf_u16* wp;
     const pf_s8* p;

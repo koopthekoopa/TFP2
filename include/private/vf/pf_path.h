@@ -4,27 +4,26 @@
 #include <private/vf/pf_str.h>
 #include <private/vf/pf_types.h>
 
-long VFiPFPATH_cmpNameUni(const unsigned short* p_name /* r1+0x8 */, struct PF_STR* sPattern /* r1+0xC */);
-long VFiPFPATH_cmpName(const signed char* sShort /* r1+0x8 */, struct PF_STR* p_pattern /* r29 */, unsigned long is_short_search /* r1+0xC */);
-long VFiPFPATH_cmpTailSFN(const signed char* sfn_name /* r1+0x8 */, const signed char* pattern /* r1+0xC */);
-void VFiPFPATH_InitTokenOfPath(struct PF_STR* p_str /* r3 */, signed char* path /* r4 */, unsigned long code_mode /* r5 */);
-long VFiPFPATH_GetNextTokenOfPath(struct PF_STR* p_str /* r31 */, unsigned long wildcard /* r24 */);
-long VFiPFPATH_SplitPath(struct PF_STR* p_path /* r1+0x8 */, struct PF_STR* p_dir_path /* r1+0xC */, struct PF_STR* p_filename /* r1+0x10 */);
-unsigned long VFiPFPATH_MatchFileNameWithPattern(const signed char* file_name /* r26 */, struct PF_STR* p_pattern /* r30 */,
-                                                 unsigned long is_long_name /* r29 */);
-long VFiPFPATH_putShortName(unsigned char* pDirEntry /* r3 */, const signed char* short_name /* r4 */, unsigned char attr /* r5 */);
-long VFiPFPATH_getShortName(signed char* short_name /* r3 */, const unsigned char* pDirEntry /* r4 */, unsigned char attr /* r5 */);
-void VFiPFPATH_getLongNameformShortName(signed char* short_name /* r3 */, signed char* long_name /* r4 */, unsigned char flag /* r5 */);
-unsigned long VFiPFPATH_GetLengthFromShortname(const signed char* sSrc /* r3 */);
-unsigned long VFiPFPATH_GetLengthFromUnicode(const unsigned short* sSrc /* r28 */);
-long VFiPFPATH_transformFromUnicodeToNormal(signed char* sDest /* r31 */, const unsigned short* sSrc /* r29 */);
-long VFiPFPATH_transformInUnicode(unsigned short* sDestStr /* r29 */, const signed char* sSrcStr /* r27 */);
-unsigned long VFiPFPATH_parseShortName(signed char* pDest /* r30 */, struct PF_STR* p_pattern /* r27 */);
-long VFiPFPATH_parseShortNameNumeric(signed char* p_char /* r3 */, unsigned long count /* r4 */);
-void VFiPFPATH_SetSearchPattern(signed char* p_buf_local /* r29 */, unsigned short* p_buf_unicode /* r30 */, struct PF_STR* p_pattern /* r31 */);
-unsigned long VFiPFPATH_CheckExtShortNameSignature(struct PF_STR* p_str /* r30 */);
-unsigned long VFiPFPATH_CheckExtShortName(struct PF_STR* p_str /* r30 */, unsigned long target /* r29 */, unsigned long wildcard /* r23 */);
-unsigned long VFiPFPATH_GetExtShortNameIndex(struct PF_STR* p_str /* r30 */, unsigned long* p_index /* r24 */);
-long VFiPFPATH_AdjustExtShortName(signed char* pName /* r3 */, unsigned long position /* r4 */);
+pf_s32 VFiPFPATH_cmpNameUni(const pf_u16* p_name);
+pf_s32 VFiPFPATH_cmpName(const pf_s8* sShort);
+pf_s32 VFiPFPATH_cmpTailSFN(const pf_s8* sfn_name);
+void VFiPFPATH_InitTokenOfPath(PF_STR* p_str, pf_s8* path, pf_u32 code_mode);
+pf_s32 VFiPFPATH_GetNextTokenOfPath(PF_STR* p_str, pf_u32 wildcard);
+pf_s32 VFiPFPATH_SplitPath(PF_STR* p_path, PF_STR* p_filename);
+pf_u32 VFiPFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_pattern, pf_u32 is_long_name);
+pf_s32 VFiPFPATH_putShortName(pf_u8* pDirEntry, const pf_s8* short_name, pf_u8 attr);
+pf_s32 VFiPFPATH_getShortName(pf_s8* short_name, const pf_u8* pDirEntry, pf_u8 attr);
+void VFiPFPATH_getLongNameformShortName(pf_s8* short_name, pf_s8* long_name, pf_u8 flag);
+pf_u32 VFiPFPATH_GetLengthFromShortname(const pf_s8* sSrc);
+pf_u32 VFiPFPATH_GetLengthFromUnicode(const pf_u16* sSrc);
+pf_s32 VFiPFPATH_transformFromUnicodeToNormal(pf_s8* sDest, const pf_u16* sSrc);
+pf_s32 VFiPFPATH_transformInUnicode(pf_u16* sDestStr, const pf_s8* sSrcStr);
+pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern);
+pf_s32 VFiPFPATH_parseShortNameNumeric(pf_s8* p_char, pf_u32 count);
+void VFiPFPATH_SetSearchPattern(pf_s8* p_buf_local, pf_u16* p_buf_unicode, PF_STR* p_pattern);
+pf_u32 VFiPFPATH_CheckExtShortNameSignature(PF_STR* p_str);
+pf_u32 VFiPFPATH_CheckExtShortName(PF_STR* p_str, pf_u32 target, pf_u32 wildcard);
+pf_u32 VFiPFPATH_GetExtShortNameIndex(PF_STR* p_str, pf_u32* p_index);
+pf_s32 VFiPFPATH_AdjustExtShortName(pf_s8* pName, pf_u32 position);
 
 #endif  // VF_PF_PATH_H

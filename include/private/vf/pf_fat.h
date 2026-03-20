@@ -1,36 +1,77 @@
 #ifndef VF_PF_FAT_H
 #define VF_PF_FAT_H
 
+#include <private/vf/pf_cache.h>
 #include <private/vf/pf_str.h>
 #include <private/vf/pf_types.h>
 
-long VFiPFFAT_UpdateFATEntry(struct PF_VOLUME* p_vol /* r1+0x8 */, struct PF_CACHE_PAGE* p_page /* r30 */);
-long VFiPFFAT_UpdateAlternateFATEntry(struct PF_VOLUME* p_vol /* r31 */, unsigned char* p_buf /* r1+0x8 */, unsigned long sector /* r30 */,
-                                      unsigned long size /* r23 */);
-long VFiPFFAT_GetSectorSpecified(struct PF_FFD* p_ffd /* r31 */, unsigned long file_sector_index /* r28 */, unsigned long may_allocate /* r1+0x8 */,
-                                 unsigned long* p_sector /* r1+0xC */);
-long VFiPFFAT_GetSectorAllocated(struct PF_FFD* p_ffd /* r31 */, unsigned long file_sector_index /* r29 */, unsigned long size /* r1+0x8 */,
-                                 unsigned long* p_sector /* r1+0xC */, unsigned long* p_num_sector /* r1+0x10 */);
-long VFiPFFAT_GetContinuousSector(struct PF_FFD* p_ffd /* r31 */, unsigned long file_sector_index /* r24 */, unsigned long size /* r23 */,
-                                  unsigned long* p_sector /* r29 */, unsigned long* p_num_sector /* r27 */);
-long VFiPFFAT_CountAllocatedClusters(struct PF_FFD* p_ffd /* r31 */, unsigned long size /* r29 */, unsigned long* p_num_alloc_clusters /* r30 */);
-long VFiPFFAT_CountFreeClusters(struct PF_VOLUME* p_vol /* r31 */, unsigned long* p_num_free_clusters /* r29 */);
-long VFiPFFAT_FreeChain(struct PF_FFD* p_ffd /* r25 */, unsigned long start_cluster /* r29 */, unsigned long chain_index /* r26 */,
-                        unsigned long size /* r27 */);
-long VFiPFFAT_GetBeforeChain(struct PF_VOLUME* p_vol /* r29 */, unsigned long start_cluster /* r31 */, unsigned long lActive /* r26 */,
-                             unsigned long* p_cluster /* r30 */);
-long VFiPFFAT_InitFATRegion(struct PF_VOLUME* p_vol /* r31 */);
-long VFiPFFAT_MakeRootDir(struct PF_VOLUME* p_vol /* r31 */);
-long VFiPFFAT_RefreshFSINFO(struct PF_VOLUME* p_vol /* r31 */);
-void VFiPFFAT_InitHint(struct PF_FAT_HINT* p_hint /* r3 */);
-long VFiPFFAT_TraceClustersChain(struct PF_FFD* p_ffd /* r31 */, unsigned long start_clst /* r28 */, unsigned long size /* r22 */,
-                                 unsigned long* p_target_clst /* r25 */, unsigned long* p_next_clst /* r26 */);
-long VFiPFFAT_ReadValueToSpecifiedCluster(struct PF_VOLUME* p_vol /* r1+0x8 */, unsigned long cluster /* r1+0xC */,
-                                          unsigned long* value /* r1+0x10 */);
-long VFiPFFAT_ResetFFD(struct PF_FFD* p_ffd /* r3 */, unsigned long* p_start_cluster /* r4 */);
-long VFiPFFAT_InitFFD(struct PF_FFD* p_ffd /* r31 */, struct PF_FAT_HINT* p_hint /* r1+0x8 */, struct PF_VOLUME* p_vol /* r1+0xC */,
-                      unsigned long* p_start_cluster /* r30 */);
-long VFiPFFAT_FinalizeFFD(struct PF_FFD* p_ffd /* r3 */);
-unsigned long VFiPFFAT_GetValueOfEOC2(struct PF_VOLUME* p_vol /* r3 */);
+typedef struct PF_LAST_CLUSTER {
+    // total size: 0x8
+    pf_u32 num_last_cluster;  // offset 0x0, size 0x4
+    pf_u32 max_chain_index;   // offset 0x4, size 0x4
+} PF_LAST_CLUSTER;
+
+typedef struct PF_FAT_LAST_ACCESS {
+    // total size: 0x8
+    pf_u32 chain_index;  // offset 0x0, size 0x4
+    pf_u32 cluster;      // offset 0x4, size 0x4
+} PF_FAT_LAST_ACCESS;
+
+typedef struct PF_CLUSTER_LINK {
+    // total size: 0x14
+    pf_u32* buffer;          // offset 0x0, size 0x4
+    pf_u16 interval;         // offset 0x4, size 0x2
+    pf_u16 interval_offset;  // offset 0x6, size 0x2
+    pf_u32 position;         // offset 0x8, size 0x4
+    pf_u32 max_count;        // offset 0xC, size 0x4
+    pf_u32 save_index;       // offset 0x10, size 0x4
+} PF_CLUSTER_LINK;
+
+typedef struct PF_FAT_HINT {
+    // total size: 0xC
+    pf_u32 chain_index;   // offset 0x0, size 0x4
+    pf_u32 cluster;       // offset 0x4, size 0x4
+    pf_u32 file_version;  // offset 0x8, size 0x4
+} PF_FAT_HINT;
+
+typedef struct PF_FFD {
+    // total size: 0x38
+    pf_u32 file_version;                            // offset 0x0, size 0x4
+    pf_u32 start_cluster;                           // offset 0x4, size 0x4
+    pf_u32* p_start_cluster;                        // offset 0x8, size 0x4
+    struct PF_LAST_CLUSTER last_cluster;            // offset 0xC, size 0x8
+    struct PF_FAT_LAST_ACCESS last_access_cluster;  // offset 0x14, size 0x8
+    struct PF_CLUSTER_LINK cluster_link;            // offset 0x1C, size 0x14
+    struct PF_FAT_HINT* p_hint;                     // offset 0x30, size 0x4
+    PF_VOLUME* p_vol;                               // offset 0x34, size 0x4
+} PF_FFD;
+
+typedef struct PF_CLUSTER_LINK_VOL {
+    // total size: 0xC
+    pf_u16 flag;      // offset 0x0, size 0x2
+    pf_u16 interval;  // offset 0x2, size 0x2
+    pf_u32* buffer;   // offset 0x4, size 0x4
+    pf_u32 link_max;  // offset 0x8, size 0x4
+} PF_CLUSTER_LINK_VOL;
+
+pf_s32 VFiPFFAT_UpdateFATEntry(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_page);
+pf_s32 VFiPFFAT_UpdateAlternateFATEntry(PF_VOLUME* p_vol, pf_u8* p_buf, pf_u32 sector, pf_u32 size);
+pf_s32 VFiPFFAT_GetSectorSpecified(PF_FFD* p_ffd, pf_u32 file_sector_index, pf_u32 may_allocate, pf_u32* p_sector);
+pf_s32 VFiPFFAT_GetSectorAllocated(PF_FFD* p_ffd, pf_u32 file_sector_index, pf_u32 size, pf_u32* p_sector, pf_u32* p_num_sector);
+pf_s32 VFiPFFAT_GetContinuousSector(PF_FFD* p_ffd, pf_u32 file_sector_index, pf_u32 size, pf_u32* p_sector, pf_u32* p_num_sector);
+pf_s32 VFiPFFAT_CountAllocatedClusters(PF_FFD* p_ffd, pf_u32 size, pf_u32* p_num_alloc_clusters);
+pf_s32 VFiPFFAT_CountFreeClusters(PF_VOLUME* p_vol, pf_u32* p_num_free_clusters);
+pf_s32 VFiPFFAT_FreeChain(PF_FFD* p_ffd, pf_u32 start_cluster, pf_u32 chain_index, pf_u32 size);
+pf_s32 VFiPFFAT_GetBeforeChain(PF_VOLUME* p_vol, pf_u32 start_cluster, pf_u32 lActive, pf_u32* p_cluster);
+pf_s32 VFiPFFAT_InitFATRegion(PF_VOLUME* p_vol);
+pf_s32 VFiPFFAT_MakeRootDir(PF_VOLUME* p_vol);
+pf_s32 VFiPFFAT_RefreshFSINFO(PF_VOLUME* p_vol);
+void VFiPFFAT_InitHint(PF_FAT_HINT* p_hint);
+pf_s32 VFiPFFAT_TraceClustersChain(PF_FFD* p_ffd, pf_u32 start_clst, pf_u32 size, pf_u32* p_target_clst, pf_u32* p_next_clst);
+pf_s32 VFiPFFAT_ReadValueToSpecifiedCluster(PF_VOLUME* p_vol, pf_u32* value);
+pf_s32 VFiPFFAT_ResetFFD(PF_FFD* p_ffd, pf_u32* p_start_cluster);
+pf_s32 VFiPFFAT_InitFFD(PF_FFD* p_ffd, PF_FAT_HINT* p_hint, pf_u32* p_start_cluster);
+pf_s32 VFiPFFAT_FinalizeFFD(PF_FFD* p_ffd);
+pf_u32 VFiPFFAT_GetValueOfEOC2(PF_VOLUME* p_vol);
 
 #endif  // VF_PF_FAT_H
