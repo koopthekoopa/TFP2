@@ -3,6 +3,8 @@
 
 #include <private/vf/pdm_dskmng.h>
 
+#define GET_DISK_NO(p_disk) ((pf_u32)p_disk & 0xFF)
+
 pf_s32 VFipdm_disk_check_disk_handle(PDM_DISK* p_disk);
 pf_s32 VFipdm_disk_open_disk(PDM_INIT_DISK* p_init_disk_tbl, PDM_DISK** pp_disk);
 pf_s32 VFipdm_disk_close_disk(PDM_DISK* p_disk);

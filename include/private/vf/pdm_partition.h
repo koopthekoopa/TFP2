@@ -4,6 +4,8 @@
 #include <private/vf/pdm_disk.h>
 #include <private/vf/pdm_struct.h>
 
+#define GET_PART_NO(p_part) ((pf_u32)p_part & 0xFF)
+
 pf_s32 VFipdm_part_open_partition(PDM_DISK* p_disk, pf_u16 part_id, PDM_PARTITION** pp_part);
 pf_s32 VFipdm_part_close_partition(PDM_PARTITION* p_part);
 pf_s32 VFipdm_part_get_permission(PDM_PARTITION* p_part);

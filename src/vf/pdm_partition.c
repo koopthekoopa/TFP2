@@ -1,8 +1,6 @@
 #include <private/vf/pdm_mbr.h>
 #include <private/vf/pdm_partition.h>
 
-#define GET_PART_NO(p_part) ((pf_u32)p_part & 0xFF)
-
 static pf_s32 VFipdm_part_search_handle(PDM_PARTITION* p_part, PDM_PARTITION* lp_part, pf_u16* p_handle_no) {
     pf_u16 handle_no;
 

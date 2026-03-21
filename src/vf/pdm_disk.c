@@ -1,8 +1,6 @@
 #include <private/vf/pdm_disk.h>
 #include <private/vf/pdm_partition.h>
 
-#define GET_DISK_NO(p_disk) ((pf_u32)p_disk & 0xFF)
-
 static pf_s32 VFipdm_disk_convert_sector_into_block(PDM_DISK* p_disk, pf_u32 sector, pf_u32 num_sector, pf_u16 bps, pf_u32* p_block,
                                                     pf_u32* p_num_block) {
     pf_u16 delta;
