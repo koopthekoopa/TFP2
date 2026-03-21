@@ -1,8 +1,6 @@
 #include <private/vf/pdm_disk.h>
 #include <private/vf/pdm_partition.h>
 
-/* Some weird shit is going on with this one!!! */
-
 #define GET_DISK_NO(p_disk) ((pf_u32)p_disk & 0xFF)
 
 static pf_s32 VFipdm_disk_convert_sector_into_block(PDM_DISK* p_disk, pf_u32 sector, pf_u32 num_sector, pf_u16 bps, pf_u32* p_block,
@@ -78,6 +76,7 @@ static pf_s32 VFipdm_disk_get_handle(PDM_INIT_DISK* p_init_disk_tbl, PDM_DISK** 
             break;
         }
     }
+
     if (handle_no >= 26) {
         return 8;
     }
@@ -206,7 +205,7 @@ pf_s32 VFipdm_disk_check_disk_handle(PDM_DISK* p_disk) {
     disk_no = GET_DISK_NO(p_disk);
     disk_id = (pf_u32)p_disk & 0xFF00;
     disk_sig = (pf_u32)p_disk >> 0x10;
-    if ((disk_no >= 0x1A) || (disk_id != 0x300) || (disk_sig > VFipdm_disk_set.disk[disk_no].signature)) {
+    if ((disk_no >= 26) || (disk_id != 0x300) || (disk_sig > VFipdm_disk_set.disk[disk_no].signature)) {
         return 1;
     }
 
@@ -216,12 +215,11 @@ pf_s32 VFipdm_disk_check_disk_handle(PDM_DISK* p_disk) {
     return err;
 }
 
-// DEBUG NON MATCHING
-pf_s32 VFipdm_disk_open_disk(PDM_INIT_DISK* p_init_disk_tbl /* r29 */, PDM_DISK** pp_disk /* r30 */) {
-    pf_s32 err;        // r31
-    pf_u16 disk_no;    // r1+0xA
-    pf_u16 handle_no;  // r1+0x8
-    PDM_DISK* p_disk;  // r1+0xC
+pf_s32 VFipdm_disk_open_disk(PDM_INIT_DISK* p_init_disk_tbl, PDM_DISK** pp_disk) {
+    pf_s32 err;
+    pf_u16 disk_no;
+    pf_u16 handle_no;
+    PDM_DISK* p_disk;
 
     if ((pp_disk == PF_NULL) || (p_init_disk_tbl == PF_NULL) || (p_init_disk_tbl->p_func == 0)) {
         return 1;
@@ -239,8 +237,7 @@ pf_s32 VFipdm_disk_open_disk(PDM_INIT_DISK* p_init_disk_tbl /* r29 */, PDM_DISK*
     VFipdm_disk_set.disk_handle[handle_no].signature = p_disk->signature;
     VFipdm_disk_set.disk_handle[handle_no].handle = p_disk;
 
-    // ?
-    *pp_disk = (PDM_DISK*)(disk_no & 0xFF | 0x300 | (VFipdm_disk_set.disk[disk_no].signature << 0x10));  // some weird stuff!!!
+    *pp_disk = (PDM_DISK*)(disk_no & 0xFF | 0x300 | ((pf_u16)VFipdm_disk_set.disk[disk_no].signature << 0x10));
 
     if (p_disk->open_disk_cnt == 1) {
         err = p_disk->disk_tbl.p_func->init(*pp_disk);
@@ -445,12 +442,16 @@ pf_s32 VFipdm_disk_get_media_information(PDM_DISK* p_disk /* r28 */, PDM_DISK_IN
     p_disk_info->total_sectors = lp_disk->disk_info.total_sectors;
 
     // What are you DOING
-    /*(*(pf_u32*)&p_disk_info->cylinders) = (*(pf_u32*)&lp_disk->disk_info.cylinders);
-    (*(pf_u32*)&p_disk_info->bytes_per_sector) = (*(pf_u32*)&lp_disk->disk_info.bytes_per_sector);*/
+    ((pf_u32*)p_disk_info)[1] = ((pf_u32*)&lp_disk->disk_info)[1];
+    ((pf_u32*)p_disk_info)[2] = ((pf_u32*)&lp_disk->disk_info)[2];
 
-    // No... its supposed to be THIS. Why is it writing the values weirdly as a 32 bit value?
+    // No... its supposed to be THIS.
+    /*
     p_disk_info->cylinders = lp_disk->disk_info.cylinders;
+    p_disk_info->heads = lp_disk->disk_info.heads;
+    p_disk_info->sectors_per_track = lp_disk->disk_info.sectors_per_track;
     p_disk_info->bytes_per_sector = lp_disk->disk_info.bytes_per_sector;
+    */
 
     p_disk_info->media_attr = lp_disk->disk_info.media_attr;
     p_disk_info->format_param = lp_disk->disk_info.format_param;
