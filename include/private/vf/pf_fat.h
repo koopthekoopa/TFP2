@@ -68,7 +68,7 @@ pf_s32 VFiPFFAT_MakeRootDir(PF_VOLUME* p_vol);
 pf_s32 VFiPFFAT_RefreshFSINFO(PF_VOLUME* p_vol);
 void VFiPFFAT_InitHint(PF_FAT_HINT* p_hint);
 pf_s32 VFiPFFAT_TraceClustersChain(PF_FFD* p_ffd, pf_u32 start_clst, pf_u32 size, pf_u32* p_target_clst, pf_u32* p_next_clst);
-pf_s32 VFiPFFAT_ReadValueToSpecifiedCluster(PF_VOLUME* p_vol, pf_u32* value);
+pf_s32 VFiPFFAT_ReadValueToSpecifiedCluster(PF_VOLUME* p_vol, pf_u32 cluster, pf_u32* value);
 pf_s32 VFiPFFAT_ResetFFD(PF_FFD* p_ffd, pf_u32* p_start_cluster);
 pf_s32 VFiPFFAT_InitFFD(PF_FFD* p_ffd, PF_FAT_HINT* p_hint, pf_u32* p_start_cluster);
 pf_s32 VFiPFFAT_FinalizeFFD(PF_FFD* p_ffd);
