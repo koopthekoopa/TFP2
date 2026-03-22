@@ -319,7 +319,7 @@ config.libs = [
             Object(Matching,    "vf/pdm_dskmng.c"),
             Object(Equivalent,  "vf/pf_cache.c"),
             Object(Matching,    "vf/pf_cluster.c"),
-            Object(NonMatching, "vf/pf_dir.c"),
+            Object(Equivalent,  "vf/pf_dir.c"),
             Object(NonMatching, "vf/pf_entry.c"),
             Object(NonMatching, "vf/pf_entry_iterator.c"),
             Object(NonMatching, "vf/pf_fat.c"),
