@@ -331,7 +331,7 @@ config.libs = [
             Object(NonMatching, "vf/pf_path.c"),
             Object(NonMatching, "vf/pf_sector.c"),
             Object(NonMatching, "vf/pf_volume.c"),
-            Object(NonMatching, "vf/pf_cp932.c"),
+            Object(Matching,    "vf/pf_cp932.c"),
             Object(NonMatching, "vf/pf_api_util.c"),
             Object(NonMatching, "vf/pf_attach.c"),
             Object(NonMatching, "vf/pf_detach.c"),
