@@ -15,7 +15,7 @@ typedef volatile pf_s8 pf_vs8;
 typedef volatile pf_s16 pf_vs16;
 typedef volatile pf_s32 pf_vs32;
 
-typedef int pf_bool;
+typedef pf_u32 /* ? */ pf_bool;
 
 #define PF_TRUE 1
 #define PF_FALSE 0

@@ -317,7 +317,7 @@ config.libs = [
             Object(Matching,    "vf/pdm_partition.c"),
             Object(Equivalent,  "vf/pdm_mbr.c"),
             Object(Matching,    "vf/pdm_dskmng.c"),
-            Object(NonMatching, "vf/pf_cache.c"),
+            Object(Equivalent,  "vf/pf_cache.c"),
             Object(NonMatching, "vf/pf_cluster.c"),
             Object(NonMatching, "vf/pf_dir.c"),
             Object(NonMatching, "vf/pf_entry.c"),
