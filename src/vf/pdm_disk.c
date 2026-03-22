@@ -161,11 +161,8 @@ static pf_s32 VFipdm_disk_do_get_permission(PDM_DISK* p_disk, PDM_DISK* lp_disk)
 
         lp_disk->status |= 2;
         lp_disk->status &= 0xFFFFFFDF;
-
-        // uh
-        goto inc;
     }
-inc:
+
     lp_disk->disk_lock_cnt++;
     return 0;
 }

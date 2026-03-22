@@ -115,8 +115,9 @@ pf_s32 VFipdm_mbr_get_epbr_part_table(PDM_DISK* p_disk, PDM_MBR* p_mbr_tbl) {
     if (is_master_boot != 0) {
         VFipdm_mbr_get_table((pf_u8*)&buf, extend_start_sector, p_mbr_tbl);
         goto success;
+    } else {
+        return 6;
     }
-    return 6;
 
 success:
     return 0;

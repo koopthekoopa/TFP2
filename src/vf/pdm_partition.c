@@ -57,7 +57,7 @@ static pf_s32 VFipdm_part_get_start_sector(PDM_PARTITION* p_part) {
             p_part->total_sector = *(&mbr_tbl.partition_table[part_id].lba_num_sectors);
             p_part->partition_type = *(&mbr_tbl.partition_table[part_id].partition_type);
             p_part->mbr_sector = mbr_tbl.current_sector;
-            goto block_22;
+            goto success;
         }
         for (part_index = 4;; part_index++) {
             err = VFipdm_mbr_get_epbr_part_table(p_part->p_disk, &mbr_tbl);
@@ -70,7 +70,7 @@ static pf_s32 VFipdm_part_get_start_sector(PDM_PARTITION* p_part) {
                     p_part->total_sector = mbr_tbl.partition_table[0].lba_num_sectors;
                     p_part->partition_type = mbr_tbl.partition_table[0].partition_type;
                     p_part->mbr_sector = mbr_tbl.current_sector;
-                    goto block_22;
+                    goto success;
                 }
                 continue;
             }
@@ -88,7 +88,8 @@ static pf_s32 VFipdm_part_get_start_sector(PDM_PARTITION* p_part) {
     p_part->total_sector = disk_info.total_sectors;
     p_part->partition_type = 0;
     p_part->mbr_sector = 0;
-block_22:
+
+success:
     return 0;
 }
 
@@ -260,7 +261,7 @@ pf_s32 VFipdm_part_get_permission(PDM_PARTITION* p_part) {
 
     lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
     if ((lp_part->status & 2) != 0) {
-        goto block_16;
+        goto fail;
     }
     err = VFipdm_disk_set_disk(lp_part->p_disk, p_part);
     if (err != 0) {
@@ -280,12 +281,10 @@ pf_s32 VFipdm_part_get_permission(PDM_PARTITION* p_part) {
 
     if ((disk_info.media_attr & 1) != 0) {
         lp_part->status |= 0x10;
-        goto block_14;
+    } else {
+        lp_part->status &= 0xFFFFFFEF;
     }
 
-    lp_part->status &= 0xFFFFFFEF;
-
-block_14:
     err = VFipdm_part_get_start_sector(lp_part);
     if (err != 0) {
         VFipdm_disk_release_part_permission(lp_part->p_disk, 1U);
@@ -294,7 +293,7 @@ block_14:
 
     goto success;
 
-block_16:
+fail:
     return 0xD;
 
 success:
