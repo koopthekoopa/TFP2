@@ -40,9 +40,9 @@ pf_s32 VFiPFENT_LoadLFNEntryFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf);
 void VFiPFENT_storeLFNEntryFieldsToBuf(pf_u8* buf, PF_DIR_ENT* p_ent, pf_u8 ord, pf_u8 sum, pf_u32 is_last);
 pf_s32 VFiPFENT_findEntryPos(PF_FFD* p_ffd, PF_DIR_ENT* p_ent, pf_u32 index_search_from, PF_STR* p_pattern, pf_u8 attr_required, pf_u8 attr_unwanted,
                              pf_u32* p_lpos, pf_u32* p_ppos);
-pf_s32 VFiPFENT_findEntry(PF_FFD* p_ffd, pf_u32 index_search_from, PF_STR* p_pattern);
+pf_s32 VFiPFENT_findEntry(PF_FFD* p_ffd, PF_DIR_ENT* p_ent, pf_u32 index_search_from, PF_STR* p_pattern, pf_u8 attr_required, pf_u8 attr_unwanted);
 pf_s32 VFiPFENT_allocateEntryPos(PF_DIR_ENT* p_ent, pf_u8 num_entries, PF_FFD* p_ffd, pf_u32* p_next_chain, PF_STR* p_filename, pf_u32* p_pos);
-pf_s32 VFiPFENT_allocateEntry(PF_DIR_ENT* p_ent, PF_FFD* p_ffd, pf_u32* p_next_chain);
+pf_s32 VFiPFENT_allocateEntry(PF_DIR_ENT* p_ent, pf_u8 num_entries, PF_FFD* p_ffd, pf_u32* p_next_chain, PF_STR* p_filename);
 pf_s32 VFiPFENT_GetRootDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent);
 pf_s32 VFiPFENT_MakeRootDir(PF_VOLUME* p_vol);
 pf_s32 VFiPFENT_updateEntry(PF_DIR_ENT* p_ent, pf_u32 flag);

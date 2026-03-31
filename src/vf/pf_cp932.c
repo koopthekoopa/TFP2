@@ -821,7 +821,7 @@ pf_bool VFiPFCODE_CP932_isOEMMBchar(pf_s8 cp932, pf_u32 num) {
             break;
         }
         default: {
-            is_mb = 0;
+            is_mb = PF_FALSE;
         }
     }
 

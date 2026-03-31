@@ -4,9 +4,9 @@
 #include <private/vf/pf_str.h>
 #include <private/vf/pf_types.h>
 
-pf_s32 VFiPFPATH_cmpNameUni(const pf_u16* p_name);
-pf_s32 VFiPFPATH_cmpName(const pf_s8* sShort);
-pf_s32 VFiPFPATH_cmpTailSFN(const pf_s8* sfn_name);
+pf_s32 VFiPFPATH_cmpNameUni(const pf_u16* p_name, PF_STR* sPattern);
+pf_s32 VFiPFPATH_cmpName(const pf_s8* sShort, PF_STR* p_pattern, pf_u32 is_short_search);
+pf_s32 VFiPFPATH_cmpTailSFN(const pf_s8* sfn_name, const pf_s8* pattern);
 void VFiPFPATH_InitTokenOfPath(PF_STR* p_str, pf_s8* path, pf_u32 code_mode);
 pf_s32 VFiPFPATH_GetNextTokenOfPath(PF_STR* p_str, pf_u32 wildcard);
 pf_s32 VFiPFPATH_SplitPath(PF_STR* p_path, PF_STR* p_dir_path, PF_STR* p_filename);
