@@ -421,10 +421,9 @@ pf_s32 VFipdm_disk_get_lba_size(PDM_DISK* p_disk, pf_u16* p_lba_size) {
     return 0;
 }
 
-// DEBUG NON MATCHING
-pf_s32 VFipdm_disk_get_media_information(PDM_DISK* p_disk /* r28 */, PDM_DISK_INFO* p_disk_info /* r29 */) {
-    PDM_DISK* lp_disk;  // r31
-    pf_s32 err;         // r30
+pf_s32 VFipdm_disk_get_media_information(PDM_DISK* p_disk, PDM_DISK_INFO* p_disk_info) {
+    PDM_DISK* lp_disk;
+    pf_s32 err;
 
     if ((p_disk == PF_NULL) || (p_disk_info == PF_NULL)) {
         return 1;
@@ -434,22 +433,7 @@ pf_s32 VFipdm_disk_get_media_information(PDM_DISK* p_disk /* r28 */, PDM_DISK_IN
         return err;
     }
     lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
-    p_disk_info->total_sectors = lp_disk->disk_info.total_sectors;
-
-    // What are you DOING
-    ((pf_u32*)p_disk_info)[1] = ((pf_u32*)&lp_disk->disk_info)[1];
-    ((pf_u32*)p_disk_info)[2] = ((pf_u32*)&lp_disk->disk_info)[2];
-
-    // No... its supposed to be THIS.
-    /*
-    p_disk_info->cylinders = lp_disk->disk_info.cylinders;
-    p_disk_info->heads = lp_disk->disk_info.heads;
-    p_disk_info->sectors_per_track = lp_disk->disk_info.sectors_per_track;
-    p_disk_info->bytes_per_sector = lp_disk->disk_info.bytes_per_sector;
-    */
-
-    p_disk_info->media_attr = lp_disk->disk_info.media_attr;
-    p_disk_info->format_param = lp_disk->disk_info.format_param;
+    *p_disk_info = lp_disk->disk_info;
     return 0;
 }
 

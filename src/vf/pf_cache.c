@@ -126,7 +126,7 @@ static PF_CACHE_PAGE* VFiPFCACHE_SearchForUsedPage(PF_VOLUME* p_vol /* r3 */, PF
         lp_page = *pp_head;
     } else {
         lp_page = p_page->p_next;
-        if (lp_page == (PF_CACHE_PAGE*)*pp_head) {
+        if (lp_page == *pp_head) {
             return PF_NULL;
         }
     }

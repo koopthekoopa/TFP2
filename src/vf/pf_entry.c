@@ -10,7 +10,7 @@
 
 #include <private/vf/pf_system.h>
 
-static void VFiPFENT_storeShortNameToBuf(pf_u8* buf /* r31 */, const PF_DIR_ENT* p_ent /* r30 */) {
+static void VFiPFENT_storeShortNameToBuf(pf_u8* buf, const PF_DIR_ENT* p_ent) {
     VFiPFPATH_putShortName(buf, p_ent->short_name, p_ent->attr);
 
     if (*buf == 0xE5) {
@@ -18,10 +18,8 @@ static void VFiPFENT_storeShortNameToBuf(pf_u8* buf /* r31 */, const PF_DIR_ENT*
     }
 }
 
-// Range: 0x803C8260 -> 0x803C8344
-static pf_u32 VFiPFENT_compareAttr(pf_u8 attr /* r3 */, pf_u8 attr_required /* r4 */, pf_u8 attr_unwanted /* r5 */) {
-    // Local variables
-    pf_bool is_valid;  // r31
+static pf_u32 VFiPFENT_compareAttr(pf_u8 attr, pf_u8 attr_required, pf_u8 attr_unwanted) {
+    pf_bool is_valid;
 
     is_valid = PF_TRUE;
     if (attr == 0) {
@@ -40,10 +38,8 @@ static pf_u32 VFiPFENT_compareAttr(pf_u8 attr /* r3 */, pf_u8 attr_required /* r
     return is_valid;
 }
 
-// Range: 0x803C8344 -> 0x803C8448
-static pf_s32 VFiPFENT_compareEntryName(PF_DIR_ENT* p_ent /* r31 */, PF_STR* p_pattern /* r29 */, pf_u8 attr /* r1+0x8 */) {
-    // Local variables
-    pf_s32 /*not pf_bool?*/ is_match;  // r30
+static pf_s32 VFiPFENT_compareEntryName(PF_DIR_ENT* p_ent, PF_STR* p_pattern, pf_u8 attr) {
+    pf_s32 /*not pf_bool?*/ is_match;
 
     is_match = 1;
     if ((p_ent->num_entry_LFNs != 0) && (p_ent->ordinal == 1) && (p_ent->check_sum == VFiPFENT_CalcCheckSum(p_ent))) {
@@ -65,16 +61,14 @@ static pf_s32 VFiPFENT_compareEntryName(PF_DIR_ENT* p_ent /* r31 */, PF_STR* p_p
     return is_match;
 }
 
-// Range: 0x803C8448 -> 0x803C8678
-static pf_s32 VFiPFENT_getEntry(PF_DIR_ENT* p_ent /* r31 */, PF_ENT_ITER* p_iter /* r30 */, PF_STR* p_pattern /* r1+0x8 */,
-                                pf_u8 attr_required /* r1+0xC */, pf_u8 attr_unwanted /* r1+0xD */, pf_u32* logical_index /* r23 */) {
-    // Local variables
-    pf_s32 err;                // r27
-    pf_s32 is_match;           // r29
-    pf_u32 is_valid;           // r25
-    pf_u8 attr;                // r28
-    pf_s32 lengthName;         // r26
-    signed char filename[13];  // r1+0x10
+static pf_s32 VFiPFENT_getEntry(PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter, PF_STR* p_pattern, pf_u8 attr_required, pf_u8 attr_unwanted,
+                                pf_u32* logical_index) {
+    pf_s32 err;
+    pf_s32 is_match;
+    pf_u32 is_valid;
+    pf_u8 attr;
+    pf_s32 lengthName;
+    pf_s8 filename[13];
 
     is_match = 1;
     is_valid = 1;
@@ -130,20 +124,17 @@ static pf_s32 VFiPFENT_getEntry(PF_DIR_ENT* p_ent /* r31 */, PF_ENT_ITER* p_iter
     return err;
 }
 
-// Range: 0x803C8678 -> 0x803C8930
-static pf_s32 VFiPFENT_searchEmptyTailSFN(PF_FFD* p_ffd /* r25 */, pf_u32 tail_index /* r23 */, const signed char* pattern /* r1+0x8 */,
-                                          pf_u32* p_tail_bit /* r24 */) {
-    // Local variables
-    PF_ENT_ITER iter;        // r1+0x30
-    pf_u8 attr;              // r1+0xC
-    pf_s32 err;              // r28
-    pf_u32 bit_pos;          // r29
-    pf_u32 sfn_taillen;      // r31
-    pf_u32 sfn_baselen;      // r30
-    pf_u32 i;                // r27
-    signed char sfnbuf[13];  // r1+0x20
-    signed char patbuf[13];  // r1+0x10
-    PF_VOLUME* p_vol;        // r26
+static pf_s32 VFiPFENT_searchEmptyTailSFN(PF_FFD* p_ffd, pf_u32 tail_index, const pf_s8* pattern, pf_u32* p_tail_bit) {
+    PF_ENT_ITER iter;
+    pf_u8 attr;
+    pf_s32 err;
+    pf_u32 bit_pos;
+    pf_u32 sfn_taillen;
+    pf_u32 sfn_baselen;
+    pf_u32 i;
+    pf_s8 sfnbuf[13];
+    pf_s8 patbuf[13];
+    PF_VOLUME* p_vol;
 
     err = 0;
     p_vol = p_ffd->p_vol;
@@ -192,15 +183,13 @@ static pf_s32 VFiPFENT_searchEmptyTailSFN(PF_FFD* p_ffd /* r25 */, pf_u32 tail_i
     return 0;
 }
 
-// Range: 0x803C8930 -> 0x803C8A60
-static pf_s32 VFiPFENT_findEmptyTailSFN(PF_DIR_ENT* p_ent_containig_dir /* r27 */, const signed char* name /* r1+0x8 */, pf_u32* p_tails /* r28 */) {
-    // Local variables
-    PF_FFD ffd;        // r1+0x20
-    PF_FAT_HINT hint;  // r1+0x10
-    pf_s32 err;        // r26
-    pf_u32 num;        // r29
-    PF_VOLUME* p_vol;  // r31
-    pf_u32 track_num;  // r30
+static pf_s32 VFiPFENT_findEmptyTailSFN(PF_DIR_ENT* p_ent_containig_dir, const pf_s8* name, pf_u32* p_tails) {
+    PF_FFD ffd;
+    PF_FAT_HINT hint;
+    pf_s32 err;
+    pf_u32 num;
+    PF_VOLUME* p_vol;
+    pf_u32 track_num;
 
     p_vol = p_ent_containig_dir->p_vol;
     *p_tails = 1;
@@ -226,10 +215,8 @@ static pf_s32 VFiPFENT_findEmptyTailSFN(PF_DIR_ENT* p_ent_containig_dir /* r27 *
     return 0;
 }
 
-// Range: 0x803C8A60 -> 0x803C8A98
-void VFiPFENT_SetDotEntry(pf_u8* entry /* r3 */) {
-    // Local variables
-    pf_s32 i;  // r31
+void VFiPFENT_SetDotEntry(pf_u8* entry) {
+    pf_s32 i;
 
     entry[0] = 0x2E;
     for (i = 1; i < 11; i++) {
@@ -237,10 +224,8 @@ void VFiPFENT_SetDotEntry(pf_u8* entry /* r3 */) {
     }
 }
 
-// Range: 0x803C8A98 -> 0x803C8AD8
-void VFiPFENT_SetDotDotEntry(pf_u8* entry /* r3 */) {
-    // Local variables
-    pf_s32 i;  // r31
+void VFiPFENT_SetDotDotEntry(pf_u8* entry) {
+    pf_s32 i;
 
     entry[0] = 0x2E;
     entry[1] = 0x2E;
@@ -249,12 +234,10 @@ void VFiPFENT_SetDotDotEntry(pf_u8* entry /* r3 */) {
     }
 }
 
-// Range: 0x803C8AD8 -> 0x803C8B84
-pf_u8 VFiPFENT_CalcCheckSum(PF_DIR_ENT* p_ent /* r1+0x8 */) {
-    // Local variables
-    pf_u16 i;       // r31
-    pf_u8 sum;      // r30
-    pf_u8 buf[13];  // r1+0xC
+pf_u8 VFiPFENT_CalcCheckSum(PF_DIR_ENT* p_ent) {
+    pf_u16 i;
+    pf_u8 sum;
+    pf_u8 buf[13];
 
     VFiPFPATH_putShortName((pf_u8*)buf, p_ent->short_name, 0);
 
@@ -265,8 +248,7 @@ pf_u8 VFiPFENT_CalcCheckSum(PF_DIR_ENT* p_ent /* r1+0x8 */) {
     return sum;
 }
 
-// Range: 0x803C8B84 -> 0x803C8BE4
-void VFiPFENT_LoadShortNameFromBuf(PF_DIR_ENT* p_ent /* r31 */, const pf_u8* buf /* r30 */) {
+void VFiPFENT_LoadShortNameFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf) {
     VFiPFPATH_getShortName(p_ent->short_name, buf, buf[11]);
     if (p_ent->short_name[0] == 5) {
         p_ent->short_name[0] = -0x1B;
@@ -276,7 +258,7 @@ void VFiPFENT_LoadShortNameFromBuf(PF_DIR_ENT* p_ent /* r31 */, const pf_u8* buf
 #define FIELD_16(x) ((((x) >> 8) & 0xFF) | (((x) << 8) & 0xFF00))
 #define FIELD_32(x) ((((x) << 0x18) & 0xFF000000) | ((((x) << 8) & 0xFF0000) | ((((x) >> 0x18) & 0xFF) | (((x) >> 8) & 0xFF00))))
 
-void VFiPFENT_loadEntryNumericFieldsFromBuf(PF_DIR_ENT* p_ent /* r3 */, const pf_u8* buf /* r4 */) {
+void VFiPFENT_loadEntryNumericFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf) {
     p_ent->attr = buf[0xB];
     p_ent->small_letter_flag = buf[0xC];
     p_ent->create_time_ms = buf[0xD];
@@ -289,8 +271,7 @@ void VFiPFENT_loadEntryNumericFieldsFromBuf(PF_DIR_ENT* p_ent /* r3 */, const pf
     p_ent->start_cluster = ((pf_u16)FIELD_16(*(pf_u16*)&buf[0x14]) << 0x10) | (pf_u16)(FIELD_16(*(pf_u16*)&buf[0x1A]));
 }
 
-// Range: 0x803C8D04 -> 0x803C8E38
-void VFiPFENT_StoreEntryNumericFieldsToBuf(pf_u8* buf /* r3 */, const PF_DIR_ENT* p_ent /* r4 */) {
+void VFiPFENT_StoreEntryNumericFieldsToBuf(pf_u8* buf, const PF_DIR_ENT* p_ent) {
     buf[0x0B] = p_ent->attr;
     buf[0x0C] = p_ent->small_letter_flag;
     buf[0x0D] = p_ent->create_time_ms;
@@ -307,15 +288,13 @@ void VFiPFENT_StoreEntryNumericFieldsToBuf(pf_u8* buf /* r3 */, const PF_DIR_ENT
 #undef FIELD_16
 #undef FIELD_32
 
-// Range: 0x803C8E38 -> 0x803C9018
-pf_s32 VFiPFENT_LoadLFNEntryFieldsFromBuf(PF_DIR_ENT* p_ent /* r31 */, const pf_u8* buf /* r27 */) {
-    // Local variables
-    pf_u8 ordinal;    // r28
-    pf_u8 check_sum;  // r26
-    pf_u32 is_last;   // r25
-    pf_u8* p;         // r29
-    pf_u16* q;        // r30
-    pf_u16* q_after;  // r24
+pf_s32 VFiPFENT_LoadLFNEntryFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf) {
+    pf_u8 ordinal;
+    pf_u8 check_sum;
+    pf_u32 is_last;
+    pf_u8* p;
+    pf_u16* q;
+    pf_u16* q_after;
 
     ordinal = buf[0];
     check_sum = buf[13];
@@ -375,13 +354,10 @@ pf_s32 VFiPFENT_LoadLFNEntryFieldsFromBuf(PF_DIR_ENT* p_ent /* r31 */, const pf_
     return 0;
 }
 
-// Range: 0x803C9018 -> 0x803C914C
-void VFiPFENT_storeLFNEntryFieldsToBuf(pf_u8* buf /* r31 */, PF_DIR_ENT* p_ent /* r1+0x8 */, pf_u8 ord /* r27 */, pf_u8 sum /* r1+0xC */,
-                                       pf_u32 is_last /* r26 */) {
-    // Local variables
-    pf_u8* p_seg;     // r29
-    pf_u16* p;        // r30
-    pf_u16* p_after;  // r28
+void VFiPFENT_storeLFNEntryFieldsToBuf(pf_u8* buf, PF_DIR_ENT* p_ent, pf_u8 ord, pf_u8 sum, pf_u32 is_last) {
+    pf_u8* p_seg;
+    pf_u16* p;
+    pf_u16* p_after;
 
     if (is_last != 0) {
         *buf = ord | 0x40;
@@ -416,14 +392,12 @@ void VFiPFENT_storeLFNEntryFieldsToBuf(pf_u8* buf /* r31 */, PF_DIR_ENT* p_ent /
     VFiPF_LE16_TO_U16_STR(&buf[0x1C], 4);
 }
 
-// Range: 0x803C914C -> 0x803C94F4
-pf_s32 VFiPFENT_findEntryPos(PF_FFD* p_ffd /* r27 */, PF_DIR_ENT* p_ent /* r29 */, pf_u32 index_search_from /* r1+0x8 */, PF_STR* p_pattern /* r26 */,
-                             pf_u8 attr_required /* r23 */, pf_u8 attr_unwanted /* r24 */, pf_u32* p_lpos /* r30 */, pf_u32* p_ppos /* r31 */) {
-    // Local variables
-    pf_s32 err;            // r28
-    PF_ENT_ITER iter;      // r1+0x10
-    pf_u32 logical_index;  // r1+0xC
-    pf_u32 is_extsfn;      // r25
+pf_s32 VFiPFENT_findEntryPos(PF_FFD* p_ffd, PF_DIR_ENT* p_ent, pf_u32 index_search_from, PF_STR* p_pattern, pf_u8 attr_required, pf_u8 attr_unwanted,
+                             pf_u32* p_lpos, pf_u32* p_ppos) {
+    pf_s32 err;
+    PF_ENT_ITER iter;
+    pf_u32 logical_index;
+    pf_u32 is_extsfn;
 
     is_extsfn = 0;
     if (p_ffd == PF_NULL) {
@@ -507,37 +481,28 @@ pf_s32 VFiPFENT_findEntryPos(PF_FFD* p_ffd /* r27 */, PF_DIR_ENT* p_ent /* r29 *
     return 3;
 }
 
-// Range: 0x803C94F4 -> 0x803C954C
-pf_s32 VFiPFENT_findEntry(PF_FFD* p_ffd /* r1+0x8 */, PF_DIR_ENT* p_ent /* r1+0xC */, pf_u32 index_search_from /* r1+0x10 */,
-                          PF_STR* p_pattern /* r1+0x14 */, pf_u8 attr_required /* r1+0x18 */, pf_u8 attr_unwanted /* r1+0x19 */) {
-    // Local variables
-    pf_u32 logical_pos;   // r1+0x20
-    pf_u32 physical_pos;  // r1+0x1C
+pf_s32 VFiPFENT_findEntry(PF_FFD* p_ffd, PF_DIR_ENT* p_ent, pf_u32 index_search_from, PF_STR* p_pattern, pf_u8 attr_required, pf_u8 attr_unwanted) {
+    pf_u32 logical_pos;
+    pf_u32 physical_pos;
 
     return VFiPFENT_findEntryPos(p_ffd, p_ent, index_search_from, p_pattern, attr_required, attr_unwanted, &logical_pos, &physical_pos);
 }
 
-// Range: 0x803C954C -> 0x803C98E4
-pf_s32 VFiPFENT_allocateEntryPos(PF_DIR_ENT* p_ent /* r27 */, pf_u8 num_entries /* r24 */, PF_FFD* p_ffd /* r31 */, pf_u32* p_next_chain /* r28 */,
-                                 PF_STR* p_filename /* r22 */, pf_u32* p_pos /* r23 */) {
-    // Local variables
-    pf_s32 err;                   // r30
-    PF_VOLUME* p_vol;             // r1+0x24
-    PF_ENT_ITER iter;             // r1+0x28
-    PF_DIR_ENT wk_ent;            // r1+0x98
-    pf_u32 wk_sector;             // r1+0x20
-    pf_u16 wk_offset;             // r1+0x8
-    pf_u32 prev_sector;           // r1+0x1C
-    pf_u32 next_sector1;          // r25
-    pf_u32 next_sector2;          // r1+0x18
-    pf_u32 is_found;              // r29
-    pf_u32 sector;                // r1+0x14
-    pf_u32 count_unused_entries;  // r26
-    pf_u32 physical_index;        // r1+0x10
-    pf_u32 dummy_index;           // r1+0xC
-
-    // References
-    // -> PF_VOLUME_SET VFipf_vol_set;
+pf_s32 VFiPFENT_allocateEntryPos(PF_DIR_ENT* p_ent, pf_u8 num_entries, PF_FFD* p_ffd, pf_u32* p_next_chain, PF_STR* p_filename, pf_u32* p_pos) {
+    pf_s32 err;
+    PF_VOLUME* p_vol;
+    PF_ENT_ITER iter;
+    PF_DIR_ENT wk_ent;
+    pf_u32 wk_sector;
+    pf_u16 wk_offset;
+    pf_u32 prev_sector;
+    pf_u32 next_sector1;
+    pf_u32 next_sector2;
+    pf_u32 is_found;
+    pf_u32 sector;
+    pf_u32 count_unused_entries;
+    pf_u32 physical_index;
+    pf_u32 dummy_index;
 
     if (p_ffd == PF_NULL) {
         return 0xA;
@@ -639,16 +604,12 @@ pf_s32 VFiPFENT_allocateEntryPos(PF_DIR_ENT* p_ent /* r27 */, pf_u8 num_entries 
     return 0;
 }
 
-// Range: 0x803C98E4 -> 0x803C9930
-pf_s32 VFiPFENT_allocateEntry(PF_DIR_ENT* p_ent /* r1+0x8 */, pf_u8 num_entries /* r1+0xC */, PF_FFD* p_ffd /* r1+0x10 */,
-                              pf_u32* p_next_chain /* r1+0x14 */, PF_STR* p_filename /* r1+0x18 */) {
-    // Local variables
-    pf_u32 position;  // r1+0x1C
+pf_s32 VFiPFENT_allocateEntry(PF_DIR_ENT* p_ent, pf_u8 num_entries, PF_FFD* p_ffd, pf_u32* p_next_chain, PF_STR* p_filename) {
+    pf_u32 position;
     return VFiPFENT_allocateEntryPos(p_ent, num_entries, p_ffd, p_next_chain, p_filename, &position);
 }
 
-// Range: 0x803C9930 -> 0x803C9A14
-pf_s32 VFiPFENT_GetRootDir(PF_VOLUME* p_vol /* r3 */, PF_DIR_ENT* p_ent /* r4 */) {
+pf_s32 VFiPFENT_GetRootDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent) {
     if (p_vol == PF_NULL) {
         return 0xA;
     }
@@ -682,13 +643,11 @@ pf_s32 VFiPFENT_GetRootDir(PF_VOLUME* p_vol /* r3 */, PF_DIR_ENT* p_ent /* r4 */
     return 0;
 }
 
-// Range: 0x803C9A14 -> 0x803C9B6C
-pf_s32 VFiPFENT_MakeRootDir(PF_VOLUME* p_vol /* r31 */) {
-    // Local variables
-    PF_CACHE_PAGE* p_page;  // r1+0xC
-    pf_u32 sector;          // r29
-    pf_u32 success_size;    // r1+0x8
-    pf_s32 err;             // r30
+pf_s32 VFiPFENT_MakeRootDir(PF_VOLUME* p_vol) {
+    PF_CACHE_PAGE* p_page;
+    pf_u32 sector;
+    pf_u32 success_size;
+    pf_s32 err;
 
     if (p_vol == PF_NULL) {
         return 0xA;
@@ -698,8 +657,8 @@ pf_s32 VFiPFENT_MakeRootDir(PF_VOLUME* p_vol /* r31 */) {
             VFiPFFAT_MakeRootDir(p_vol);
             break;
         }
-        case FAT_16:
-        case FAT_12: {
+        case FAT_12:
+        case FAT_16: {
             err = VFiPFCACHE_AllocateDataPage(p_vol, -1U, &p_page);
             if (err != 0) {
                 return err;
@@ -728,13 +687,11 @@ pf_s32 VFiPFENT_MakeRootDir(PF_VOLUME* p_vol /* r31 */) {
     return 0;
 }
 
-// Range: 0x803C9B6C -> 0x803C9CA4
-pf_s32 VFiPFENT_updateEntry(PF_DIR_ENT* p_ent /* r31 */, pf_u32 flag /* r1+0x8 */) {
-    // Local variables
-    PF_VOLUME* p_vol;     // r29
-    pf_u32 success_size;  // r1+0xC
-    pf_u8 buf[32];        // r1+0x10
-    pf_s32 err;           // r30
+pf_s32 VFiPFENT_updateEntry(PF_DIR_ENT* p_ent, pf_u32 flag) {
+    PF_VOLUME* p_vol;
+    pf_u32 success_size;
+    pf_u8 buf[32];
+    pf_s32 err;
 
     if (p_ent == PF_NULL) {
         return 0xA;
@@ -767,12 +724,10 @@ pf_s32 VFiPFENT_updateEntry(PF_DIR_ENT* p_ent /* r31 */, pf_u32 flag /* r1+0x8 *
     return 0;
 }
 
-// Range: 0x803C9CA4 -> 0x803C9DC0
-pf_s32 VFiPFENT_AdjustSFN(PF_DIR_ENT* p_ent /* r1+0x8 */, signed char* p_short_name /* r30 */) {
-    // Local variables
-    pf_u32 i;         // r31
-    pf_u32 tail_num;  // r1+0xC
-    pf_s32 err;       // r29
+pf_s32 VFiPFENT_AdjustSFN(PF_DIR_ENT* p_ent, pf_s8* p_short_name) {
+    pf_u32 i;
+    pf_u32 tail_num;
+    pf_s32 err;
 
     i = 0;
     err = 0;
@@ -796,16 +751,14 @@ pf_s32 VFiPFENT_AdjustSFN(PF_DIR_ENT* p_ent /* r1+0x8 */, signed char* p_short_n
     return 0;
 }
 
-// Range: 0x803C9DC0 -> 0x803C9F50
-pf_s32 VFiPFENT_RemoveEntry(PF_DIR_ENT* p_ent /* r31 */, PF_ENT_ITER* p_iter /* r28 */) {
-    // Local variables
-    pf_u32 success_size;            // r1+0xC
-    pf_s32 err = 0;                 // r30
-    pf_u32 entry_sector;            // r26
-    pf_u16 entry_offset;            // r25
-    pf_u32 i;                       // r27
-    PF_VOLUME* p_vol = PF_NULL;     // r29
-    pf_u8 dir_fb_free[1] = {0xE5};  // r1+0x8
+pf_s32 VFiPFENT_RemoveEntry(PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter) {
+    pf_u32 success_size;
+    pf_s32 err = 0;
+    pf_u32 entry_sector;
+    pf_u16 entry_offset;
+    pf_u32 i;
+    PF_VOLUME* p_vol = PF_NULL;
+    pf_u8 dir_fb_free[1] = {0xE5};
 
     p_vol = p_ent->p_vol;
     if (p_vol == PF_NULL) {
@@ -850,11 +803,9 @@ pf_s32 VFiPFENT_RemoveEntry(PF_DIR_ENT* p_ent /* r31 */, PF_ENT_ITER* p_iter /* 
     return 0;
 }
 
-// Range: 0x803C9F50 -> 0x803C9FEC
-pf_u8 VFiPFENT_getcurrentDateTimeForEnt(pf_u16* p_date /* r30 */, pf_u16* p_time /* r31 */) {
-    // Local variables
-    PF_SYS_DATE sys_date;  // r1+0x10
-    PF_SYS_TIME sys_time;  // r1+0x8
+pf_u8 VFiPFENT_getcurrentDateTimeForEnt(pf_u16* p_date, pf_u16* p_time) {
+    PF_SYS_DATE sys_date;
+    PF_SYS_TIME sys_time;
 
     VFiPFSYS_TimeStamp(&sys_date, &sys_time);
     *p_date = (sys_date.sys_day & 0x1F) | ((((sys_date.sys_year - 0x7BC) << 9) & 0xFE00) | ((sys_date.sys_month << 5) & 0x1E0));

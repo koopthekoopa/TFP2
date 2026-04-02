@@ -246,7 +246,7 @@ pf_s32 VFipdm_bpb_check_fsinfo_sector(pf_u8* buf /* r3 */, pf_u32* is_fsinfo /* 
     lead_sig = (buf[0x3] << 0x18) | ((buf[0x2] << 0x10) | (buf[0x00] | (buf[0x1] << 8)));
     struct_sig = (buf[0x1E7] << 0x18) | ((buf[0x1E6] << 0x10) | (buf[0x1E4] | (buf[0x1E5] << 8)));
     trail_sig = (buf[0x1FF] << 0x18) | ((buf[0x1FE] << 0x10) | (buf[0x1FC] | (buf[0x1FD] << 8)));
-    if (((pf_u32)(lead_sig + 0xBE9F0000) == 0x5252U) && ((pf_u32)(struct_sig + 0x9EBF0000) == 0x7272U) && ((pf_u32)(trail_sig + 0x55AB0000) == 0U)) {
+    if (lead_sig == 0x41615252 && struct_sig == 0x61417272 && trail_sig == 0xAA550000) {
         *is_fsinfo = 1;
     } else {
         *is_fsinfo = 0;
