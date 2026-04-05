@@ -3,6 +3,6 @@
 
 #include <private/vf/pf_types.h>
 
-pf_s32 VFiPFFATFS_initializeFATFS(pf_u32 config);
+pf_s32 VFiPFFATFS_initializeFATFS(pf_u32 config, void* param);
 
 #endif  // VF_PF_FAT_FILESYSTEM_H
