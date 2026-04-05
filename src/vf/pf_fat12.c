@@ -1,0 +1,298 @@
+#include <private/vf/pf_fat.h>
+#include <private/vf/pf_fat12.h>
+
+#include <private/vf/pf_sector.h>
+#include <private/vf/pf_volume.h>
+
+pf_s32 VFiPFFAT12_ReadFATEntry(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /* r27 */, pf_u32* p_value /* r30 */) {
+    pf_s32 err;                 // r29
+    pf_u16 fat_offset;          // r24
+    pf_u16 fat_sector;          // r28
+    pf_u16 offset_in_sector;    // r25
+    pf_u16 word;                // r23
+    pf_u8 buf[sizeof(pf_u16)];  // r1+0x8
+    pf_u32 current_fat;         // r26
+    pf_s32 result;              // r22
+
+    if (p_vol == PF_NULL) {
+        *p_value = -1U;
+        return 0xA;
+    }
+    if (((cluster < 2U) || (cluster >= (p_vol->bpb.num_clusters + 2))) && (cluster != 0) && (cluster != 1)) {
+        *p_value = -1U;
+        return 0xE;
+    }
+    fat_offset = cluster + (cluster >> 1);
+    fat_sector = p_vol->bpb.active_FAT_sector + (fat_offset >> p_vol->bpb.log2_bytes_per_sector);
+    offset_in_sector = fat_offset & (p_vol->bpb.bytes_per_sector - 1);
+    if ((p_vol->bpb.ext_flags & 0x80) != 0) {
+        current_fat = p_vol->bpb.ext_flags & 7;
+    } else {
+        current_fat = 1;
+    }
+
+    do {
+        if (offset_in_sector < (p_vol->bpb.bytes_per_sector - 1)) {
+            err = VFiPFSEC_ReadFAT(p_vol, &buf[0], (pf_u32)fat_sector, offset_in_sector, 2);
+        } else {
+            err = VFiPFSEC_ReadFAT(p_vol, &buf[0], (pf_u32)fat_sector, offset_in_sector, 1);
+            if (err == 0) {
+                err = VFiPFSEC_ReadFAT(p_vol, &buf[1], fat_sector + 1, 0U, 1);
+            }
+        }
+        if ((err == 0x1000) && (((void(*))p_vol->p_callback) != PF_NULL)) {
+            result = ((pf_s32(*)(pf_s32))p_vol->p_callback)(p_vol->last_driver_error);
+            if (result == 0) {
+                continue;
+            }
+            if ((result == 1) && (p_vol->bpb.num_active_FATs >= 2U) && (current_fat < p_vol->bpb.num_active_FATs)) {
+                current_fat++;
+                fat_sector += (pf_u16)p_vol->bpb.sectors_per_FAT;
+                continue;
+            }
+        }
+        if (err != 0) {
+            *p_value = -1U;
+            return err;
+        }
+    } while (err != 0);
+
+    word = ((*(pf_u16*)buf >> 8U) & 0x00FF) | ((*(pf_u16*)buf << 8) & 0xFF00);
+    if ((cluster & 1) != 0) {
+        *p_value = (word >> 4);
+    } else {
+        *p_value = word & 0xFFF;
+    }
+    return 0;
+}
+
+pf_s32 VFiPFFAT12_ReadFATEntryPage(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /* r25 */, pf_u32* p_value /* r26 */,
+                                   PF_CACHE_PAGE** pp_page /* r30 */) {
+    pf_s32 err;          // r29
+    pf_u32 offset;       // r28
+    pf_u32 sector;       // r27
+    pf_u32 current_fat;  // r24
+    pf_s32 result;       // r1+0x8
+
+    err = 0;
+    if (p_vol == PF_NULL) {
+        return 0xA;
+    }
+    if (((cluster < 2U) || (cluster >= (p_vol->bpb.num_clusters + 2))) && (cluster != 0) && (cluster != 1)) {
+        return 0xE;
+    }
+    offset = (pf_u16)(cluster + (cluster >> 1));
+    sector = p_vol->bpb.active_FAT_sector + (offset >> p_vol->bpb.log2_bytes_per_sector) & 0xFFFF;
+    if ((p_vol->bpb.ext_flags & 0x80) != 0) {
+        current_fat = p_vol->bpb.ext_flags & 7;
+    } else {
+        current_fat = 1;
+    }
+    err = 0;
+    while (PF_TRUE) {
+        if ((err == 0x1000) && (((void(*))p_vol->p_callback) != PF_NULL)) {
+            result = ((pf_s32(*)(pf_s32))p_vol->p_callback)(p_vol->last_driver_error);
+            if (result == 0) {
+                err = 0;
+                continue;
+            }
+            if ((result == 1) && (p_vol->bpb.num_active_FATs >= 2U) && (current_fat < p_vol->bpb.num_active_FATs)) {
+                current_fat++;
+                sector += p_vol->bpb.sectors_per_FAT;
+                err = 0;
+                continue;
+            }
+        } else {
+            if (((*pp_page)->sector > sector) || (((*pp_page)->sector + p_vol->cache.fat_buff_size) <= sector)) {
+                if ((*pp_page)->option == 1) {
+                    err = VFiPFFAT_UpdateFATEntry(p_vol, *pp_page);
+                    if (err != 0) {
+                        return err;
+                    }
+                }
+                err = VFiPFCACHE_ReadFATPage(p_vol, sector, pp_page);
+                if (err != 0) {
+                    continue;
+                }
+            } else {
+                if (sector != ((*pp_page)->sector + (((*pp_page)->p_buf - (*pp_page)->buffer) >> p_vol->bpb.log2_bytes_per_sector))) {
+                    (*pp_page)->p_buf += p_vol->bpb.bytes_per_sector;
+                }
+            }
+            offset &= p_vol->bpb.bytes_per_sector - 1;
+            if (offset == (p_vol->bpb.bytes_per_sector - 1)) {
+                *p_value = (*pp_page)->p_buf[offset];
+                if (((*pp_page)->sector > (sector + 1)) || (((*pp_page)->sector + p_vol->cache.fat_buff_size) <= (sector + 1))) {
+                    if ((*pp_page)->option == 1) {
+                        err = VFiPFFAT_UpdateFATEntry(p_vol, *pp_page);
+                        if (err != 0) {
+                            return err;
+                        }
+                    }
+                    err = VFiPFCACHE_ReadFATPage(p_vol, sector + 1, pp_page);
+                    if (err != 0) {
+                        return err;
+                    }
+                } else {
+                    if ((sector + 1) != ((*pp_page)->sector + (((*pp_page)->p_buf - (*pp_page)->buffer) >> p_vol->bpb.log2_bytes_per_sector))) {
+                        (*pp_page)->p_buf += p_vol->bpb.bytes_per_sector;
+                    }
+                }
+                *p_value += (pf_u16)(*(*pp_page)->p_buf) << 8;
+            } else {
+                *p_value = ((pf_u16)(*pp_page)->p_buf[offset + 1] << 8) + (*pp_page)->p_buf[offset];
+            }
+        }
+        break;
+    }
+    if (err != 0) {
+        *p_value = -1U;
+        return err;
+    }
+    if ((cluster & 1) != 0) {
+        *p_value = *p_value >> 4U;
+    } else {
+        *p_value &= 0xFFF;
+    }
+    return 0;
+}
+
+pf_s32 VFiPFFAT12_WriteFATEntry(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /* r28 */, pf_u16 value /* r24 */) {
+    pf_s32 err;                 // r30
+    pf_u16 fat_offset;          // r27
+    pf_u16 fat_sector;          // r26
+    pf_u16 offset_in_sector;    // r25
+    pf_u16 fat_sector2;         // r1+0xE
+    pf_u16 offset_in_sector2;   // r1+0xC
+    pf_u16 word;                // r29
+    pf_u8 buf[sizeof(pf_u16)];  // r1+0x8
+
+    if (p_vol == PF_NULL) {
+        return 0xA;
+    }
+    if (((cluster < 2U) || (cluster >= (p_vol->bpb.num_clusters + 2))) && (cluster != 0) && (cluster != 1)) {
+        return 0xE;
+    }
+    fat_offset = cluster + (cluster >> 1);
+    fat_sector = p_vol->bpb.active_FAT_sector + (fat_offset >> p_vol->bpb.log2_bytes_per_sector);
+    offset_in_sector = fat_offset & (p_vol->bpb.bytes_per_sector - 1);
+    if ((cluster & 1) != 0) {
+        err = VFiPFSEC_ReadFAT(p_vol, &buf[0], fat_sector, offset_in_sector, 1U);
+        if (err != 0) {
+            return err;
+        }
+        word = (pf_u16)((value << 4) + (buf[0] & 0xF));
+    } else {
+        fat_sector2 = p_vol->bpb.active_FAT_sector + ((fat_offset + 1) >> p_vol->bpb.log2_bytes_per_sector);
+        offset_in_sector2 = (fat_offset + 1) & (p_vol->bpb.bytes_per_sector - 1);
+        err = VFiPFSEC_ReadFAT(p_vol, &buf[0], fat_sector2, offset_in_sector2, 1U);
+        if (err != 0) {
+            return err;
+        }
+        word = (pf_u16)buf[0] << 8;
+        word = (word & 0xF000) + (pf_u16)(value & 0xFFF);
+    }
+    *(pf_u16*)buf = ((word >> 8U) & 0x00FF) | ((word << 8) & 0xFF00);
+    if (offset_in_sector < (p_vol->bpb.bytes_per_sector - 1)) {
+        err = VFiPFSEC_WriteFAT(p_vol, &buf[0], fat_sector, offset_in_sector, 2U);
+    } else {
+        err = VFiPFSEC_WriteFAT(p_vol, &buf[0], fat_sector, offset_in_sector, 1U);
+        if (err == 0) {
+            err = VFiPFSEC_WriteFAT(p_vol, &buf[1], fat_sector + 1, 0U, 1U);
+        }
+    }
+    return err;
+}
+
+pf_s32 VFiPFFAT12_WriteFATEntryPage(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /* r24 */, pf_u16 value /* r23 */, PF_CACHE_PAGE** pp_page /* r30 */) {
+    pf_s32 err;               // r29
+    pf_u32 fat_offset;        // r1+0x8
+    pf_u32 fat_sector;        // r28
+    pf_u16 offset_in_sector;  // r26
+    pf_u32 current_fat;       // r27
+    pf_s32 result;            // r25
+
+#define __CONCAT(x, y) x##y
+#define CONCAT(x, y) __CONCAT(x, y)
+
+#define FAT_MACRO(b_UNK)                                                                                                                             \
+    if (((*pp_page)->sector > (fat_sector + b_UNK)) || (((*pp_page)->sector + p_vol->cache.fat_buff_size) <= (fat_sector + b_UNK))) {                \
+        err = VFiPFFAT_UpdateFATEntry(p_vol, *pp_page);                                                                                              \
+        if (err != 0) {                                                                                                                              \
+            return err;                                                                                                                              \
+        }                                                                                                                                            \
+        if ((p_vol->bpb.ext_flags & 0x80) != 0) {                                                                                                    \
+            current_fat = p_vol->bpb.ext_flags & 7;                                                                                                  \
+        } else {                                                                                                                                     \
+            current_fat = 1;                                                                                                                         \
+        }                                                                                                                                            \
+        do {                                                                                                                                         \
+            err = VFiPFCACHE_ReadFATPage(p_vol, fat_sector + b_UNK, pp_page);                                                                        \
+            if ((err != 0x1000) || (((void(*))p_vol->p_callback) == PF_NULL)) {                                                                      \
+                goto CONCAT(chk_, __LINE__);                                                                                                         \
+            }                                                                                                                                        \
+            result = ((pf_s32(*)(pf_s32))p_vol->p_callback)(p_vol->last_driver_error);                                                               \
+            if (result != 0) {                                                                                                                       \
+                if ((result == 1) && (p_vol->bpb.num_active_FATs >= 2U) && (current_fat < p_vol->bpb.num_active_FATs)) {                             \
+                    current_fat++;                                                                                                                   \
+                    fat_sector += p_vol->bpb.sectors_per_FAT;                                                                                        \
+                } else {                                                                                                                             \
+                    goto CONCAT(chk_, __LINE__);                                                                                                     \
+                }                                                                                                                                    \
+            }                                                                                                                                        \
+            continue;                                                                                                                                \
+            CONCAT(chk_, __LINE__) : if (err != 0) {                                                                                                 \
+                return err;                                                                                                                          \
+            }                                                                                                                                        \
+        } while (err != 0);                                                                                                                          \
+        if (b_UNK) {                                                                                                                                 \
+            VFiPFCACHE_UpdateModifiedSector(*pp_page);                                                                                               \
+        }                                                                                                                                            \
+    } else {                                                                                                                                         \
+        if ((fat_sector + b_UNK) != ((*pp_page)->sector + (((*pp_page)->p_buf - (*pp_page)->buffer) >> p_vol->bpb.log2_bytes_per_sector))) {         \
+            (*pp_page)->p_buf += p_vol->bpb.bytes_per_sector;                                                                                        \
+            if (b_UNK) {                                                                                                                             \
+                VFiPFCACHE_UpdateModifiedSector(*pp_page);                                                                                           \
+            }                                                                                                                                        \
+        }                                                                                                                                            \
+    }
+
+    err = 0;
+    if (p_vol == PF_NULL) {
+        return 0xA;
+    }
+    if (((cluster < 2U) || (cluster >= (p_vol->bpb.num_clusters + 2))) && (cluster != 0) && (cluster != 1)) {
+        return 0xE;
+    }
+    fat_offset = (pf_u16)(cluster + (cluster >> 1));
+    fat_sector = (pf_u16)(p_vol->bpb.active_FAT_sector + (fat_offset >> p_vol->bpb.log2_bytes_per_sector));
+    offset_in_sector = fat_offset & (p_vol->bpb.bytes_per_sector - 1);
+
+    FAT_MACRO(PF_FALSE);
+
+    if ((cluster & 1) != 0) {
+        (*pp_page)->p_buf[offset_in_sector] = ((pf_u8)((value & 0xF) << 4) | ((*pp_page)->p_buf[offset_in_sector] & 0xF));
+        VFiPFCACHE_UpdateModifiedSector(*pp_page);
+        if (offset_in_sector == (pf_u32)(p_vol->bpb.bytes_per_sector - 1)) {
+            FAT_MACRO(PF_TRUE);
+            *(*pp_page)->p_buf = (value >> 4);
+        } else {
+            (*pp_page)->p_buf[offset_in_sector + 1] = (value >> 4);
+        }
+    } else {
+        (*pp_page)->p_buf[offset_in_sector] = value;
+        VFiPFCACHE_UpdateModifiedSector(*pp_page);
+        if (offset_in_sector == (pf_u32)(p_vol->bpb.bytes_per_sector - 1)) {
+            FAT_MACRO(PF_TRUE);
+            *(*pp_page)->p_buf = (*(*pp_page)->p_buf & 0xF0) | (pf_u8)(value >> 8);
+        } else {
+            (*pp_page)->p_buf[offset_in_sector + 1] = ((pf_u8)(value >> 8) | ((*pp_page)->p_buf[offset_in_sector + 1] & 0xF0));
+        }
+    }
+    return err;
+
+#undef FAT_MACRO
+
+#undef CONCAT
+#undef __CONCAT
+}
