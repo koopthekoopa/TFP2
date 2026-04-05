@@ -4,15 +4,15 @@
 #include <private/vf/pf_sector.h>
 #include <private/vf/pf_volume.h>
 
-pf_s32 VFiPFFAT12_ReadFATEntry(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /* r27 */, pf_u32* p_value /* r30 */) {
-    pf_s32 err;                 // r29
-    pf_u16 fat_offset;          // r24
-    pf_u16 fat_sector;          // r28
-    pf_u16 offset_in_sector;    // r25
-    pf_u16 word;                // r23
-    pf_u8 buf[sizeof(pf_u16)];  // r1+0x8
-    pf_u32 current_fat;         // r26
-    pf_s32 result;              // r22
+pf_s32 VFiPFFAT12_ReadFATEntry(PF_VOLUME* p_vol, pf_u16 cluster, pf_u32* p_value) {
+    pf_s32 err;
+    pf_u16 fat_offset;
+    pf_u16 fat_sector;
+    pf_u16 offset_in_sector;
+    pf_u16 word;
+    pf_u8 buf[sizeof(pf_u16)];
+    pf_u32 current_fat;
+    pf_s32 result;
 
     if (p_vol == PF_NULL) {
         *p_value = -1U;
@@ -66,6 +66,7 @@ pf_s32 VFiPFFAT12_ReadFATEntry(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /* r27
     return 0;
 }
 
+// DEBUG NON MATCHING
 pf_s32 VFiPFFAT12_ReadFATEntryPage(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /* r25 */, pf_u32* p_value /* r26 */,
                                    PF_CACHE_PAGE** pp_page /* r30 */) {
     pf_s32 err;          // r29
@@ -157,15 +158,15 @@ pf_s32 VFiPFFAT12_ReadFATEntryPage(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /*
     return 0;
 }
 
-pf_s32 VFiPFFAT12_WriteFATEntry(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /* r28 */, pf_u16 value /* r24 */) {
-    pf_s32 err;                 // r30
-    pf_u16 fat_offset;          // r27
-    pf_u16 fat_sector;          // r26
-    pf_u16 offset_in_sector;    // r25
-    pf_u16 fat_sector2;         // r1+0xE
-    pf_u16 offset_in_sector2;   // r1+0xC
-    pf_u16 word;                // r29
-    pf_u8 buf[sizeof(pf_u16)];  // r1+0x8
+pf_s32 VFiPFFAT12_WriteFATEntry(PF_VOLUME* p_vol, pf_u16 cluster, pf_u16 value) {
+    pf_s32 err;
+    pf_u16 fat_offset;
+    pf_u16 fat_sector;
+    pf_u16 offset_in_sector;
+    pf_u16 fat_sector2;
+    pf_u16 offset_in_sector2;
+    pf_u16 word;
+    pf_u8 buf[sizeof(pf_u16)];
 
     if (p_vol == PF_NULL) {
         return 0xA;
@@ -204,16 +205,16 @@ pf_s32 VFiPFFAT12_WriteFATEntry(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /* r2
     return err;
 }
 
-pf_s32 VFiPFFAT12_WriteFATEntryPage(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /* r24 */, pf_u16 value /* r23 */, PF_CACHE_PAGE** pp_page /* r30 */) {
-    pf_s32 err;               // r29
-    pf_u32 fat_offset;        // r1+0x8
-    pf_u32 fat_sector;        // r28
-    pf_u16 offset_in_sector;  // r26
-    pf_u32 current_fat;       // r27
-    pf_s32 result;            // r25
+pf_s32 VFiPFFAT12_WriteFATEntryPage(PF_VOLUME* p_vol, pf_u16 cluster, pf_u16 value, PF_CACHE_PAGE** pp_page) {
+    pf_s32 err;
+    pf_u32 fat_offset;
+    pf_u32 fat_sector;
+    pf_u16 offset_in_sector;
+    pf_u32 current_fat;
+    pf_s32 result;
 
-#define __CONCAT(x, y) x##y
-#define CONCAT(x, y) __CONCAT(x, y)
+#define __PF_CONCAT(x, y) x##y
+#define PF_CONCAT(x, y) __PF_CONCAT(x, y)
 
 #define FAT_MACRO(b_UNK)                                                                                                                             \
     if (((*pp_page)->sector > (fat_sector + b_UNK)) || (((*pp_page)->sector + p_vol->cache.fat_buff_size) <= (fat_sector + b_UNK))) {                \
@@ -229,7 +230,7 @@ pf_s32 VFiPFFAT12_WriteFATEntryPage(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /
         do {                                                                                                                                         \
             err = VFiPFCACHE_ReadFATPage(p_vol, fat_sector + b_UNK, pp_page);                                                                        \
             if ((err != 0x1000) || (((void(*))p_vol->p_callback) == PF_NULL)) {                                                                      \
-                goto CONCAT(chk_, __LINE__);                                                                                                         \
+                goto PF_CONCAT(chk_, __LINE__);                                                                                                      \
             }                                                                                                                                        \
             result = ((pf_s32(*)(pf_s32))p_vol->p_callback)(p_vol->last_driver_error);                                                               \
             if (result != 0) {                                                                                                                       \
@@ -237,11 +238,11 @@ pf_s32 VFiPFFAT12_WriteFATEntryPage(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /
                     current_fat++;                                                                                                                   \
                     fat_sector += p_vol->bpb.sectors_per_FAT;                                                                                        \
                 } else {                                                                                                                             \
-                    goto CONCAT(chk_, __LINE__);                                                                                                     \
+                    goto PF_CONCAT(chk_, __LINE__);                                                                                                  \
                 }                                                                                                                                    \
             }                                                                                                                                        \
             continue;                                                                                                                                \
-            CONCAT(chk_, __LINE__) : if (err != 0) {                                                                                                 \
+            PF_CONCAT(chk_, __LINE__) : if (err != 0) {                                                                                              \
                 return err;                                                                                                                          \
             }                                                                                                                                        \
         } while (err != 0);                                                                                                                          \
@@ -293,6 +294,6 @@ pf_s32 VFiPFFAT12_WriteFATEntryPage(PF_VOLUME* p_vol /* r31 */, pf_u16 cluster /
 
 #undef FAT_MACRO
 
-#undef CONCAT
+#undef PF_CONCAT
 #undef __CONCAT
 }
