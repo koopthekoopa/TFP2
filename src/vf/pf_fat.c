@@ -159,7 +159,7 @@ static pf_s32 VFiPFFAT_ReadFATSector(PF_VOLUME* p_vol, PF_CACHE_PAGE** p_page, p
             result = ((pf_s32(*)(pf_s32))p_vol->p_callback)(p_vol->last_driver_error);
             if (result != 0) {
                 if ((result == 1) && (p_vol->bpb.num_active_FATs >= 2U) && (current_fat < p_vol->bpb.num_active_FATs)) {
-                    current_fat += 1;
+                    current_fat++;
                     sector += p_vol->bpb.sectors_per_FAT;
                     goto block_22;
                 }
@@ -522,7 +522,7 @@ static pf_s32 VFiPFFAT_DoAllocateChain(PF_FFD* p_ffd, pf_u32 chain_len, pf_u32 c
         }
         if (((p_vol->fsi_flag & 4) != 0) && ((p_vol->num_free_clusters) != -1U) && (p_vol->num_free_clusters != 0) &&
             ((p_vol->bpb.fat_type != FAT_32) || (last_allocated_cluster != p_vol->bpb.root_dir_cluster))) {
-            p_vol->num_free_clusters -= 1;
+            p_vol->num_free_clusters--;
         }
         if ((*p_chain_start) == -1U) {
             *p_chain_start = start_cluster;
@@ -541,7 +541,7 @@ static pf_s32 VFiPFFAT_DoAllocateChain(PF_FFD* p_ffd, pf_u32 chain_len, pf_u32 c
         *p_last_allocated = start_cluster;
         if (((p_vol->num_free_clusters) != -1U) && (p_vol->num_free_clusters != 0) &&
             ((p_vol->bpb.fat_type != FAT_32) || (last_allocated_cluster != p_vol->bpb.root_dir_cluster))) {
-            p_vol->num_free_clusters -= 1;
+            p_vol->num_free_clusters--;
         }
         goto block_29;
     }
@@ -627,7 +627,7 @@ static pf_s32 VFiPFFAT_GetClusterInChain(PF_FFD* p_ffd /* r31 */, pf_u32 chain_i
         }
     } else {
         if ((mode == 1) && (current_cluster == 0)) {
-            trace_cnt += 1;
+            trace_cnt++;
         }
         append_cnt = trace_cnt;
     }
@@ -1282,7 +1282,7 @@ pf_s32 VFiPFFAT_FreeChain(PF_FFD* p_ffd, pf_u32 start_cluster, pf_u32 chain_inde
             }
         }
         if ((p_vol->num_free_clusters) != -1U) {
-            p_vol->num_free_clusters += 1;
+            p_vol->num_free_clusters++;
         }
         start_cluster = next_cluster;
     }
@@ -1332,7 +1332,7 @@ pf_s32 VFiPFFAT_GetBeforeChain(PF_VOLUME* p_vol, pf_u32 start_cluster, pf_u32 lA
             *p_cluster = start_cluster;
             return 0;
         }
-        start_cluster -= 1;
+        start_cluster--;
         if (((start_cluster < 2U) || (start_cluster >= (p_vol->bpb.num_clusters + 2))) && (start_cluster < eoc1)) {
             *p_cluster = lActive;
             return 0;
@@ -1492,7 +1492,7 @@ pf_s32 VFiPFFAT_TraceClustersChain(PF_FFD* p_ffd, pf_u32 start_clst, pf_u32 size
     clst_size = p_vol->bpb.bytes_per_sector << p_vol->bpb.log2_sectors_per_cluster;
     clst_cnt = size / clst_size;
     if ((size % clst_size) != 0) {
-        clst_cnt += 1;
+        clst_cnt++;
     }
     if (*p_ffd->p_start_cluster == start_clst) {
         chain_index = 1;

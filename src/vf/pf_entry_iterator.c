@@ -572,14 +572,14 @@ pf_s32 VFiPFENT_ITER_Retreat(PF_ENT_ITER* p_iter, pf_u32 may_allocate) {
             before_cluster = cur_cluster;
         }
     block_16:
-        p_iter->index -= 1;
-        p_iter->file_sector_index -= 1;
+        p_iter->index--;
+        p_iter->file_sector_index--;
         if ((p_iter->p_vol->bpb.fat_type == FAT_32) ||
             ((*p_iter->ffd.p_start_cluster > 1U) && (p_iter->p_vol->bpb.first_data_sector <= p_iter->sector))) {
             p_iter->sector = (p_iter->p_vol->bpb.first_data_sector + ((before_cluster - 2) << p_iter->p_vol->bpb.log2_sectors_per_cluster)) +
                              (p_iter->file_sector_index & (p_iter->p_vol->bpb.sectors_per_cluster - 1));
         } else {
-            p_iter->sector -= 1;
+            p_iter->sector--;
         }
         p_iter->offset = (p_iter->index & p_iter->offset_mask) * 0x20;
         return VFiPFENT_ITER_MoveTo(p_iter, p_iter->index, may_allocate);

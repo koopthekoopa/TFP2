@@ -229,7 +229,7 @@ static pf_s32 VFiPFDIR_p_mkdir(PF_VOLUME* p_vol /* r29 */, PF_STR* p_path /* r1+
             if (entry.entry_offset >= p_vol->bpb.bytes_per_sector) {
                 entry.entry_offset = 0;
                 OldSector = (NextChain)[pozIdx];
-                pozIdx += 1;
+                pozIdx++;
             }
         }
         entry.entry_sector = OldSector;

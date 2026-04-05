@@ -88,7 +88,7 @@ static pf_s32 VFiPFENT_getEntry(PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter, PF_STR* 
             VFiPFENT_LoadShortNameFromBuf(p_ent, p_iter->buf);
             is_match = VFiPFENT_compareEntryName(p_ent, p_pattern, attr);
             if (is_match == 1) {
-                *logical_index += 1;
+                (*logical_index)++;
             }
         }
     }
@@ -551,7 +551,7 @@ pf_s32 VFiPFENT_allocateEntryPos(PF_DIR_ENT* p_ent, pf_u8 num_entries, PF_FFD* p
                         }
                         prev_sector = iter.sector;
                     }
-                    count_unused_entries += 1;
+                    count_unused_entries++;
                 } else {
                     count_unused_entries = 0;
                     next_sector1 = -1U;
