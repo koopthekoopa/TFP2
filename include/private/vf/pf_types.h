@@ -24,6 +24,11 @@ typedef pf_u32 /* ? */ pf_bool;
 
 #define PF_NULL 0
 
+// clang-format off
+#define PF_SWAP_16(x) ((pf_u16)((((x) >>  8) & 0x00FF    ) |  (((x) << 8) & 0xFF00  )                                                  ))
+#define PF_SWAP_32(x) ((pf_u32)((((x) << 24) & 0xFF000000) | ((((x) << 8) & 0xFF0000) | ((((x) >> 24) & 0xFF) | (((x) >> 8) & 0xFF00)))))
+// clang-format on
+
 // unsorted structs
 #include <private/vf/pdm_struct.h>
 #include <private/vf/pf_struct.h>

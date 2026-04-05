@@ -324,7 +324,7 @@ config.libs = [
             Object(Equivalent,  "vf/pf_entry_iterator.c"),
             Object(Equivalent,  "vf/pf_fat.c"),
             Object(Equivalent,  "vf/pf_fat12.c"),
-            Object(NonMatching, "vf/pf_fat16.c"),
+            Object(Matching,    "vf/pf_fat16.c"),
             Object(NonMatching, "vf/pf_fat32.c"),
             Object(NonMatching, "vf/pf_fatfs.c"),
             Object(NonMatching, "vf/pf_file.c"),

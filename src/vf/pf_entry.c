@@ -255,38 +255,32 @@ void VFiPFENT_LoadShortNameFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf) {
     }
 }
 
-#define FIELD_16(x) ((((x) >> 8) & 0xFF) | (((x) << 8) & 0xFF00))
-#define FIELD_32(x) ((((x) << 0x18) & 0xFF000000) | ((((x) << 8) & 0xFF0000) | ((((x) >> 0x18) & 0xFF) | (((x) >> 8) & 0xFF00))))
-
 void VFiPFENT_loadEntryNumericFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf) {
     p_ent->attr = buf[0xB];
     p_ent->small_letter_flag = buf[0xC];
     p_ent->create_time_ms = buf[0xD];
-    p_ent->create_time = FIELD_16(*(pf_u16*)&buf[0xE]);
-    p_ent->create_date = FIELD_16(*(pf_u16*)&buf[0x10]);
-    p_ent->access_date = FIELD_16(*(pf_u16*)&buf[0x12]);
-    p_ent->modify_time = FIELD_16(*(pf_u16*)&buf[0x16]);
-    p_ent->modify_date = FIELD_16(*(pf_u16*)&buf[0x18]);
-    p_ent->file_size = FIELD_32(*(pf_u32*)&buf[0x1C]);
-    p_ent->start_cluster = ((pf_u16)FIELD_16(*(pf_u16*)&buf[0x14]) << 0x10) | (pf_u16)(FIELD_16(*(pf_u16*)&buf[0x1A]));
+    p_ent->create_time = PF_SWAP_16(*(pf_u16*)&buf[0xE]);
+    p_ent->create_date = PF_SWAP_16(*(pf_u16*)&buf[0x10]);
+    p_ent->access_date = PF_SWAP_16(*(pf_u16*)&buf[0x12]);
+    p_ent->modify_time = PF_SWAP_16(*(pf_u16*)&buf[0x16]);
+    p_ent->modify_date = PF_SWAP_16(*(pf_u16*)&buf[0x18]);
+    p_ent->file_size = PF_SWAP_32(*(pf_u32*)&buf[0x1C]);
+    p_ent->start_cluster = ((pf_u16)PF_SWAP_16(*(pf_u16*)&buf[0x14]) << 0x10) | (pf_u16)(PF_SWAP_16(*(pf_u16*)&buf[0x1A]));
 }
 
 void VFiPFENT_StoreEntryNumericFieldsToBuf(pf_u8* buf, const PF_DIR_ENT* p_ent) {
     buf[0x0B] = p_ent->attr;
     buf[0x0C] = p_ent->small_letter_flag;
     buf[0x0D] = p_ent->create_time_ms;
-    *(pf_u16*)&buf[0x0E] = FIELD_16(p_ent->create_time);
-    *(pf_u16*)&buf[0x10] = FIELD_16(p_ent->create_date);
-    *(pf_u16*)&buf[0x12] = FIELD_16(p_ent->access_date);
-    *(pf_u16*)&buf[0x16] = FIELD_16(p_ent->modify_time);
-    *(pf_u16*)&buf[0x18] = FIELD_16(p_ent->modify_date);
-    *(pf_u16*)&buf[0x14] = FIELD_16((pf_u16)(p_ent->start_cluster >> 0x10));
-    *(pf_u16*)&buf[0x1A] = FIELD_16((pf_u16)(p_ent->start_cluster));
-    *(pf_u32*)&buf[0x1C] = FIELD_32(p_ent->file_size);
+    *(pf_u16*)&buf[0x0E] = PF_SWAP_16(p_ent->create_time);
+    *(pf_u16*)&buf[0x10] = PF_SWAP_16(p_ent->create_date);
+    *(pf_u16*)&buf[0x12] = PF_SWAP_16(p_ent->access_date);
+    *(pf_u16*)&buf[0x16] = PF_SWAP_16(p_ent->modify_time);
+    *(pf_u16*)&buf[0x18] = PF_SWAP_16(p_ent->modify_date);
+    *(pf_u16*)&buf[0x14] = PF_SWAP_16((pf_u16)(p_ent->start_cluster >> 0x10));
+    *(pf_u16*)&buf[0x1A] = PF_SWAP_16((pf_u16)(p_ent->start_cluster));
+    *(pf_u32*)&buf[0x1C] = PF_SWAP_32(p_ent->file_size);
 }
-
-#undef FIELD_16
-#undef FIELD_32
 
 pf_s32 VFiPFENT_LoadLFNEntryFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf) {
     pf_u8 ordinal;
