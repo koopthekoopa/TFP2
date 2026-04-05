@@ -263,7 +263,69 @@ static pf_s32 VFiPFENT_ITER_DoFindEntry(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, 
                 return 3;
             }
             VFiPFENT_LoadShortNameFromBuf(p_ent, p_iter->buf);
-            if (VFiPFPATH_MatchFileNameWithPattern(p_ent->short_name, p_pattern, 0U) != 0) {
+            if (VFiPFPATH_MatchFileNameWithPattern(p_ent->short_name, p_pattern, 0U) == 0) {
+                break;
+            }
+
+            VFiPFENT_loadEntryNumericFieldsFromBuf(p_ent, p_iter->buf);
+            p_ent->entry_sector = p_iter->sector;
+            p_ent->entry_offset = p_iter->offset;
+            p_ent->p_vol = p_iter->ffd.p_vol;
+            if (((p_ent->attr & 0x10) != 0) && (p_ent->start_cluster == 0)) {
+                p_ent->start_cluster = 1;
+            }
+            *p_is_found = 1;
+            return 0;
+        }
+    } else {
+        for (; VFiPFENT_ITER_IsAtLogicalEnd(p_iter) == PF_FALSE; err = VFiPFENT_ITER_Advance(p_iter, 0U)) {
+            if (err != 0) {
+                return err;
+            }
+
+            if (p_iter->buf[0] == 0) {
+                break;
+            }
+
+            if (p_iter->buf[0] == 0xE5) {
+                p_ent->num_entry_LFNs = 0;
+                p_ent->long_name[0] = 0;
+                continue;
+            }
+            attr = p_iter->buf[0xB];
+            if ((attr & 0xF) == 0xF) {
+                err = VFiPFENT_LoadLFNEntryFieldsFromBuf(p_ent, p_iter->buf);
+                if (err != 0) {
+                    p_ent->num_entry_LFNs = 0;
+                    p_ent->long_name[0] = 0;
+                }
+                continue;
+            }
+            if (attr == 0) {
+                attr = 0x40;
+            }
+            if ((attr_required & 0x80) != 0) {
+                attr_required &= 0xFFFFFF7F;
+                attr_unwanted &= 0xFFFFFF7F;
+                if (((attr_required != 0) && (attr_required != (attr & attr_required))) ||
+                    ((attr_unwanted != 0) && (attr_unwanted == (attr & attr_unwanted)))) {
+                    err = -1;
+                }
+            } else if ((attr_required != 0x7F) && (attr != attr_required) && (((attr & attr_required) == 0) || ((attr & attr_unwanted) != 0))) {
+                err = -1;
+            }
+            if (err == -1) {
+                p_ent->num_entry_LFNs = 0;
+                p_ent->long_name[0] = 0;
+                continue;
+            }
+            if ((attr & 8) != 0) {
+                p_ent->num_entry_LFNs = 0;
+                p_ent->long_name[0] = 0;
+            }
+            VFiPFENT_LoadShortNameFromBuf(p_ent, p_iter->buf);
+            if ((p_ent->num_entry_LFNs != 0) && (p_ent->ordinal == 1) && (p_ent->check_sum == VFiPFENT_CalcCheckSum(p_ent)) &&
+                (VFiPFPATH_MatchFileNameWithPattern((pf_s8*)p_ent->long_name, p_pattern, 1U) != 0)) {
                 VFiPFENT_loadEntryNumericFieldsFromBuf(p_ent, p_iter->buf);
                 p_ent->entry_sector = p_iter->sector;
                 p_ent->entry_offset = p_iter->offset;
@@ -274,87 +336,27 @@ static pf_s32 VFiPFENT_ITER_DoFindEntry(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, 
                 *p_is_found = 1;
                 return 0;
             }
-            goto block_99;
-        }
-    }
-    for (; VFiPFENT_ITER_IsAtLogicalEnd(p_iter) == PF_FALSE; err = VFiPFENT_ITER_Advance(p_iter, 0U)) {
-        if (err != 0) {
-            return err;
-        }
-
-        if (p_iter->buf[0] == 0) {
-            break;
-        }
-
-        if (p_iter->buf[0] == 0xE5) {
-            p_ent->num_entry_LFNs = 0;
-            p_ent->long_name[0] = 0;
-            continue;
-        }
-        attr = p_iter->buf[0xB];
-        if ((attr & 0xF) == 0xF) {
-            err = VFiPFENT_LoadLFNEntryFieldsFromBuf(p_ent, p_iter->buf);
-            if (err != 0) {
-                p_ent->num_entry_LFNs = 0;
-                p_ent->long_name[0] = 0;
+            if (VFiPFPATH_MatchFileNameWithPattern(p_ent->short_name, p_pattern, 0U) != 0) {
+                if ((p_iter->buf[0xC] & 0x18) != 0) {
+                    VFiPFPATH_getLongNameformShortName(p_ent->short_name, (pf_s8*)&filename, p_iter->buf[0xC]);
+                    lengthName = VFiPFPATH_transformInUnicode(p_ent->long_name, (pf_s8*)&filename);
+                    p_ent->num_entry_LFNs = (lengthName / 13) + (lengthName % 13 ? 1 : 0);
+                    p_ent->check_sum = VFiPFENT_CalcCheckSum(p_ent);
+                    p_ent->ordinal = 1;
+                }
+                VFiPFENT_loadEntryNumericFieldsFromBuf(p_ent, p_iter->buf);
+                p_ent->entry_sector = p_iter->sector;
+                p_ent->entry_offset = p_iter->offset;
+                p_ent->p_vol = p_iter->ffd.p_vol;
+                if (((p_ent->attr & 0x10) != 0) && (p_ent->start_cluster == 0)) {
+                    p_ent->start_cluster = 1;
+                }
+                *p_is_found = 1;
+                return 0;
             }
-            continue;
-        }
-        if (attr == 0) {
-            attr = 0x40;
-        }
-        if ((attr_required & 0x80) != 0) {
-            attr_required &= 0xFFFFFF7F;
-            attr_unwanted &= 0xFFFFFF7F;
-            if (((attr_required != 0) && (attr_required != (attr & attr_required))) ||
-                ((attr_unwanted != 0) && (attr_unwanted == (attr & attr_unwanted)))) {
-                err = -1;
-            }
-        } else if ((attr_required != 0x7F) && (attr != attr_required) && (((attr & attr_required) == 0) || ((attr & attr_unwanted) != 0))) {
-            err = -1;
-        }
-        if (err == -1) {
-            p_ent->num_entry_LFNs = 0;
-            p_ent->long_name[0] = 0;
-            continue;
-        }
-        if ((attr & 8) != 0) {
             p_ent->num_entry_LFNs = 0;
             p_ent->long_name[0] = 0;
         }
-        VFiPFENT_LoadShortNameFromBuf(p_ent, p_iter->buf);
-        if ((p_ent->num_entry_LFNs != 0) && (p_ent->ordinal == 1) && (p_ent->check_sum == VFiPFENT_CalcCheckSum(p_ent)) &&
-            (VFiPFPATH_MatchFileNameWithPattern((pf_s8*)p_ent->long_name, p_pattern, 1U) != 0)) {
-            VFiPFENT_loadEntryNumericFieldsFromBuf(p_ent, p_iter->buf);
-            p_ent->entry_sector = p_iter->sector;
-            p_ent->entry_offset = p_iter->offset;
-            p_ent->p_vol = p_iter->ffd.p_vol;
-            if (((p_ent->attr & 0x10) != 0) && (p_ent->start_cluster == 0)) {
-                p_ent->start_cluster = 1;
-            }
-            *p_is_found = 1;
-            return 0;
-        }
-        if (VFiPFPATH_MatchFileNameWithPattern(p_ent->short_name, p_pattern, 0U) != 0) {
-            if ((p_iter->buf[0xC] & 0x18) != 0) {
-                VFiPFPATH_getLongNameformShortName(p_ent->short_name, (pf_s8*)&filename, p_iter->buf[0xC]);
-                lengthName = VFiPFPATH_transformInUnicode(p_ent->long_name, (pf_s8*)&filename);
-                p_ent->num_entry_LFNs = (lengthName / 13) + (lengthName % 13 ? 1 : 0);
-                p_ent->check_sum = VFiPFENT_CalcCheckSum(p_ent);
-                p_ent->ordinal = 1;
-            }
-            VFiPFENT_loadEntryNumericFieldsFromBuf(p_ent, p_iter->buf);
-            p_ent->entry_sector = p_iter->sector;
-            p_ent->entry_offset = p_iter->offset;
-            p_ent->p_vol = p_iter->ffd.p_vol;
-            if (((p_ent->attr & 0x10) != 0) && (p_ent->start_cluster == 0)) {
-                p_ent->start_cluster = 1;
-            }
-            *p_is_found = 1;
-            return 0;
-        }
-        p_ent->num_entry_LFNs = 0;
-        p_ent->long_name[0] = 0;
     }
 block_99:
     return 0;
@@ -563,12 +565,12 @@ pf_s32 VFiPFENT_ITER_Retreat(PF_ENT_ITER* p_iter, pf_u32 may_allocate) {
                 if (before_cluster == -1U) {
                     return 0xE;
                 }
-                goto block_16;
+            } else {
+                before_cluster = *p_iter->ffd.p_start_cluster;
             }
-            before_cluster = *p_iter->ffd.p_start_cluster;
-            goto block_16;
+        } else {
+            before_cluster = cur_cluster;
         }
-        before_cluster = cur_cluster;
     block_16:
         p_iter->index -= 1;
         p_iter->file_sector_index -= 1;

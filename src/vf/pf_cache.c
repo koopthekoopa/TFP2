@@ -118,9 +118,11 @@ static PF_CACHE_PAGE* VFiPFCACHE_SearchForPage(PF_VOLUME* p_vol, PF_CACHE_PAGE* 
     return PF_NULL;
 }
 
-// DEBUG NON MATCHING
-static PF_CACHE_PAGE* VFiPFCACHE_SearchForUsedPage(PF_VOLUME* p_vol /* r3 */, PF_CACHE_PAGE** pp_head /* r4 */, PF_CACHE_PAGE* p_page /* r5 */) {
-    PF_CACHE_PAGE* lp_page;  // r31
+static PF_CACHE_PAGE* VFiPFCACHE_SearchForUsedPage(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, PF_CACHE_PAGE* p_page) {
+    PF_CACHE_PAGE* lp_page;
+
+    // unused
+    (void)p_vol;
 
     if (p_page == PF_NULL) {
         lp_page = *pp_head;
@@ -147,9 +149,7 @@ static pf_u32 VFiPFCACHE_SearchForFreePage(PF_CACHE_PAGE* p_head, PF_CACHE_PAGE*
 
     p_page = p_head->p_prev;
 
-    goto block;
-
-    while (PF_TRUE) {
+    while (p_page != p_head) {
         if ((p_page->stat & 1) == 0) {
             *pp_page = p_page;
             return 1;
@@ -159,21 +159,18 @@ static pf_u32 VFiPFCACHE_SearchForFreePage(PF_CACHE_PAGE* p_head, PF_CACHE_PAGE*
             return 0;
         }
         p_page = p_page->p_prev;
-
-    block:
-        if (p_page == p_head) {
-            if ((p_page->stat & 1) == 0) {
-                *pp_page = p_page;
-                return 1;
-            }
-            if (p_page->sector != -1) {
-                *pp_page = p_page;
-                return 0;
-            }
-            *pp_page = PF_NULL;
-            return 0;
-        }
     }
+
+    if ((p_page->stat & 1) == 0) {
+        *pp_page = p_page;
+        return 1;
+    }
+    if (p_page->sector != -1) {
+        *pp_page = p_page;
+        return 0;
+    }
+    *pp_page = PF_NULL;
+    return 0;
 }
 
 static void VFiPFCACHE_MovePageToHead(PF_CACHE_PAGE** pp_head, PF_CACHE_PAGE* p_page) {

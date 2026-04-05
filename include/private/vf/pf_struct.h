@@ -12,6 +12,8 @@ typedef enum /* @enum$182pf_str_c */ {
     FAT_ERR = -1,
 } PF_FAT_TYPE;
 
+#define FAT_MAX 3
+
 typedef struct PF_SYS_DATE {
     // total size: 0x6
     pf_u16 sys_year;   // offset 0x0, size 0x2

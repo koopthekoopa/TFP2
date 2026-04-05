@@ -1,10 +1,8 @@
 #include <private/vf/pdm_bpb.h>
 
-// DEBUG NON MATCHING
 static void VFipdm_bpb_calculate_common_bpb_fields(PDM_BPB* p_bpb /* r3 */) {
-    // Local variables
-    pf_u32 num_data_sectors;  // r30
-    pf_u16 val;               // r31
+    pf_u32 num_data_sectors;
+    pf_u16 val;
 
     p_bpb->log2_bytes_per_sector = 0;
     val = p_bpb->bytes_per_sector;
@@ -19,7 +17,7 @@ static void VFipdm_bpb_calculate_common_bpb_fields(PDM_BPB* p_bpb /* r3 */) {
         p_bpb->log2_sectors_per_cluster++;
     }
 
-    p_bpb->num_root_dir_sectors = ((p_bpb->bytes_per_sector - 1) + (p_bpb->num_root_dir_entries * 32)) >> p_bpb->log2_bytes_per_sector;
+    p_bpb->num_root_dir_sectors = ((p_bpb->num_root_dir_entries << 5 /* * 32 */) + (p_bpb->bytes_per_sector - 1)) >> p_bpb->log2_bytes_per_sector;
     p_bpb->first_data_sector = (p_bpb->num_FATs * p_bpb->sectors_per_FAT) + (p_bpb->num_root_dir_sectors + p_bpb->num_reserved_sectors);
     num_data_sectors = p_bpb->total_sectors - p_bpb->first_data_sector;
     p_bpb->num_clusters = num_data_sectors >> p_bpb->log2_sectors_per_cluster;
@@ -61,17 +59,15 @@ static void VFipdm_bpb_calculate_specific_bpb_fields(PDM_BPB* p_bpb) {
     }
 }
 
-// DEBUG NON MATCHING
-pf_s32 VFipdm_bpb_load_string(const pf_u8* buf /* r3 */, pf_u32 length /* r4 */, pf_u8* p_string /* r5 */) {
-    // Local variables
-    pf_u32 i;  // r31
+pf_s32 VFipdm_bpb_load_string(const pf_u8* buf, pf_u32 length, pf_u8* p_string) {
+    pf_u32 i;
 
     if (buf == PF_NULL || p_string == PF_NULL || length == 0) {
         return 1;
     }
 
     for (i = 0; i < length; i++) {
-        p_string[i] = buf[i];
+        p_string[i] = *(pf_u8*)&buf[i];
     }
 
     return 0;

@@ -43,9 +43,9 @@ typedef struct PF_DTAW {
     pf_u8 Attribute;              // offset 0x22C, size 0x1
     pf_s8 FileName[13];           // offset 0x22D, size 0xD
     pf_s8 LongName[522];          // offset 0x23A, size 0x208
-    pf_u16 reg_expW[260];
-    pf_u16 FileNameW[13];
-    pf_u16 LongNameW[256];
+    pf_u16 reg_expW[260];         // offset 0x444, size 0x208
+    pf_u16 FileNameW[13];         // offset 0x64C, size 0x1A
+    pf_u16 LongNameW[256];        // offset 0x666, size 0x200
 } PF_DTAW;
 
 void VFiPFDIR_FinalizeAllDirs(PF_VOLUME* p_vol);

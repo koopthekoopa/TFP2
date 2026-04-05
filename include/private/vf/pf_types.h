@@ -1,6 +1,8 @@
 #ifndef VF_PF_TYPES_H
 #define VF_PF_TYPES_H
 
+#include <stddef.h>
+
 typedef signed char pf_s8;
 typedef signed short pf_s16;
 typedef signed long pf_s32;

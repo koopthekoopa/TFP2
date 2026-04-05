@@ -125,7 +125,7 @@ typedef struct PF_DIR {
     PF_DIR_CURSOR cursor;  // offset 0x14, size 0xC
 } PF_DIR;
 
-struct PF_VOLUME {
+/*typedef*/ struct PF_VOLUME {
     // total size: 0x1898
     PF_BPB bpb;                        // offset 0x0, size 0x38
     pf_u32 num_free_clusters;          // offset 0x38, size 0x4
@@ -150,7 +150,7 @@ struct PF_VOLUME {
     void* p_part;                      // offset 0x188C, size 0x4
     void (*p_callback)();              // offset 0x1890, size 0x4
     const pf_u8* format_param;         // offset 0x1894, size 0x4
-};
+} /*PF_VOLUME*/;
 
 typedef struct PF_VOLUME_SET {
     // total size: 0x27FB8
