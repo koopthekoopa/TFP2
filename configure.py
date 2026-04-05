@@ -349,7 +349,7 @@ config.libs = [
             Object(NonMatching, "vf/pf_remove.c"),
             Object(NonMatching, "vf/pf_unmount.c"),
             Object(NonMatching, "vf/pf_filelock.c"),
-            Object(NonMatching, "vf/pf_system.c"),
+            Object(Matching,    "vf/pf_system.c"),
             Object(NonMatching, "vf/d_vf.c"),
             Object(NonMatching, "vf/d_vf_sys.c"),
             Object(NonMatching, "vf/d_hash.c"),
