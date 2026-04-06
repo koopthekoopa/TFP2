@@ -327,7 +327,7 @@ config.libs = [
             Object(Matching,    "vf/pf_fat16.c"),
             Object(Matching,    "vf/pf_fat32.c"),
             Object(Matching,    "vf/pf_fatfs.c"),
-            Object(NonMatching, "vf/pf_file.c"),
+            Object(Matching,    "vf/pf_file.c"),
             Object(NonMatching, "vf/pf_path.c"),
             Object(NonMatching, "vf/pf_sector.c"),
             Object(NonMatching, "vf/pf_volume.c"),
