@@ -142,7 +142,7 @@ pf_s32 VFipdm_bpb_get_bpb_information(pf_u8* buf /* r30 */, PDM_BPB* p_bpb /* r3
             p_bpb->vol_id = ((buf[0x46] << 0x18) | ((buf[0x45] << 0x10) | (buf[0x43] | (buf[0x44] << 8))));
 
             VFipdm_bpb_load_string(&buf[0x47], 11, p_bpb->vol_label);
-            VFipdm_bpb_load_string(&buf[0x52], 8, p_bpb->fs_type);
+            VFipdm_bpb_load_string(&buf['R'], 8, p_bpb->fs_type);
 
             if (p_bpb->fs_version != 0) {
                 err = 4;
@@ -173,14 +173,14 @@ pf_s32 VFipdm_bpb_set_fsinfo_information(PDM_FSINFO* p_fsinfo, pf_u8* buf) {
         return 1;
     }
 
-    buf[0x00] = 0x52;
-    buf[0x01] = 0x52;
-    buf[0x02] = 0x61;
-    buf[0x03] = 0x41;
-    buf[0x1E4] = 0x72;
-    buf[0x1E5] = 0x72;
-    buf[0x1E6] = 0x41;
-    buf[0x1E7] = 0x61;
+    buf[0x00] = 'R';
+    buf[0x01] = 'R';
+    buf[0x02] = 'a';
+    buf[0x03] = 'A';
+    buf[0x1E4] = 'r';
+    buf[0x1E5] = 'r';
+    buf[0x1E6] = 'A';
+    buf[0x1E7] = 'a';
     buf[0x1E8] = p_fsinfo->free_count;
     buf[0x1E9] = p_fsinfo->free_count >> 8;
     buf[0x1EA] = p_fsinfo->free_count >> 0x10;
@@ -242,7 +242,7 @@ pf_s32 VFipdm_bpb_check_fsinfo_sector(pf_u8* buf /* r3 */, pf_u32* is_fsinfo /* 
     lead_sig = (buf[0x3] << 0x18) | ((buf[0x2] << 0x10) | (buf[0x00] | (buf[0x1] << 8)));
     struct_sig = (buf[0x1E7] << 0x18) | ((buf[0x1E6] << 0x10) | (buf[0x1E4] | (buf[0x1E5] << 8)));
     trail_sig = (buf[0x1FF] << 0x18) | ((buf[0x1FE] << 0x10) | (buf[0x1FC] | (buf[0x1FD] << 8)));
-    if (lead_sig == 0x41615252 && struct_sig == 0x61417272 && trail_sig == 0xAA550000) {
+    if (lead_sig == 'AaRR' && struct_sig == 'aArr' && trail_sig == 0xAA550000) {
         *is_fsinfo = 1;
     } else {
         *is_fsinfo = 0;

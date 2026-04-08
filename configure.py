@@ -262,24 +262,23 @@ config.linker_version = "GC/3.0a5.2"
 
 
 # Helper function for SDK libraries
-def SDKLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
+def ATOKLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
     return {
         "lib": lib_name,
         "mw_version": config.linker_version,
         "cflags": cflags_sdk,
-        "progress_category": "sdk",
+        "progress_category": "atok",
         "objects": objects,
     }
 
-def RFLLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
+def VFLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
     return {
         "lib": lib_name,
         "mw_version": config.linker_version,
-        "cflags": cflags_rfl,
-        "progress_category": "sdk",
+        "cflags": cflags_sdk,
+        "progress_category": "vf",
         "objects": objects,
     }
-
 
 Matching = True                   # Object matches and should be linked
 NonMatching = False               # Object does not match and should not be linked
@@ -298,14 +297,19 @@ config.libs = [
         "lib": "Runtime.PPCEABI.H",
         "mw_version": config.linker_version,
         "cflags": cflags_runtime,
-        "progress_category": "sdk",  # str | List[str]
+        "progress_category": "mw",  # str | List[str]
         "objects": [
             Object(Matching,    "Runtime.PPCEABI.H/global_destructor_chain.c"),
             Object(Matching,    "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
         ],
     },
     
-    SDKLib("vf", [
+    {
+        "lib": "vf",
+        "mw_version": config.linker_version,
+        "cflags": cflags_sdk,
+        "progress_category": "vf",  # str | List[str]
+        "objects": [
             Object(Matching,    "vf/pf_clib.c"),
             Object(Matching,    "vf/pf_code.c"),
             Object(Matching,    "vf/pf_service.c"),
@@ -329,7 +333,7 @@ config.libs = [
             Object(Matching,    "vf/pf_fatfs.c"),
             Object(Matching,    "vf/pf_file.c"),
             Object(Matching,    "vf/pf_path.c"),
-            Object(NonMatching, "vf/pf_sector.c"),
+            Object(Matching,    "vf/pf_sector.c"),
             Object(NonMatching, "vf/pf_volume.c"),
             Object(Matching,    "vf/pf_cp932.c"),
             Object(Matching,    "vf/pf_api_util.c"),
@@ -357,10 +361,15 @@ config.libs = [
             Object(NonMatching, "vf/d_common.c"),
             Object(NonMatching, "vf/nand_drv.c"),
             Object(Matching,    "vf/sd_drv.c"),
-        ]
-    ),
+        ],
+    },
     
-    SDKLib("atok", [
+    {
+        "lib": "ATOKDict",
+        "mw_version": config.linker_version,
+        "cflags": cflags_sdk,
+        "progress_category": "atok",  # str | List[str]
+        "objects": [
             Object(NonMatching, "atok/build/atok.c"),
             Object(NonMatching, "atok/Src/atok_eng.c"),
             Object(NonMatching, "atok/MonPE/ApLib.c"),
@@ -368,8 +377,8 @@ config.libs = [
             Object(NonMatching, "atok/MonPE/ApAIDic.c"),
             Object(NonMatching, "atok/MonPE/ApCore.c"),
             Object(NonMatching, "atok/MonPE/ApDic.c"),
-        ]
-    ),
+        ],
+    },
 ]
 
 
@@ -394,7 +403,9 @@ def link_order_callback(module_id: int, objects: List[str]) -> List[str]:
 # Optional extra categories for progress tracking
 # Adjust as desired for your project
 config.progress_categories = [
-    ProgressCategory("sdk", "SDK Code"),
+    ProgressCategory("vf", "Virtual Filesystem + Mod of eSOL's PrFILE2"),
+    ProgressCategory("atok", "JustSystem's ATOK Dictionary"),
+    ProgressCategory("mw", "Metroworks code"),
 ]
 config.progress_each_module = args.verbose
 # Optional extra arguments to `objdiff-cli report generate`
