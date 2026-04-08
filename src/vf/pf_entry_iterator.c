@@ -247,8 +247,8 @@ static pf_s32 VFiPFENT_ITER_DoFindEntry(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, 
                 attr = 0x40;
             }
             if ((attr_required & 0x80) != 0) {
-                attr_required &= 0xFFFFFF7F;
-                attr_unwanted &= 0xFFFFFF7F;
+                attr_required &= ~128;
+                attr_unwanted &= ~128;
                 if (((attr_required != 0) && (attr_required != (attr & attr_required))) ||
                     ((attr_unwanted != 0) && (attr_unwanted == (attr & attr_unwanted)))) {
                     err = -1;
@@ -305,8 +305,8 @@ static pf_s32 VFiPFENT_ITER_DoFindEntry(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, 
                 attr = 0x40;
             }
             if ((attr_required & 0x80) != 0) {
-                attr_required &= 0xFFFFFF7F;
-                attr_unwanted &= 0xFFFFFF7F;
+                attr_required &= ~128;
+                attr_unwanted &= ~128;
                 if (((attr_required != 0) && (attr_required != (attr & attr_required))) ||
                     ((attr_unwanted != 0) && (attr_unwanted == (attr & attr_unwanted)))) {
                     err = -1;

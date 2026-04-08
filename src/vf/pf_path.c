@@ -917,10 +917,10 @@ void VFiPFPATH_SetSearchPattern(pf_s8* p_buf_local, pf_u16* p_buf_unicode, PF_ST
         VFipf_w_strcpy(p_buf_unicode, (pf_u16*)p_pattern->p_head);
     }
     if ((VFipf_vol_set.setting & 2) == 2) {
-        VFipf_vol_set.setting &= 0xFFFFFFFC;
+        VFipf_vol_set.setting &= ~3;
         VFipf_vol_set.setting |= 1;
         VFiPFPATH_transformFromUnicodeToNormal(p_buf_local, p_buf_unicode);
-        VFipf_vol_set.setting &= 0xFFFFFFFC;
+        VFipf_vol_set.setting &= ~3;
         VFipf_vol_set.setting |= 2;
         return;
     }

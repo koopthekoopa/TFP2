@@ -180,7 +180,7 @@ void VFiPFVOL_LoadVolumeLabelFromBuf(const pf_u8* buf, PF_VOLUME* p_vol);
 pf_s32 VFiPFVOL_getdev(pf_s8 drv_char, PF_DEV_INF* dev_inf);
 pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv);
 pf_s32 VFiPFVOL_detach(pf_s8 drv_char);
-pf_s32 VFiPFVOL_format(pf_s8 drv_char);
+pf_s32 VFiPFVOL_format(pf_s8 drv_char, const pf_u8* param);
 pf_s32 VFiPFVOL_unmount(pf_s8 drv_char, pf_u32 mode);
 
 #endif  // VF_PF_VOLUME_H

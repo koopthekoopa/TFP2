@@ -282,7 +282,7 @@ pf_s32 VFipdm_part_get_permission(PDM_PARTITION* p_part) {
     if ((disk_info.media_attr & 1) != 0) {
         lp_part->status |= 0x10;
     } else {
-        lp_part->status &= 0xFFFFFFEF;
+        lp_part->status &= ~16;
     }
 
     err = VFipdm_part_get_start_sector(lp_part);
@@ -298,7 +298,7 @@ fail:
 
 success:
     lp_part->status |= 2;
-    lp_part->status &= 0xFFFFFFF7;
+    lp_part->status &= ~8;
 
     return 0;
 }
@@ -329,9 +329,9 @@ pf_s32 VFipdm_part_release_permission(PDM_PARTITION* p_part, pf_u32 mode) {
         ret = err;
     }
     if ((ret == 0) || (mode == 1)) {
-        lp_part->status &= 0xFFFFFFFD;
-        lp_part->status &= 0xFFFFFFF7;
-        lp_part->status &= 0xFFFFFFEF;
+        lp_part->status &= ~2;
+        lp_part->status &= ~8;
+        lp_part->status &= ~16;
     }
     return ret;
 }
@@ -512,7 +512,7 @@ void VFipdm_part_set_change_media_state(PDM_DISK* p_disk, pf_u32 event) {
         if (((VFipdm_disk_set.partition[part_cnt].status & 1) != 0) && ((PDM_DISK*)VFipdm_disk_set.partition[part_cnt].p_disk == p_disk)) {
             p_part = &VFipdm_disk_set.partition[part_cnt];
             if (event == 0) {
-                p_part->status &= 0xFFFFFFFB;
+                p_part->status &= ~4;
             } else {
                 p_part->status |= 4;
             }

@@ -247,10 +247,10 @@ static pf_s32 VFiPFDIR_p_mkdir(PF_VOLUME* p_vol /* r29 */, PF_STR* p_path /* r1+
         }
         if (*entry.long_name != 0) {
             if ((VFipf_vol_set.setting & 2) == 2) {
-                VFipf_vol_set.setting &= 0xFFFFFFFC;
+                VFipf_vol_set.setting &= ~3;
                 VFipf_vol_set.setting |= 1;
                 VFiPFPATH_transformFromUnicodeToNormal(p_dta->LongName, entry.long_name);
-                VFipf_vol_set.setting &= 0xFFFFFFFC;
+                VFipf_vol_set.setting &= ~3;
                 VFipf_vol_set.setting |= 2;
             } else {
                 VFiPFPATH_transformFromUnicodeToNormal(p_dta->LongName, entry.long_name);

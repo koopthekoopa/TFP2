@@ -231,7 +231,7 @@ static pf_s32 VFiPFCACHE_FlushPageIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_pa
         }
         p_page->p_mod_sbuf = PF_NULL;
         p_page->p_mod_ebuf = PF_NULL;
-        p_page->stat &= 0xFFFFFFFD;
+        p_page->stat &= ~2;
     }
 
     return 0;

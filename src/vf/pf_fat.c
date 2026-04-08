@@ -558,7 +558,7 @@ block_29:
         err = VFiPFFAT_RefreshFSINFO(p_vol);
         if (err != 0) {
             p_vol->num_free_clusters = -1U;
-            p_vol->fsi_flag &= 0xFFFFFFFB;
+            p_vol->fsi_flag &= ~4;
         }
     }
     return 0;
@@ -1200,7 +1200,7 @@ pf_s32 VFiPFFAT_CountFreeClusters(PF_VOLUME* p_vol, pf_u32* p_num_free_clusters)
             err = VFiPFFAT_RefreshFSINFO(p_vol);
             if (err != 0) {
                 p_vol->num_free_clusters = -1U;
-                p_vol->fsi_flag &= 0xFFFFFFFB;
+                p_vol->fsi_flag &= ~4;
             }
         }
     }
@@ -1295,7 +1295,7 @@ block_39:
         err = VFiPFFAT_RefreshFSINFO(p_vol);
         if (err != 0) {
             p_vol->num_free_clusters = -1U;
-            p_vol->fsi_flag &= 0xFFFFFFFB;
+            p_vol->fsi_flag &= ~4;
         }
     }
     return 0;

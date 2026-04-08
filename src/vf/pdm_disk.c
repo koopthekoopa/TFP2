@@ -156,11 +156,11 @@ static pf_s32 VFipdm_disk_do_get_permission(PDM_DISK* p_disk, PDM_DISK* lp_disk)
         if ((lp_disk->disk_info.media_attr & 1) != 0) {
             lp_disk->status |= 0x10;
         } else {
-            lp_disk->status &= 0xFFFFFFEF;
+            lp_disk->status &= ~16;
         }
 
         lp_disk->status |= 2;
-        lp_disk->status &= 0xFFFFFFDF;
+        lp_disk->status &= ~32;
     }
 
     lp_disk->disk_lock_cnt++;
@@ -183,7 +183,7 @@ static pf_s32 VFipdm_disk_do_release_permission(PDM_DISK* p_disk, PDM_DISK* lp_d
     if ((err == 0) || (mode == 1)) {
         lp_disk->disk_lock_cnt--;
         if (lp_disk->disk_lock_cnt == 0) {
-            lp_disk->status &= 0xFFFFFFFD;
+            lp_disk->status &= ~2;
         }
     }
     return err;

@@ -26,8 +26,8 @@ static pf_u32 VFiPFENT_compareAttr(pf_u8 attr, pf_u8 attr_required, pf_u8 attr_u
         attr = 0x40;
     }
     if ((attr_required & 0x80) != 0) {
-        attr_required &= 0xFFFFFF7F;
-        attr_unwanted &= 0xFFFFFF7F;
+        attr_required &= ~128;
+        attr_unwanted &= ~128;
         if (((attr_required != 0) && (attr_required != (attr & attr_required))) ||
             ((attr_unwanted != 0) && (attr_unwanted == (attr & attr_unwanted)))) {
             is_valid = PF_FALSE;
@@ -299,7 +299,7 @@ pf_s32 VFiPFENT_LoadLFNEntryFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf) {
         return 0x21;
     }
     if ((ordinal & 0x40) != 0) {
-        ordinal &= 0xFFFFFFBF;
+        ordinal &= ~64;
         is_last = 1;
         p_ent->num_entry_LFNs = 0;
     } else {

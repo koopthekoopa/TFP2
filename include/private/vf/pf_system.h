@@ -9,6 +9,8 @@ typedef struct PF_SYSTEM_SET {
 
 extern PF_SYSTEM_SET VFipf_sys_set;
 
+void VFiPFSYS_initializeSYS();
+pf_s32 VFiPFSYS_GetCurrentContextID(pf_s32* context_id);
 void VFiPFSYS_TimeStamp(struct PF_SYS_DATE* sdate /* r30 */, struct PF_SYS_TIME* stime /* r31 */);
 
 #endif  // VF_PF_SYSTEM_H
