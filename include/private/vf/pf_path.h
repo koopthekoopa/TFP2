@@ -4,6 +4,16 @@
 #include <private/vf/pf_str.h>
 #include <private/vf/pf_types.h>
 
+typedef struct PF_FILE_NAME_ITER {
+    // total size: 0x10
+    const signed char* buf;      // offset 0x0, size 0x4
+    unsigned long dot_inserted;  // offset 0x4, size 0x4
+    unsigned long is_long_name;  // offset 0x8, size 0x4
+    unsigned short index;        // offset 0xC, size 0x2
+} PF_FILE_NAME_ITER;
+
+#define PF_IS_PATH_SEPERATOR(s, t, i) ((VFiPFSTR_StrNCmp(s, (pf_s8*)"\\", t, i, 1) == 0 || VFiPFSTR_StrNCmp(s, (pf_s8*)"/", t, i, 1) == 0))
+
 pf_s32 VFiPFPATH_cmpNameUni(const pf_u16* p_name, PF_STR* sPattern);
 pf_s32 VFiPFPATH_cmpName(const pf_s8* sShort, PF_STR* p_pattern, pf_u32 is_short_search);
 pf_s32 VFiPFPATH_cmpTailSFN(const pf_s8* sfn_name, const pf_s8* pattern);

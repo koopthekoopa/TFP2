@@ -377,7 +377,7 @@ static pf_s32 VFiPFENT_ITER_DoGetEntry(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, P
     if (VFiPFSTR_StrNCmp(p_path, (pf_s8*)":", 1U, 1, 1U) == 0) {
         VFiPFSTR_MoveStrPos(p_path, 2);
     }
-    if ((VFiPFSTR_StrNCmp(p_path, (pf_s8*)"\\", 1U, 0, 1U) == 0) || (VFiPFSTR_StrNCmp(p_path, (pf_s8*)"/", 1U, 0, 1U) == 0)) {
+    if (PF_IS_PATH_SEPERATOR(p_path, 1, 0)) {
         err = VFiPFENT_GetRootDir(p_vol, p_ent);
         if (err != 0) {
             return err;

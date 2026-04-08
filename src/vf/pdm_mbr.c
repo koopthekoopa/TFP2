@@ -29,12 +29,12 @@ pf_s32 VFipdm_mbr_get_table(pf_u8* buf /* r3 */, pf_u32 sector /* r4 */, PDM_MBR
         p_mbr_tbl->partition_table[i].s_head = p_buf[0x1];
 
         cs_val = p_buf[0x2] | ((pf_u16)p_buf[0x3] << 8);
-        p_mbr_tbl->partition_table[i].s_cylinder = ((cs_val & 0xC0) * 4) + ((pf_u32)cs_val >> 8);
+        p_mbr_tbl->partition_table[i].s_cylinder = ((cs_val & 0xC0) << 2) + (cs_val >> 8);
         p_mbr_tbl->partition_table[i].s_sector = cs_val & 0x3F;
         p_mbr_tbl->partition_table[i].e_head = p_buf[0x5] | ((pf_u16)p_buf[0x6] << 8);
 
         cs_val = p_buf[0x6] | ((pf_u16)p_buf[0x7] << 8);
-        p_mbr_tbl->partition_table[i].e_cylinder = ((cs_val & 0xC0) * 4) + ((pf_u32)cs_val >> 8);
+        p_mbr_tbl->partition_table[i].e_cylinder = ((cs_val & 0xC0) << 2) + (cs_val >> 8);
         p_mbr_tbl->partition_table[i].e_sector = cs_val & 0x3F;
 
         p_mbr_tbl->partition_table[i].lba_start_sector = (p_buf[0xB] << 0x18) | ((p_buf[0xA] << 0x10) | (p_buf[0x8] | (p_buf[0x9] << 8)));

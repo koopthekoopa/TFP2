@@ -747,7 +747,7 @@ pf_s32 VFiPFCODE_CP932_Unicode2OEM(const pf_u16* uc_src, pf_s8* cp932_dst) {
         cp932_dst[1] = 0;
         return VFiPFCODE_Combine_Width(1, 2);
     }
-    uc = ((pf_u8)uc_lead << 8) + (pf_u8)uc_trail;
+    uc = C_TO_WC(uc_lead, uc_trail);
     if (0xFF61 <= uc && uc <= 0xFF9F) {
         cp932 = uc - 0xFEC0;
         cp932_dst[0] = cp932;

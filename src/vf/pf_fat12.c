@@ -4,6 +4,8 @@
 #include <private/vf/pf_sector.h>
 #include <private/vf/pf_volume.h>
 
+#include <private/vf/pf_code.h>
+
 pf_s32 VFiPFFAT12_ReadFATEntry(PF_VOLUME* p_vol, pf_u16 cluster, pf_u32* p_value) {
     pf_s32 err;
     pf_u16 fat_offset;

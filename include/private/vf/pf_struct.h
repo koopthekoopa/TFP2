@@ -59,12 +59,12 @@ typedef struct PF_DEV_INF {
 
 typedef struct PF_CHARCODE {
     // total size: 0x18
-    pf_s32 (*oem2unicode)(pf_s8*, pf_u16*);        // offset 0x0, size 0x4
-    pf_s32 (*unicode2oem)(pf_u16*, pf_s8*);        // offset 0x4, size 0x4
-    pf_s32 (*oem_char_width)(pf_s8*);              // offset 0x8, size 0x4
-    pf_u32 (*is_oem_mb_char)(pf_s8, pf_u32);       // offset 0xC, size 0x4
-    pf_s32 (*unicode_char_width)(pf_u16*);         // offset 0x10, size 0x4
-    pf_u32 (*is_unicode_mb_char)(pf_u16, pf_u32);  // offset 0x14, size 0x4
+    pf_s32 (*oem2unicode)(const pf_s8*, pf_u16*);        // offset 0x0, size 0x4
+    pf_s32 (*unicode2oem)(const pf_u16*, pf_s8*);        // offset 0x4, size 0x4
+    pf_s32 (*oem_char_width)(const pf_s8*);              // offset 0x8, size 0x4
+    pf_u32 (*is_oem_mb_char)(const pf_s8, pf_u32);       // offset 0xC, size 0x4
+    pf_s32 (*unicode_char_width)(const pf_u16*);         // offset 0x10, size 0x4
+    pf_u32 (*is_unicode_mb_char)(const pf_u16, pf_u32);  // offset 0x14, size 0x4
 } PF_CHARCODE;
 
 typedef struct PF_CONTEXT {
