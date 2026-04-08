@@ -5244,157 +5244,157 @@ ssl/ssl_mutex.c:
 ssl/ssl_print.c:
 	.text       start:0x803BFBE4 end:0x803BFBE4
 
-vf/pf_clib.c:
+vf/PrFILE2/common/pf_clib.c:
 	.text       start:0x803BFBE4 end:0x803BFE9C
 
-vf/pf_code.c:
+vf/PrFILE2/common/pf_code.c:
 	.text       start:0x803BFE9C end:0x803BFED0
 	.rodata     start:0x805579E0 end:0x80557A40
 
-vf/pf_service.c:
+vf/PrFILE2/common/pf_service.c:
 	.text       start:0x803BFED0 end:0x803BFF3C
 
-vf/pf_str.c:
+vf/PrFILE2/common/pf_str.c:
 	.text       start:0x803BFF3C end:0x803C05E8
 
-vf/pf_w_clib.c:
+vf/PrFILE2/common/pf_w_clib.c:
 	.text       start:0x803C05E8 end:0x803C06E0
 
-vf/pf_driver.c:
+vf/PrFILE2/driver/pf_driver.c:
 	.text       start:0x803C06E0 end:0x803C11F8
 
-vf/pdm_bpb.c:
+vf/PrFILE2/dskmng/pdm_bpb.c:
 	.text       start:0x803C11F8 end:0x803C1C48
 
-vf/pdm_disk.c:
+vf/PrFILE2/dskmng/pdm_disk.c:
 	.text       start:0x803C1C48 end:0x803C2E38
 
-vf/pdm_partition.c:
+vf/PrFILE2/dskmng/pdm_partition.c:
 	.text       start:0x803C2E38 end:0x803C4038
 
-vf/pdm_mbr.c:
+vf/PrFILE2/dskmng/pdm_mbr.c:
 	.text       start:0x803C4038 end:0x803C4654
 
-vf/pdm_dskmng.c:
+vf/PrFILE2/dskmng/pdm_dskmng.c:
 	.text       start:0x803C4654 end:0x803C48B4
 	.bss        start:0x80889A98 end:0x8088A600
 
-vf/pf_cache.c:
+vf/PrFILE2/fatfs/pf_cache.c:
 	.text       start:0x803C48B4 end:0x803C6F24
 
-vf/pf_cluster.c:
+vf/PrFILE2/fatfs/pf_cluster.c:
 	.text       start:0x803C6F24 end:0x803C7550
 
-vf/pf_dir.c:
+vf/PrFILE2/fatfs/pf_dir.c:
 	.text       start:0x803C7550 end:0x803C8204
 	.sdata      start:0x80990730 end:0x80990738
 
-vf/pf_entry.c:
+vf/PrFILE2/fatfs/pf_entry.c:
 	.text       start:0x803C8204 end:0x803C9FEC
 	.data       start:0x80718BE0 end:0x80718BF0
 	.sdata2     start:0x809990E0 end:0x809990E8
 
-vf/pf_entry_iterator.c:
+vf/PrFILE2/fatfs/pf_entry_iterator.c:
 	.text       start:0x803C9FEC end:0x803CB908
 	.sdata      start:0x80990738 end:0x80990760
 
-vf/pf_fat.c:
+vf/PrFILE2/fatfs/pf_fat.c:
 	.text       start:0x803CB908 end:0x803CEC94
 	.rodata     start:0x80557A40 end:0x80557A80
 
-vf/pf_fat12.c:
+vf/PrFILE2/fatfs/pf_fat12.c:
 	.text       start:0x803CEC94 end:0x803CFACC
 
-vf/pf_fat16.c:
+vf/PrFILE2/fatfs/pf_fat16.c:
 	.text       start:0x803CFACC end:0x803D0178
 
-vf/pf_fat32.c:
+vf/PrFILE2/fatfs/pf_fat32.c:
 	.text       start:0x803D0178 end:0x803D092C
 
-vf/pf_fatfs.c:
+vf/PrFILE2/fatfs/pf_fatfs.c:
 	.text       start:0x803D092C end:0x803D095C
 
-vf/pf_file.c:
+vf/PrFILE2/fatfs/pf_file.c:
 	.text       start:0x803D095C end:0x803D3F20
 
-vf/pf_path.c:
+vf/PrFILE2/fatfs/pf_path.c:
 	.text       start:0x803D3F20 end:0x803D6E84
 	.sdata      start:0x80990760 end:0x80990790
 	.sdata2     start:0x809990E8 end:0x809990F8
 
-vf/pf_sector.c:
+vf/PrFILE2/fatfs/pf_sector.c:
 	.text       start:0x803D6E84 end:0x803D7690
 
-vf/pf_volume.c:
+vf/PrFILE2/fatfs/pf_volume.c:
 	.text       start:0x803D7690 end:0x803D9064
 	.bss        start:0x8088A600 end:0x808B25C0
 
-vf/pf_cp932.c:
+vf/PrFILE2/local/pf_cp932.c:
 	.text       start:0x803D9064 end:0x803D97D8
 	.rodata     start:0x80557A80 end:0x8055BCF8
 
-vf/pf_api_util.c:
+vf/PrFILE2/standard/pf_api_util.c:
 	.text       start:0x803D97D8 end:0x803D999C
 	.data       start:0x80718BF0 end:0x80718C90
 
-vf/pf_attach.c:
+vf/PrFILE2/standard/pf_attach.c:
 	.text       start:0x803D999C end:0x803D9A30
 
-vf/pf_detach.c:
+vf/PrFILE2/standard/pf_detach.c:
 	.text       start:0x803D9A30 end:0x803D9A70
 
-vf/pf_errnum.c:
+vf/PrFILE2/standard/pf_errnum.c:
 	.text       start:0x803D9A70 end:0x803D9AA4
 
-vf/pf_fclose.c:
+vf/PrFILE2/standard/pf_fclose.c:
 	.text       start:0x803D9AA4 end:0x803D9AE0
 
-vf/pf_finfo.c:
+vf/PrFILE2/standard/pf_finfo.c:
 	.text       start:0x803D9AE0 end:0x803D9B24
 
-vf/pf_fopen.c:
+vf/PrFILE2/standard/pf_fopen.c:
 	.text       start:0x803D9B24 end:0x803D9BD0
 
-vf/pf_format.c:
+vf/PrFILE2/standard/pf_format.c:
 	.text       start:0x803D9BD0 end:0x803D9C18
 
-vf/pf_fread.c:
+vf/PrFILE2/standard/pf_fread.c:
 	.text       start:0x803D9C18 end:0x803D9C60
 
-vf/pf_fseek.c:
+vf/PrFILE2/standard/pf_fseek.c:
 	.text       start:0x803D9C60 end:0x803D9CAC
 
-vf/pf_fwrite.c:
+vf/PrFILE2/standard/pf_fwrite.c:
 	.text       start:0x803D9CAC end:0x803D9CF4
 
-vf/pf_getdev.c:
+vf/PrFILE2/standard/pf_getdev.c:
 	.text       start:0x803D9CF4 end:0x803D9D3C
 
-vf/pf_init_prfile2.c:
+vf/PrFILE2/standard/pf_init_prfile2.c:
 	.text       start:0x803D9D3C end:0x803D9D8C
 
-vf/pf_mkdir.c:
+vf/PrFILE2/standard/pf_mkdir.c:
 	.text       start:0x803D9D8C end:0x803D9DF4
 
-vf/pf_remove.c:
+vf/PrFILE2/standard/pf_remove.c:
 	.text       start:0x803D9DF4 end:0x803D9E5C
 
-vf/pf_unmount.c:
+vf/PrFILE2/standard/pf_unmount.c:
 	.text       start:0x803D9E5C end:0x803D9EA4
 
-vf/pf_filelock.c:
+vf/PrFILE2/system/pf_filelock.c:
 	.text       start:0x803D9EA4 end:0x803D9EB8
 
-vf/pf_system.c:
+vf/PrFILE2/system/pf_system.c:
 	.text       start:0x803D9EB8 end:0x803D9F60
 	.sbss       start:0x80992A38 end:0x80992A40
 
-vf/d_vf.c:
+vf/develop/d_vf.c:
 	.text       start:0x803D9F60 end:0x803DADF8
 	.bss        start:0x808B25C0 end:0x8091A5E0
 	.sbss       start:0x80992A40 end:0x80992A48
 
-vf/d_vf_sys.c:
+vf/develop/d_vf_sys.c:
 	.text       start:0x803DADF8 end:0x803DCFD4
 	.text       start:0x803DCFD4 end:0x803DD00C
 	.data       start:0x80718C90 end:0x80718CA0
@@ -5402,25 +5402,25 @@ vf/d_vf_sys.c:
 	.sdata      start:0x80990790 end:0x80990798
 	.sbss       start:0x80992A48 end:0x80992A60
 
-vf/d_hash.c:
+vf/develop/d_hash.c:
 	.text       start:0x803DD00C end:0x803DD758
 	.bss        start:0x8091A718 end:0x8091A958
 
-vf/d_time.c:
+vf/develop/d_time.c:
 	.text       start:0x803DD758 end:0x803DD89C
 
-vf/d_common.c:
+vf/develop/d_common.c:
 	.text       start:0x803DD89C end:0x803DE5D4
 	.bss        start:0x8091A958 end:0x8091AB60
 
-vf/nand_drv.c:
+vf/develop/nand_drv.c:
 	.text       start:0x803DE5D4 end:0x803E0298
 	.rodata     start:0x8055BCF8 end:0x8055BD18
 	.data       start:0x80718CA0 end:0x80718EE0
 	.bss        start:0x8091AB60 end:0x8091AD00
 	.sbss       start:0x80992A60 end:0x80992A68
 
-vf/sd_drv.c:
+vf/develop/sd_drv.c:
 	.text       start:0x803E0298 end:0x803E029C
 
 dwc_common/dwc_base64.c:
