@@ -25,7 +25,6 @@ pf_s32 VFiPFENT_ITER_Advance(PF_ENT_ITER* p_iter, pf_u32 may_allocate);
 pf_s32 VFiPFENT_ITER_Retreat(PF_ENT_ITER* p_iter, pf_u32 may_allocate);
 pf_s32 VFiPFENT_ITER_FindEntry(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_STR* p_pattern, pf_u8 attr_required, pf_u8 attr_unwanted,
                                pf_u32* p_is_found, pf_u32 is_skip);
-pf_s32 VFiPFENT_ITER_GetEntryOfPath(PF_ENT_ITER* p_iter /* r1+0x8 */, PF_DIR_ENT* p_ent /* r1+0xC */, struct PF_VOLUME* p_vol /* r1+0x10 */,
-                                    struct PF_STR* p_path /* r1+0x14 */, unsigned long no_look_last_token /* r1+0x18 */);
+pf_s32 VFiPFENT_ITER_GetEntryOfPath(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_VOLUME* p_vol, PF_STR* p_path, pf_u32 no_look_last_token);
 
 #endif  // VF_PF_ENTRY_ITERATOR_H

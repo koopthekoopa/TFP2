@@ -10,6 +10,9 @@ typedef unsigned char pf_u8;
 typedef unsigned short pf_u16;
 typedef unsigned long pf_u32;
 
+typedef char pf_ch8;
+typedef int pf_int32;
+
 typedef volatile pf_u8 pf_vu8;
 typedef volatile pf_u16 pf_vu16;
 typedef volatile pf_u32 pf_vu32;

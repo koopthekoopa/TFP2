@@ -177,6 +177,7 @@ void VFiPFVOL_SetCurrentVolume(PF_VOLUME* p_vol);
 PF_VOLUME* VFiPFVOL_GetCurrentVolume();
 PF_VOLUME* VFiPFVOL_GetVolumeFromDrvChar(pf_s8 drv_char);
 void VFiPFVOL_LoadVolumeLabelFromBuf(const pf_u8* buf, PF_VOLUME* p_vol);
+pf_s32 VFiPFVOL_errnum();
 pf_s32 VFiPFVOL_getdev(pf_s8 drv_char, PF_DEV_INF* dev_inf);
 pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv);
 pf_s32 VFiPFVOL_detach(pf_s8 drv_char);
