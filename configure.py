@@ -360,7 +360,7 @@ config.libs = [
             Object(Matching,    "vf/develop/d_hash.c"),
             Object(Matching,    "vf/develop/d_time.c"),
             Object(Matching,    "vf/develop/d_common.c"),
-            Object(Equilavent,  "vf/develop/nand_drv.c"),
+            Object(Equivalent,  "vf/develop/nand_drv.c"),
             Object(Matching,    "vf/develop/sd_drv.c"),
         ],
     },
