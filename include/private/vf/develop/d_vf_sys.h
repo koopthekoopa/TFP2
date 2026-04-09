@@ -51,8 +51,10 @@ typedef struct VFSysTime {
 
 typedef void (*VFSysTimeStampCallback)(VFSysTime* time);
 
-VFSys_handle* VFSysVol2HandleP(PF_VOLUME* i_vol_p /* r28 */);
+VFSys_handle* VFSysVol2HandleP(PF_VOLUME* i_vol_p);
 VFSys_handle* VFSysGetHandleP(long i_idx);
+VFSys_drive* VFSysPDMDisk2DriveP(PDM_DISK* disk_p);
+VFSys_drive* VFSysGetDriveP(long i_idx);
 long VFSysHandleP2Idx(VFSys_handle* handle);
 
 int VFSysPDMDisk2HandleIdx(const PDM_DISK* disk);

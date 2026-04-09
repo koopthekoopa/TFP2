@@ -197,14 +197,14 @@ pf_s32 VFipdm_disk_check_disk_handle(PDM_DISK* p_disk) {
     pf_u16 handle_no;
     PDM_DISK* lp_disk;
 
-    disk_no = GET_DISK_NO(p_disk);
+    disk_no = PDM_DISK_GET_NO(p_disk);
     disk_id = (pf_u32)p_disk & 0xFF00;
     disk_sig = (pf_u32)p_disk >> 0x10;
     if ((disk_no >= 26) || (disk_id != 0x300) || (disk_sig > VFipdm_disk_set.disk[disk_no].signature)) {
         return 1;
     }
 
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
 
     err = VFipdm_disk_search_handle(p_disk, lp_disk, &handle_no);
     return err;
@@ -259,7 +259,7 @@ pf_s32 VFipdm_disk_close_disk(PDM_DISK* p_disk) {
     if (err != 0) {
         return err;
     }
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
     if ((lp_disk->status & 1) == 0) {
         return 0xD;
     }
@@ -299,7 +299,7 @@ pf_s32 VFipdm_disk_get_part_permission(PDM_DISK* p_disk) {
     if (err != 0) {
         return err;
     }
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
     err = VFipdm_disk_do_get_permission(p_disk, lp_disk);
     return err;
 }
@@ -315,7 +315,7 @@ pf_s32 VFipdm_disk_release_part_permission(PDM_DISK* p_disk, pf_u32 mode) {
     if (err != 0) {
         return err;
     }
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
     if (lp_disk->disk_lock_cnt == 0) {
         return 0xE;
     }
@@ -337,7 +337,7 @@ pf_s32 VFipdm_disk_physical_read(PDM_DISK* p_disk, unsigned char* buf, pf_u32 ps
     if (err != 0) {
         return err;
     }
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
     err = VFipdm_disk_convert_sector_into_block(lp_disk, psector, num_sector, bps, &block, &num_block);
     if (err != 0) {
         return err;
@@ -367,7 +367,7 @@ pf_s32 VFipdm_disk_physical_write(PDM_DISK* p_disk, const pf_u8* buf, pf_u32 pse
     if (err != 0) {
         return err;
     }
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
     err = VFipdm_disk_convert_sector_into_block(lp_disk, psector, num_sector, bps, &block, &num_block);
     if (err != 0) {
         return err;
@@ -394,7 +394,7 @@ pf_s32 VFipdm_disk_format(PDM_DISK* p_disk, const unsigned char* param) {
     if (err != 0) {
         return err;
     }
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
     err = lp_disk->disk_tbl.p_func->format(p_disk, (pf_u8*)param);
     if (err != 0) {
         if (lp_disk->p_cur_part != PF_NULL) {
@@ -416,7 +416,7 @@ pf_s32 VFipdm_disk_get_lba_size(PDM_DISK* p_disk, pf_u16* p_lba_size) {
     if (err != 0) {
         return err;
     }
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
     *p_lba_size = lp_disk->disk_info.bytes_per_sector;
     return 0;
 }
@@ -432,7 +432,7 @@ pf_s32 VFipdm_disk_get_media_information(PDM_DISK* p_disk, PDM_DISK_INFO* p_disk
     if (err != 0) {
         return err;
     }
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
     *p_disk_info = lp_disk->disk_info;
     return 0;
 }
@@ -448,7 +448,7 @@ pf_s32 VFipdm_disk_check_media_insert(PDM_DISK* p_disk, pf_u32* is_insert) {
     if (err != 0) {
         return err;
     }
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
     if ((lp_disk->status & 4) != 0) {
         *is_insert = 1;
     } else {
@@ -468,7 +468,7 @@ pf_s32 VFipdm_disk_set_disk(PDM_DISK* p_disk, PDM_PARTITION* p_part) {
     if (err != 0) {
         return err;
     }
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
     lp_disk->p_cur_part = p_part;
     return 0;
 }
@@ -477,7 +477,7 @@ void VFipdm_disk_notify_media_insert(PDM_DISK* p_disk) {
     PDM_DISK* lp_disk;
 
     if (VFipdm_disk_check_disk_handle(p_disk) == 0) {
-        lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+        lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
         lp_disk->status |= 4;
         lp_disk->status |= 8;
         lp_disk->status |= 0x20;

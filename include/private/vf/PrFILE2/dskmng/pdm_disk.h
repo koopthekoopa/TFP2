@@ -3,7 +3,7 @@
 
 #include <private/vf/PrFILE2/dskmng/pdm_dskmng.h>
 
-#define GET_DISK_NO(p_disk) ((pf_u32)p_disk & 0xFF)
+#define PDM_DISK_GET_NO(p_disk) ((pf_u32)p_disk & 0xFF)
 
 typedef long (*PDM_MAKE_BS)(PDM_DISK*, pf_u8*, PDM_FAT_TYPE*);
 typedef long (*PDM_MAKE_FS)(pf_u8*);

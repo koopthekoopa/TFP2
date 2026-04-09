@@ -144,7 +144,7 @@ pf_s32 VFipdm_mbr_check_master_boot_record(PDM_DISK* p_disk, pf_u8* buf, pf_u32*
         return 0;
     }
     VFipdm_mbr_get_table(buf, 0U, &mbr_tbl);
-    lp_disk = &VFipdm_disk_set.disk[GET_DISK_NO(p_disk)];
+    lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
 loop_16:
     for (part_cnt = 0; part_cnt < 4; part_cnt++) {
         if ((*(&mbr_tbl.partition_table[part_cnt].lba_num_sectors) > (-1 - *(&mbr_tbl.partition_table[part_cnt].lba_start_sector))) ||

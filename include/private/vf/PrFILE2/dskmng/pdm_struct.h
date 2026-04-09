@@ -15,14 +15,14 @@ typedef struct PDM_DISK_INFO PDM_DISK_INFO;
 
 typedef struct PDM_FUNCTBL {
     // total size: 0x20
-    pf_s32 (*init)(PDM_DISK*);                                             // offset 0x0, size 0x4
-    pf_s32 (*finalize)(PDM_DISK*);                                         // offset 0x4, size 0x4
-    pf_s32 (*mount)(PDM_DISK*);                                            // offset 0x8, size 0x4
-    pf_s32 (*unmount)(PDM_DISK*);                                          // offset 0xC, size 0x4
-    pf_s32 (*format)(PDM_DISK*, pf_u8*);                                   // offset 0x10, size 0x4
-    pf_s32 (*physical_read)(PDM_DISK*, pf_u8*, pf_u32, pf_u32, pf_u32*);   // offset 0x14, size 0x4
-    pf_s32 (*physical_write)(PDM_DISK*, pf_u8*, pf_u32, pf_u32, pf_u32*);  // offset 0x18, size 0x4
-    pf_s32 (*get_disk_info)(PDM_DISK*, PDM_DISK_INFO*);                    // offset 0x1C, size 0x4
+    pf_s32 (*init)(PDM_DISK*);                                                   // offset 0x0, size 0x4
+    pf_s32 (*finalize)(PDM_DISK*);                                               // offset 0x4, size 0x4
+    pf_s32 (*mount)(PDM_DISK*);                                                  // offset 0x8, size 0x4
+    pf_s32 (*unmount)(PDM_DISK*);                                                // offset 0xC, size 0x4
+    pf_s32 (*format)(PDM_DISK*, const pf_u8*);                                   // offset 0x10, size 0x4
+    pf_s32 (*physical_read)(PDM_DISK*, pf_u8*, pf_u32, pf_u32, pf_u32*);         // offset 0x14, size 0x4
+    pf_s32 (*physical_write)(PDM_DISK*, const pf_u8*, pf_u32, pf_u32, pf_u32*);  // offset 0x18, size 0x4
+    pf_s32 (*get_disk_info)(PDM_DISK*, PDM_DISK_INFO*);                          // offset 0x1C, size 0x4
 } PDM_FUNCTBL;
 
 typedef struct PDM_DISK_TBL {

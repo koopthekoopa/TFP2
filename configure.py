@@ -213,7 +213,8 @@ cflags_base = [
     "-i include/Runtime.PPCEABI.H",
     "-enc SJIS",
     '-pragma "cats off"',
-    '-pragma "warn_notinlined off"'
+    '-pragma "warn_notinlined off"',
+    "-DDEBUG=1"
 ]
 
 # Debug flags
@@ -359,7 +360,7 @@ config.libs = [
             Object(Matching,    "vf/develop/d_hash.c"),
             Object(Matching,    "vf/develop/d_time.c"),
             Object(Matching,    "vf/develop/d_common.c"),
-            Object(NonMatching, "vf/develop/nand_drv.c"),
+            Object(Equilavent,  "vf/develop/nand_drv.c"),
             Object(Matching,    "vf/develop/sd_drv.c"),
         ],
     },
