@@ -121,6 +121,8 @@ s32 VFSysGetFileSizeByFd(s32* size, PF_FILE* file);
 s32 VFSysGetDriveFreeSize(s32 handle_idx);
 
 s32 VFSysGetLastError();
+
+s32 VFSysGetLastDeviceError_current();
 s32 VFSysGetLastDeviceError(s32 handle_idx);
 
 void VFSysSetNandFuncNormal(u32 handle_idx);
