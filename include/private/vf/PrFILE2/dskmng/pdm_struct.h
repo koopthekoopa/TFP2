@@ -33,8 +33,8 @@ typedef struct PDM_DISK_TBL {
 
 typedef struct PDM_INIT_DISK {
     // total size: 0x8
-    pf_s32 (*p_func)(struct PDM_DISK_TBL*, pf_u32);  // offset 0x0, size 0x4
-    pf_u32 ui_ext;                                   // offset 0x4, size 0x4
+    pf_s32 (*p_func)(PDM_DISK_TBL*, pf_u32);  // offset 0x0, size 0x4
+    pf_u32 ui_ext;                            // offset 0x4, size 0x4
 } PDM_INIT_DISK;
 
 typedef struct PDM_PART_TBL {

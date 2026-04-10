@@ -7,25 +7,29 @@
 extern "C" {
 #endif
 
-MEMiHeapHead*   MEMCreateExpHeapEx(void* startAddress, u32 size, u16 opt);
-void*           MEMDestroyExpHeap(MEMiHeapHead* heap);
+MEMiHeapHead* MEMCreateExpHeapEx(void* startAddress, u32 size, u16 opt);
+static inline MEMiHeapHead* MEMCreateExpHeap(void* startAddress, u32 size) {
+    return MEMCreateExpHeapEx(startAddress, size, 0);
+}
 
-void*           MEMAllocFromExpHeapEx(MEMiHeapHead* heap, u32 size, s32 align);
+void* MEMDestroyExpHeap(MEMiHeapHead* heap);
+
+void* MEMAllocFromExpHeapEx(MEMiHeapHead* heap, u32 size, s32 align);
 inline void* MEMAllocFromExpHeap(MEMiHeapHead* heap, u32 size) {
     return MEMAllocFromExpHeapEx(heap, size, 4);
 }
 
-u32             MEMGetAllocatableSizeForExpHeapEx(MEMiHeapHead* heap, int align);
+u32 MEMGetAllocatableSizeForExpHeapEx(MEMiHeapHead* heap, int align);
 inline u32 MEMGetAllocatableSizeForExpHeap(MEMiHeapHead* heap) {
     return MEMGetAllocatableSizeForExpHeapEx(heap, 4);
 }
 
-u32             MEMGetTotalFreeSizeForExpHeap(MEMiHeapHead* heap);
+u32 MEMGetTotalFreeSizeForExpHeap(MEMiHeapHead* heap);
 
-void            MEMFreeToExpHeap(MEMiHeapHead* heap, void* block);
+void MEMFreeToExpHeap(MEMiHeapHead* heap, void* block);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // REVOLUTION_MEM_EXP_HEAP_H
+#endif  // REVOLUTION_MEM_EXP_HEAP_H

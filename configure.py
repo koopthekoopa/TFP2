@@ -356,7 +356,7 @@ config.libs = [
             Object(Matching,    "vf/PrFILE2/system/pf_filelock.c"),
             Object(Matching,    "vf/PrFILE2/system/pf_system.c"),
             Object(NonMatching, "vf/develop/d_vf.c"),
-            Object(NonMatching, "vf/develop/d_vf_sys.c"),
+            Object(Matching,    "vf/develop/d_vf_sys.c"),
             Object(Matching,    "vf/develop/d_hash.c"),
             Object(Matching,    "vf/develop/d_time.c"),
             Object(Matching,    "vf/develop/d_common.c"),
