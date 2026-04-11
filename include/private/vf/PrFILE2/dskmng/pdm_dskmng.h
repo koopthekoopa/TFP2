@@ -1,59 +1,54 @@
 #ifndef PRFILE2_VFMOD_PDM_DISK_MANAGER_H
 #define PRFILE2_VFMOD_PDM_DISK_MANAGER_H
 
-#include <private/vf/PrFILE2/dskmng/pdm_struct.h>
+#include <private/vf/PrFILE2/dskmng/pdm_types.h>
 
 typedef struct PDM_PARTITION PDM_PARTITION;
 
 struct PDM_PARTITION {
-    // total size: 0x2C
-    pf_u32 status;                    // offset 0x0, size 0x4
-    PDM_DISK* p_disk;                 // offset 0x4, size 0x4
-    pf_u32 signature;                 // offset 0x8, size 0x4
-    pf_u16 part_id;                   // offset 0xC, size 0x2
-    pf_u16 open_part_cnt;             // offset 0xE, size 0x2
-    PDM_PARTITION* part_lock_handle;  // offset 0x10, size 0x4
-    pf_u32 start_sector;              // offset 0x14, size 0x4
-    pf_u32 total_sector;              // offset 0x18, size 0x4
-    pf_u32 mbr_sector;                // offset 0x1C, size 0x4
-    pf_u8 partition_type;             // offset 0x20, size 0x1
-    pf_s32 driver_last_error;         // offset 0x24, size 0x4
-    void* p_vol;                      // offset 0x28, size 0x4
+    pf_u32 status;                    // 0x00
+    PDM_DISK* p_disk;                 // 0x04
+    pf_u32 signature;                 // 0x08
+    pf_u16 part_id;                   // 0x0C
+    pf_u16 open_part_cnt;             // 0x0E
+    PDM_PARTITION* part_lock_handle;  // 0x10
+    pf_u32 start_sector;              // 0x14
+    pf_u32 total_sector;              // 0x18
+    pf_u32 mbr_sector;                // 0x1C
+    pf_u8 partition_type;             // 0x20
+    pf_s32 driver_last_error;         // 0x24
+    void* p_vol;                      // 0x28
 };
 
 /*typedef*/ struct PDM_DISK {
-    // total size: 0x34
-    pf_u32 status;                   // offset 0x0, size 0x4
-    PDM_DISK_TBL disk_tbl;           // offset 0x4, size 0x8
-    pf_u32 signature;                // offset 0xC, size 0x4
-    pf_u16 open_disk_cnt;            // offset 0x10, size 0x2
-    pf_u16 disk_lock_cnt;            // offset 0x12, size 0x2
-    PDM_DISK* disk_lock_handle;      // offset 0x14, size 0x4
-    PDM_DISK_INFO disk_info;         // offset 0x18, size 0x14
-    PDM_INIT_DISK* p_init_disk_tbl;  // offset 0x2C, size 0x4
-    PDM_PARTITION* p_cur_part;       // offset 0x30, size 0x4
+    pf_u32 status;                   // 0x00
+    PDM_DISK_TBL disk_tbl;           // 0x04
+    pf_u32 signature;                // 0x0C
+    pf_u16 open_disk_cnt;            // 0x10
+    pf_u16 disk_lock_cnt;            // 0x12
+    PDM_DISK* disk_lock_handle;      // 0x14
+    PDM_DISK_INFO disk_info;         // 0x18
+    PDM_INIT_DISK* p_init_disk_tbl;  // 0x2C
+    PDM_PARTITION* p_cur_part;       // 0x30
 } /*PDM_DISK*/;
 
 typedef struct PDM_DISK_HANDLE {
-    // total size: 0x8
-    pf_u32 signature;  // offset 0x0, size 0x4
-    PDM_DISK* handle;  // offset 0x4, size 0x4
+    pf_u32 signature;  // 0x00
+    PDM_DISK* handle;  // 0x04
 } PDM_DISK_HANDLE;
 
 typedef struct PDM_PARTITION_HANDLE {
-    // total size: 0x8
-    pf_u32 signature;       // offset 0x0, size 0x4
-    PDM_PARTITION* handle;  // offset 0x4, size 0x4
+    pf_u32 signature;       // 0x00
+    PDM_PARTITION* handle;  // 0x04
 } PDM_PARTITION_HANDLE;
 
 typedef struct PDM_DISK_SET {
-    // total size: 0xB64
-    pf_u16 num_partition;                       // offset 0x0, size 0x2
-    pf_u16 num_allocated_disk;                  // offset 0x2, size 0x2
-    PDM_DISK_HANDLE disk_handle[26];            // offset 0x4, size 0xD0
-    PDM_PARTITION_HANDLE partition_handle[26];  // offset 0xD4, size 0xD0
-    PDM_DISK disk[26];                          // offset 0x1A4, size 0x548
-    PDM_PARTITION partition[26];                // offset 0x6EC, size 0x478
+    pf_u16 num_partition;                                    // 0x00
+    pf_u16 num_allocated_disk;                               // 0x02
+    PDM_DISK_HANDLE disk_handle[PDM_DRIVE_COUNT];            // 0x04
+    PDM_PARTITION_HANDLE partition_handle[PDM_DRIVE_COUNT];  // 0xD4
+    PDM_DISK disk[PDM_DRIVE_COUNT];                          // 0x1A4
+    PDM_PARTITION partition[PDM_DRIVE_COUNT];                // 0x6EC
 } PDM_DISK_SET;
 
 extern PDM_DISK_SET VFipdm_disk_set;

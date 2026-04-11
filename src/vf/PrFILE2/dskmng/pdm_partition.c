@@ -4,13 +4,13 @@
 static pf_s32 VFipdm_part_search_handle(PDM_PARTITION* p_part, PDM_PARTITION* lp_part, pf_u16* p_handle_no) {
     pf_u16 handle_no;
 
-    for (handle_no = 0; handle_no < 26; handle_no++) {
+    for (handle_no = 0; handle_no < PDM_DRIVE_COUNT; handle_no++) {
         if (VFipdm_disk_set.partition_handle[handle_no].handle == lp_part &&
-            ((pf_u16)((pf_u32)p_part >> 16)) == VFipdm_disk_set.partition_handle[handle_no].signature) {
+            (pf_u16)PDM_PART_GET_SIG(p_part) == VFipdm_disk_set.partition_handle[handle_no].signature) {
             break;
         }
     }
-    if (handle_no >= 26) {
+    if (handle_no >= PDM_DRIVE_COUNT) {
         return 1;
     }
     *p_handle_no = handle_no;
@@ -19,31 +19,27 @@ static pf_s32 VFipdm_part_search_handle(PDM_PARTITION* p_part, PDM_PARTITION* lp
 
 static pf_s32 VFipdm_part_check_partition_handle(PDM_PARTITION* p_part) {
     pf_s32 err;
-    pf_u32 part_no;
-    pf_u32 part_id;
-    pf_u32 part_sig;
+    pf_u32 part_no = PDM_PART_GET_NO(p_part);
+    pf_u32 part_id = PDM_PART_GET_ID(p_part);
+    pf_u32 part_sig = PDM_PART_GET_SIG(p_part);
     pf_u16 handle_no;
     PDM_PARTITION* lp_part;
 
-    part_no = GET_PART_NO(p_part);
-    part_id = (pf_u32)p_part & 0xFF00;
-    part_sig = (pf_u32)p_part >> 0x10;
-    if ((part_no >= 26) || (part_id != 0x400) || (part_sig > VFipdm_disk_set.partition[part_no].signature)) {
+    if (part_no >= PDM_DRIVE_COUNT || part_id != 0x400 || part_sig > VFipdm_disk_set.partition[part_no].signature) {
         return 1;
     }
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
     err = VFipdm_part_search_handle(p_part, lp_part, &handle_no);
     return err;
 }
 
 static pf_s32 VFipdm_part_get_start_sector(PDM_PARTITION* p_part) {
     pf_s32 err;
-    pf_u16 part_id;
+    pf_u16 part_id = p_part->part_id;
     pf_u16 part_index;
     PDM_MBR mbr_tbl;
     PDM_DISK_INFO disk_info;
 
-    part_id = p_part->part_id;
     err = VFipdm_mbr_get_mbr_part_table(p_part->p_disk, &mbr_tbl);
     if (err != 0 && err != 5) {
         return err;
@@ -53,15 +49,15 @@ static pf_s32 VFipdm_part_get_start_sector(PDM_PARTITION* p_part) {
             if (*(&mbr_tbl.partition_table[part_id].lba_start_sector) == 0) {
                 return 7;
             }
-            p_part->start_sector = *(&mbr_tbl.partition_table[part_id].lba_start_sector);
-            p_part->total_sector = *(&mbr_tbl.partition_table[part_id].lba_num_sectors);
-            p_part->partition_type = *(&mbr_tbl.partition_table[part_id].partition_type);
+            p_part->start_sector = mbr_tbl.partition_table[part_id].lba_start_sector;
+            p_part->total_sector = mbr_tbl.partition_table[part_id].lba_num_sectors;
+            p_part->partition_type = mbr_tbl.partition_table[part_id].partition_type;
             p_part->mbr_sector = mbr_tbl.current_sector;
             goto success;
         }
         for (part_index = 4;; part_index++) {
             err = VFipdm_mbr_get_epbr_part_table(p_part->p_disk, &mbr_tbl);
-            if ((err != 0) && (err != 6)) {
+            if (err != 0 && err != 6) {
                 return err;
             }
             if (err != 6) {
@@ -115,11 +111,11 @@ static pf_u32 VFipdm_part_chg_ltop(PDM_PARTITION* p_part, pf_u32 lsector, pf_u16
         }
         l_delta = (pf_u16)((pf_s32)lbps >> 9);
         if (l_delta == 2) {
-            tmp_start_sector = tmp_start_sector >> 1U;
+            tmp_start_sector = tmp_start_sector >> 1;
         } else if (l_delta == 4) {
-            tmp_start_sector = tmp_start_sector >> 2U;
+            tmp_start_sector = tmp_start_sector >> 2;
         } else if (l_delta == 8) {
-            tmp_start_sector = tmp_start_sector >> 3U;
+            tmp_start_sector = tmp_start_sector >> 3;
         }
         psector = lsector + tmp_start_sector;
     }
@@ -136,19 +132,19 @@ static pf_s32 VFipdm_part_get_handle(PDM_DISK* p_disk, pf_u16 part_id, PDM_PARTI
     p_save_free_part = PF_NULL;
     save_part_no = 0;
 
-    for (handle_no = 0; handle_no < 26; handle_no++) {
+    for (handle_no = 0; handle_no < PDM_DRIVE_COUNT; handle_no++) {
         if (VFipdm_disk_set.partition_handle[handle_no].handle == 0) {
             break;
         }
     }
 
-    if (handle_no >= 26) {
+    if (handle_no >= PDM_DRIVE_COUNT) {
         return 10;
     }
     *p_handle_no = handle_no;
 
-    for (part_no = 0; part_no < 26; part_no++) {
-        if ((VFipdm_disk_set.partition[part_no].status & 1) == 0) {
+    for (part_no = 0; part_no < PDM_DRIVE_COUNT; part_no++) {
+        if ((VFipdm_disk_set.partition[part_no].status & 0x01) == 0) {
             if (p_save_free_part == PF_NULL) {
                 p_save_free_part = &VFipdm_disk_set.partition[part_no];
                 save_part_no = part_no;
@@ -166,7 +162,7 @@ static pf_s32 VFipdm_part_get_handle(PDM_DISK* p_disk, pf_u16 part_id, PDM_PARTI
         return 10;
     }
 
-    p_save_free_part->status |= 1;
+    p_save_free_part->status |= 0x01;
     VFipdm_disk_set.num_partition++;
     p_save_free_part->p_disk = p_disk;
     p_save_free_part->part_id = part_id;
@@ -177,7 +173,7 @@ static pf_s32 VFipdm_part_get_handle(PDM_DISK* p_disk, pf_u16 part_id, PDM_PARTI
 
 static pf_s32 VFipdm_part_release_handle(PDM_PARTITION* p_part) {
     if (p_part->open_part_cnt == 1) {
-        p_part->status &= ~1;
+        p_part->status &= ~0x01;
         VFipdm_disk_set.num_partition--;
     }
     return 0;
@@ -188,9 +184,9 @@ pf_s32 VFipdm_part_open_partition(PDM_DISK* p_disk, pf_u16 part_id, PDM_PARTITIO
     pf_u16 part_no;
     pf_u16 handle_no;
     PDM_PARTITION* p_part;
-    pf_u32 is_insert;
+    pf_bool is_insert;
 
-    if ((p_disk == PF_NULL) || (pp_part == PF_NULL)) {
+    if (p_disk == PF_NULL || pp_part == PF_NULL) {
         return 1;
     }
     err = VFipdm_part_get_handle(&*p_disk, part_id, &p_part, &part_no, &handle_no);
@@ -206,10 +202,10 @@ pf_s32 VFipdm_part_open_partition(PDM_DISK* p_disk, pf_u16 part_id, PDM_PARTITIO
     if (err != 0) {
         return err;
     }
-    if (is_insert != 0) {
-        p_part->status = p_part->status | 4;
+    if (is_insert) {
+        p_part->status = p_part->status | 0x04;
     }
-    *pp_part = (PDM_PARTITION*)(part_no & 0xFF | 0x400 | ((pf_u16)VFipdm_disk_set.partition[part_no].signature << 0x10));
+    *pp_part = (PDM_PARTITION*)(part_no & 0xFF | 0x400 | ((pf_u16)VFipdm_disk_set.partition[part_no].signature << 16));
     return 0;
 }
 
@@ -225,12 +221,12 @@ pf_s32 VFipdm_part_close_partition(PDM_PARTITION* p_part) {
     if (err != 0) {
         return err;
     }
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
-    if ((lp_part->status & 1) == 0) {
-        return 0xC;
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
+    if ((lp_part->status & 0x01) == 0) {
+        return 12;
     }
-    if ((lp_part->status & 2) == 2) {
-        return 0xD;
+    if ((lp_part->status & 0x02) == 0x02) {
+        return 13;
     }
     err = VFipdm_part_search_handle(p_part, lp_part, &handle_no);
     if (err != 0) {
@@ -259,8 +255,8 @@ pf_s32 VFipdm_part_get_permission(PDM_PARTITION* p_part) {
         return err;
     }
 
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
-    if ((lp_part->status & 2) != 0) {
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
+    if ((lp_part->status & 0x02) != 0) {
         goto fail;
     }
     err = VFipdm_disk_set_disk(lp_part->p_disk, p_part);
@@ -275,40 +271,39 @@ pf_s32 VFipdm_part_get_permission(PDM_PARTITION* p_part) {
 
     err = VFipdm_disk_get_media_information(lp_part->p_disk, &disk_info);
     if (err != 0) {
-        VFipdm_disk_release_part_permission(lp_part->p_disk, 1U);
+        VFipdm_disk_release_part_permission(lp_part->p_disk, 1);
         return err;
     }
 
-    if ((disk_info.media_attr & 1) != 0) {
+    if ((disk_info.media_attr & 0x01) != 0) {
         lp_part->status |= 0x10;
     } else {
-        lp_part->status &= ~16;
+        lp_part->status &= ~0x10;
     }
 
     err = VFipdm_part_get_start_sector(lp_part);
     if (err != 0) {
-        VFipdm_disk_release_part_permission(lp_part->p_disk, 1U);
+        VFipdm_disk_release_part_permission(lp_part->p_disk, 1);
         return err;
     }
 
     goto success;
 
 fail:
-    return 0xD;
+    return 13;
 
 success:
-    lp_part->status |= 2;
-    lp_part->status &= ~8;
+    lp_part->status |= 0x02;
+    lp_part->status &= ~0x08;
 
     return 0;
 }
 
 pf_s32 VFipdm_part_release_permission(PDM_PARTITION* p_part, pf_u32 mode) {
     pf_s32 err;
-    pf_s32 ret;
+    pf_s32 ret = 0;
     PDM_PARTITION* lp_part;
 
-    ret = 0;
     if (p_part == PF_NULL) {
         return 1;
     }
@@ -316,9 +311,9 @@ pf_s32 VFipdm_part_release_permission(PDM_PARTITION* p_part, pf_u32 mode) {
     if (err != 0) {
         return err;
     }
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
-    if ((lp_part->status & 2) == 0) {
-        return 0xE;
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
+    if ((lp_part->status & 0x02) == 0) {
+        return 14;
     }
     err = VFipdm_disk_set_disk(lp_part->p_disk, p_part);
     if (err != 0) {
@@ -329,9 +324,9 @@ pf_s32 VFipdm_part_release_permission(PDM_PARTITION* p_part, pf_u32 mode) {
         ret = err;
     }
     if ((ret == 0) || (mode == 1)) {
-        lp_part->status &= ~2;
-        lp_part->status &= ~8;
-        lp_part->status &= ~16;
+        lp_part->status &= ~0x02;
+        lp_part->status &= ~0x08;
+        lp_part->status &= ~0x10;
     }
     return ret;
 }
@@ -347,7 +342,7 @@ pf_s32 VFipdm_part_format(PDM_PARTITION* p_part, const pf_u8* param) {
     if (err != 0) {
         return err;
     }
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
     err = VFipdm_disk_set_disk(lp_part->p_disk, p_part);
     if (err != 0) {
         return err;
@@ -365,20 +360,20 @@ pf_s32 VFipdm_part_logical_read(PDM_PARTITION* p_part, pf_u8* buf, pf_u32 lsecto
     pf_u32 psector;
     PDM_PARTITION* lp_part;
 
-    if ((p_part == PF_NULL) || (buf == PF_NULL) || (num_sector == 0) || (bps == 0) || (p_num_success == PF_NULL)) {
+    if (p_part == PF_NULL || buf == PF_NULL || num_sector == 0 || bps == 0 || p_num_success == PF_NULL) {
         return 1;
     }
     err = VFipdm_part_check_partition_handle(p_part);
     if (err != 0) {
         return err;
     }
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
     err = VFipdm_disk_set_disk(lp_part->p_disk, p_part);
     if (err != 0) {
         return err;
     }
     if (lp_part->total_sector <= lsector) {
-        return 0x12;
+        return 18;
     }
     if (lp_part->total_sector < (lsector + num_sector)) {
         over_sec = (lsector + num_sector) - lp_part->total_sector;
@@ -398,20 +393,20 @@ pf_s32 VFipdm_part_logical_write(PDM_PARTITION* p_part, const pf_u8* buf, pf_u32
     pf_u32 psector;
     PDM_PARTITION* lp_part;
 
-    if ((p_part == PF_NULL) || (buf == PF_NULL) || (num_sector == 0) || (bps == 0) || (p_num_success == PF_NULL)) {
+    if (p_part == PF_NULL || buf == PF_NULL || num_sector == 0 || bps == 0 || p_num_success == PF_NULL) {
         return 1;
     }
     err = VFipdm_part_check_partition_handle(p_part);
     if (err != 0) {
         return err;
     }
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
     err = VFipdm_disk_set_disk(lp_part->p_disk, p_part);
     if (err != 0) {
         return err;
     }
     if (lp_part->total_sector <= lsector) {
-        return 0x12;
+        return 18;
     }
     if (lp_part->total_sector < (lsector + num_sector)) {
         over_sec = (lsector + num_sector) - lp_part->total_sector;
@@ -429,14 +424,14 @@ pf_s32 VFipdm_part_get_media_information(PDM_PARTITION* p_part, PDM_DISK_INFO* p
     pf_s32 err;
     PDM_PARTITION* lp_part;
 
-    if ((p_part == PF_NULL) || (p_disk_info == PF_NULL)) {
+    if (p_part == PF_NULL || p_disk_info == PF_NULL) {
         return 1;
     }
     err = VFipdm_part_check_partition_handle(p_part);
     if (err != 0) {
         return err;
     }
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
     err = VFipdm_disk_get_media_information(lp_part->p_disk, p_disk_info);
     if (err != 0) {
         return err;
@@ -444,62 +439,62 @@ pf_s32 VFipdm_part_get_media_information(PDM_PARTITION* p_part, PDM_DISK_INFO* p
     return 0;
 }
 
-pf_s32 VFipdm_part_check_media_write_protect(PDM_PARTITION* p_part, pf_u32* is_wprotect) {
+pf_s32 VFipdm_part_check_media_write_protect(PDM_PARTITION* p_part, pf_bool* is_wprotect) {
     PDM_PARTITION* lp_part;
     pf_s32 err;
 
-    if ((p_part == PF_NULL) || (is_wprotect == PF_NULL)) {
+    if (p_part == PF_NULL || is_wprotect == PF_NULL) {
         return 1;
     }
     err = VFipdm_part_check_partition_handle(p_part);
     if (err != 0) {
         return err;
     }
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
     if ((lp_part->status & 0x10) != 0) {
-        *is_wprotect = 1;
+        *is_wprotect = PF_TRUE;
     } else {
-        *is_wprotect = 0;
+        *is_wprotect = PF_FALSE;
     }
     return 0;
 }
 
-pf_s32 VFipdm_part_check_media_insert(PDM_PARTITION* p_part, pf_u32* is_insert) {
+pf_s32 VFipdm_part_check_media_insert(PDM_PARTITION* p_part, pf_bool* is_insert) {
     PDM_PARTITION* lp_part;
     pf_s32 err;
 
-    if ((p_part == PF_NULL) || (is_insert == PF_NULL)) {
+    if (p_part == PF_NULL || is_insert == PF_NULL) {
         return 1;
     }
     err = VFipdm_part_check_partition_handle(p_part);
     if (err != 0) {
         return err;
     }
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
-    if ((lp_part->status & 4) != 0) {
-        *is_insert = 1;
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
+    if ((lp_part->status & 0x04) != 0) {
+        *is_insert = PF_TRUE;
     } else {
-        *is_insert = 0;
+        *is_insert = PF_FALSE;
     }
     return 0;
 }
 
-pf_s32 VFipdm_part_check_media_detect(PDM_PARTITION* p_part, pf_u32* is_detect) {
+pf_s32 VFipdm_part_check_media_detect(PDM_PARTITION* p_part, pf_bool* is_detect) {
     PDM_PARTITION* lp_part;
     pf_s32 err;
 
-    if ((p_part == PF_NULL) || (is_detect == PF_NULL)) {
+    if (p_part == PF_NULL || is_detect == PF_NULL) {
         return 1;
     }
     err = VFipdm_part_check_partition_handle(p_part);
     if (err != 0) {
         return err;
     }
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
-    if ((lp_part->status & 8) != 0) {
-        *is_detect = 1;
+    lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
+    if ((lp_part->status & 0x08) != 0) {
+        *is_detect = PF_TRUE;
     } else {
-        *is_detect = 0;
+        *is_detect = PF_FALSE;
     }
     return 0;
 }
@@ -508,29 +503,25 @@ void VFipdm_part_set_change_media_state(PDM_DISK* p_disk, pf_u32 event) {
     pf_u16 part_cnt;
     PDM_PARTITION* p_part;
 
-    for (part_cnt = 0; part_cnt < 26; part_cnt++) {
-        if (((VFipdm_disk_set.partition[part_cnt].status & 1) != 0) && ((PDM_DISK*)VFipdm_disk_set.partition[part_cnt].p_disk == p_disk)) {
+    for (part_cnt = 0; part_cnt < PDM_DRIVE_COUNT; part_cnt++) {
+        if ((VFipdm_disk_set.partition[part_cnt].status & 0x01) != 0 && VFipdm_disk_set.partition[part_cnt].p_disk == p_disk) {
             p_part = &VFipdm_disk_set.partition[part_cnt];
             if (event == 0) {
-                p_part->status &= ~4;
+                p_part->status &= ~0x04;
             } else {
-                p_part->status |= 4;
+                p_part->status |= 0x04;
             }
-            p_part->status |= 8;
+            p_part->status |= 0x08;
         }
     }
 }
 
 void VFipdm_part_set_driver_error_code(PDM_PARTITION* p_part, pf_s32 error_code) {
-    PDM_PARTITION* lp_part;
-
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
+    PDM_PARTITION* lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
     lp_part->driver_last_error = error_code;
 }
 
 pf_s32 VFipdm_part_get_driver_error_code(PDM_PARTITION* p_part) {
-    PDM_PARTITION* lp_part;
-
-    lp_part = &VFipdm_disk_set.partition[GET_PART_NO(p_part)];
+    PDM_PARTITION* lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
     return lp_part->driver_last_error;
 }

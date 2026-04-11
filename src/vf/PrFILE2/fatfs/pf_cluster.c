@@ -24,7 +24,7 @@ void VFiPFCLUSTER_UpdateLastAccessCluster(PF_FILE* p_file, pf_u32 sector) {
     }
 }
 
-pf_s32 VFiPFCLUSTER_AppendCluster(PF_FILE* p_file, pf_u32 byte, pf_u32* p_success, pf_u32* sector) {
+pf_s32 VFiPFCLUSTER_AppendCluster(PF_FILE* p_file, pf_u32 byte, pf_bool* p_success, pf_u32* sector) {
     pf_s32 err;
     PF_VOLUME* p_vol;
     pf_u32 num_sector;
@@ -33,33 +33,33 @@ pf_s32 VFiPFCLUSTER_AppendCluster(PF_FILE* p_file, pf_u32 byte, pf_u32* p_succes
     PF_FAT_HINT save_hint;
 
     *p_success = 0;
-    if ((((pf_u8*)&VFipf_vol_set) > ((pf_u8*)p_file)) || (((pf_u8*)(&VFipf_vol_set)) + sizeof(VFipf_vol_set) < ((pf_u8*)p_file))) {
-        return 0xA;
+    if ((pf_u32)&VFipf_vol_set > (pf_u32)p_file || (pf_u32)(&VFipf_vol_set) + sizeof(VFipf_vol_set) < (pf_u32)p_file) {
+        return 10;
     }
-    if ((p_file == 0) || ((PF_SFD*)p_file->p_sfd == PF_NULL) || ((p_file->stat & 1) == 0) || ((p_file->p_sfd->stat & 1) == 0) ||
-        ((p_file->p_sfd->stat & 2) == 0)) {
-        return 0x26;
+    if (p_file == PF_NULL || p_file->p_sfd == PF_NULL || (p_file->stat & 0x01) == 0 || (p_file->p_sfd->stat & 0x01) == 0 ||
+        (p_file->p_sfd->stat & 0x02) == 0) {
+        return 38;
     }
-    if (((p_file->p_sfd->stat & 1) == 0) || ((p_file->p_sfd->stat & 2) == 0)) {
-        return 0x26;
+    if ((p_file->p_sfd->stat & 0x01) == 0 || (p_file->p_sfd->stat & 0x02) == 0) {
+        return 38;
     }
 
     p_vol = p_file == PF_NULL ? PF_NULL : p_file->p_sfd->dir_entry.p_vol;
     if (p_vol == PF_NULL) {
-        return 0x26;
+        return 38;
     }
     save_cursor = p_file->cursor;
     save_hint = p_file->hint;
 
     p_file->p_sfd->ffd.p_hint = &p_file->hint;
-    *sector = -1U;
-    if (((p_vol->fsi_flag & 4) != 0) && (p_vol->num_free_clusters != -1) && (p_vol->num_free_clusters == 0)) {
+    *sector = 0xFFFFFFFF;
+    if ((p_vol->fsi_flag & 0x04) != 0 && p_vol->num_free_clusters != -1 && p_vol->num_free_clusters == 0) {
         return 6;
     }
     VFiPFFILE_Cursor_MoveToClusterEnd(p_file, p_file->p_sfd->dir_entry.file_size + byte);
     if (p_file->cursor.position == -1) {
         *p_success = 0;
-        return 0x25;
+        return 37;
     }
     err = VFiPFFAT_GetSectorAllocated(&p_file->p_sfd->ffd, p_file->cursor.file_sector_index, byte, sector, &num_sector);
     if (err != 0) {
@@ -90,20 +90,20 @@ pf_s32 VFiPFCLUSTER_GetAppendSize(PF_FILE* p_file, pf_u32* p_size) {
     pf_s32 err;
 
     *p_size = 0;
-    if ((((pf_u8*)&VFipf_vol_set) > ((pf_u8*)p_file)) || (((pf_u8*)(&VFipf_vol_set)) + sizeof(VFipf_vol_set) < ((pf_u8*)p_file))) {
+    if ((pf_u32)&VFipf_vol_set > (pf_u32)p_file || (pf_u32)(&VFipf_vol_set) + sizeof(VFipf_vol_set) < (pf_u32)p_file) {
         return 0xA;
     }
-    if ((p_file == 0) || ((PF_SFD*)p_file->p_sfd == PF_NULL) || ((p_file->stat & 1) == 0) || ((p_file->p_sfd->stat & 1) == 0) ||
-        ((p_file->p_sfd->stat & 2) == 0)) {
-        return 0x26;
+    if (p_file == PF_NULL || p_file->p_sfd == PF_NULL || (p_file->stat & 0x01) == 0 || (p_file->p_sfd->stat & 0x01) == 0 ||
+        (p_file->p_sfd->stat & 0x02) == 0) {
+        return 38;
     }
-    if (((p_file->p_sfd->stat & 1) == 0) || ((p_file->p_sfd->stat & 2) == 0)) {
-        return 0x26;
+    if ((p_file->p_sfd->stat & 0x01) == 0 || (p_file->p_sfd->stat & 0x02) == 0) {
+        return 38;
     }
 
     p_vol = p_file == PF_NULL ? PF_NULL : p_file->p_sfd->dir_entry.p_vol;
     if (p_vol == PF_NULL) {
-        return 0x26;
+        return 38;
     }
     cluster_size = p_vol->bpb.bytes_per_sector << p_vol->bpb.log2_sectors_per_cluster;
     if (p_file->p_sfd->dir_entry.start_cluster != 0) {

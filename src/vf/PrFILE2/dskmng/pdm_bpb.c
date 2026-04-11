@@ -46,7 +46,7 @@ static void VFipdm_bpb_calculate_specific_bpb_fields(PDM_BPB* p_bpb) {
             p_bpb->first_root_dir_sector = p_bpb->first_data_sector + ((p_bpb->root_dir_cluster - 2) << p_bpb->log2_sectors_per_cluster);
             if ((p_bpb->ext_flags & 0x80) != 0) {
                 p_bpb->num_active_FATs = 1;
-                p_bpb->active_FAT_sector = p_bpb->num_reserved_sectors + ((p_bpb->ext_flags & 7) * p_bpb->sectors_per_FAT);
+                p_bpb->active_FAT_sector = p_bpb->num_reserved_sectors + ((p_bpb->ext_flags & (0x01 | 0x02 | 0x04)) * p_bpb->sectors_per_FAT);
                 return;
             }
             p_bpb->num_active_FATs = p_bpb->num_FATs;
@@ -77,29 +77,29 @@ pf_s32 VFipdm_bpb_load_string(const pf_u8* buf, pf_u32 length, pf_u8* p_string) 
 pf_s32 VFipdm_bpb_get_bpb_information(pf_u8* buf /* r30 */, PDM_BPB* p_bpb /* r31 */) {
     pf_s32 err;  // r29
 
-    if ((buf == PF_NULL) || (p_bpb == PF_NULL)) {
+    if (buf == PF_NULL || p_bpb == PF_NULL) {
         return 1;
     }
     err = 0;
-    VFipdm_bpb_load_string(buf, 3U, p_bpb->jump_boot);
-    VFipdm_bpb_load_string(buf + 3, 8U, p_bpb->oem_name);
-    p_bpb->bytes_per_sector = (pf_u16)buf[0x0B] | ((pf_u16)buf[0x0C] << 8);
+    VFipdm_bpb_load_string(buf, 3, p_bpb->jump_boot);
+    VFipdm_bpb_load_string(buf + 3, 8, p_bpb->oem_name);
+    p_bpb->bytes_per_sector = PDM_U16_FROM_BUF(buf, 0x0B);
     p_bpb->sectors_per_cluster = buf[0x0D];
-    p_bpb->num_reserved_sectors = buf[0x0E] | ((pf_u16)buf[0x0F] << 8);
+    p_bpb->num_reserved_sectors = PDM_U16_FROM_BUF(buf, 0x0E);
     p_bpb->num_FATs = buf[0x10];
-    p_bpb->num_root_dir_entries = buf[0x11] | ((pf_u16)buf[0x12] << 8);
-    p_bpb->total_sectors16 = buf[0x13] | ((pf_u16)buf[0x14] << 8);
+    p_bpb->num_root_dir_entries = PDM_U16_FROM_BUF(buf, 0x11);
+    p_bpb->total_sectors16 = PDM_U16_FROM_BUF(buf, 0x13);
     p_bpb->media = buf[0x15];
-    p_bpb->sectors_per_FAT16 = buf[0x16] | ((pf_u16)buf[0x17] << 8);
-    p_bpb->sector_per_track = buf[0x18] | ((pf_u16)buf[0x19] << 8);
-    p_bpb->num_heads = buf[0x1A] | ((pf_u16)buf[0x1B] << 8);
-    p_bpb->num_hidden_sectors = (buf[0x1F] << 0x18) | ((buf[0x1E] << 0x10) | (buf[0x1C] | (buf[0x1D] << 8)));
-    p_bpb->total_sectors32 = (buf[0x23] << 0x18) | ((buf[0x22] << 0x10) | (buf[0x20] | (buf[0x21] << 8)));
+    p_bpb->sectors_per_FAT16 = PDM_U16_FROM_BUF(buf, 0x16);
+    p_bpb->sector_per_track = PDM_U16_FROM_BUF(buf, 0x18);
+    p_bpb->num_heads = PDM_U16_FROM_BUF(buf, 0x1A);
+    p_bpb->num_hidden_sectors = PDM_U32_FROM_BUF(buf, 0x1C);
+    p_bpb->total_sectors32 = PDM_U32_FROM_BUF(buf, 0x20);
 
     p_bpb->total_sectors = p_bpb->total_sectors16 == 0 ? p_bpb->total_sectors32 : p_bpb->total_sectors16;
 
     if (p_bpb->sectors_per_FAT16 == 0) {
-        p_bpb->sectors_per_FAT32 = (buf[0x27] << 0x18) | ((buf[0x26] << 0x10) | (buf[0x24] | (buf[0x25] << 8)));
+        p_bpb->sectors_per_FAT32 = PDM_U32_FROM_BUF(buf, 0x24);
         p_bpb->sectors_per_FAT = p_bpb->sectors_per_FAT32;
     } else {
         p_bpb->sectors_per_FAT32 = 0;
@@ -121,7 +121,7 @@ pf_s32 VFipdm_bpb_get_bpb_information(pf_u8* buf /* r30 */, PDM_BPB* p_bpb /* r3
             p_bpb->backup_boot_sector = 0;
             p_bpb->drive = buf[0x24];
             p_bpb->boot_sig = buf[0x26];
-            p_bpb->vol_id = ((buf[0x2A] << 0x18) | ((buf[0x29] << 0x10) | (buf[0x27] | (buf[0x28] << 8))));
+            p_bpb->vol_id = PDM_U32_FROM_BUF(buf, 0x27);
 
             VFipdm_bpb_load_string(&buf[0x2B], 11, p_bpb->vol_label);
             VFipdm_bpb_load_string(&buf[0x36], 8, p_bpb->fs_type);
@@ -132,14 +132,14 @@ pf_s32 VFipdm_bpb_get_bpb_information(pf_u8* buf /* r30 */, PDM_BPB* p_bpb /* r3
             if (p_bpb->total_sectors16 != 0 || p_bpb->sectors_per_FAT16 != 0) {
                 err = 4;
             }
-            p_bpb->ext_flags = (buf[0x28] | ((pf_u16)buf[0x29] << 8));
-            p_bpb->fs_version = (buf[0x2A] | ((pf_u16)buf[0x2B] << 8));
-            p_bpb->root_dir_cluster = (buf[0x2F] << 24) | ((buf[0x2E] << 16) | (buf[0x2C] | (buf[0x2D] << 8)));
-            p_bpb->fs_info_sector = (buf[0x30] | ((pf_u16)buf[0x31] << 8));
-            p_bpb->backup_boot_sector = (buf[0x32] | ((pf_u16)buf[0x33] << 8));
+            p_bpb->ext_flags = PDM_U16_FROM_BUF(buf, 0x28);
+            p_bpb->fs_version = PDM_U16_FROM_BUF(buf, 0x2A);
+            p_bpb->root_dir_cluster = PDM_U32_FROM_BUF(buf, 0x2C);
+            p_bpb->fs_info_sector = PDM_U16_FROM_BUF(buf, 0x30);
+            p_bpb->backup_boot_sector = PDM_U16_FROM_BUF(buf, 0x32);
             p_bpb->drive = buf[0x40];
             p_bpb->boot_sig = buf[0x42];
-            p_bpb->vol_id = ((buf[0x46] << 0x18) | ((buf[0x45] << 0x10) | (buf[0x43] | (buf[0x44] << 8))));
+            p_bpb->vol_id = PDM_U32_FROM_BUF(buf, 0x43);
 
             VFipdm_bpb_load_string(&buf[0x47], 11, p_bpb->vol_label);
             VFipdm_bpb_load_string(&buf['R'], 8, p_bpb->fs_type);
@@ -163,8 +163,8 @@ pf_s32 VFipdm_bpb_get_fsinfo_information(pf_u8* buf, PDM_FSINFO* p_fsinfo) {
     if (buf == PF_NULL || p_fsinfo == PF_NULL) {
         return 1;
     }
-    p_fsinfo->free_count = (buf[0x1EB] << 0x18) | ((buf[0x1EA] << 0x10) | (buf[0x1E8] | (buf[0x1E9] << 8)));
-    p_fsinfo->next_free = (buf[0x1EF] << 0x18) | ((buf[0x1EE] << 0x10) | (buf[0x1EC] | (buf[0x1ED] << 8)));
+    p_fsinfo->free_count = PDM_U32_FROM_BUF(buf, 0x1E8);
+    p_fsinfo->next_free = PDM_U32_FROM_BUF(buf, 0x1EC);
     return 0;
 }
 
@@ -183,12 +183,12 @@ pf_s32 VFipdm_bpb_set_fsinfo_information(PDM_FSINFO* p_fsinfo, pf_u8* buf) {
     buf[0x1E7] = 'a';
     buf[0x1E8] = p_fsinfo->free_count;
     buf[0x1E9] = p_fsinfo->free_count >> 8;
-    buf[0x1EA] = p_fsinfo->free_count >> 0x10;
-    buf[0x1EB] = p_fsinfo->free_count >> 0x18;
+    buf[0x1EA] = p_fsinfo->free_count >> 16;
+    buf[0x1EB] = p_fsinfo->free_count >> 24;
     buf[0x1EC] = p_fsinfo->next_free;
     buf[0x1ED] = p_fsinfo->next_free >> 8;
-    buf[0x1EE] = p_fsinfo->next_free >> 0x10;
-    buf[0x1EF] = p_fsinfo->next_free >> 0x18;
+    buf[0x1EE] = p_fsinfo->next_free >> 16;
+    buf[0x1EF] = p_fsinfo->next_free >> 24;
     buf[0x1FC] = 0;
     buf[0x1FD] = 0;
     buf[0x1FE] = 0x55;
@@ -197,55 +197,54 @@ pf_s32 VFipdm_bpb_set_fsinfo_information(PDM_FSINFO* p_fsinfo, pf_u8* buf) {
     return 0;
 }
 
-pf_s32 VFipdm_bpb_check_boot_sector(pf_u8* buf, pf_u32* is_boot) {
+pf_s32 VFipdm_bpb_check_boot_sector(pf_u8* buf, pf_bool* is_boot) {
     pf_u16 byte_per_sector;
     pf_u16 sector_per_cluster;
     pf_u8 media;
 
-    if ((buf == PF_NULL) || (is_boot == PF_NULL)) {
+    if (buf == PF_NULL || is_boot == PF_NULL) {
         return 1;
     }
-    *is_boot = 1;
-    if (((buf[0x00] != 0xEB) || (buf[0x2] != 0x90)) && (buf[0x0] != 0xE9)) {
-        *is_boot = 0;
+    *is_boot = PF_TRUE;
+    if ((buf[0x00] != 0xEB || buf[0x2] != 0x90) && buf[0x0] != 0xE9) {
+        *is_boot = PF_FALSE;
     }
-    if ((buf[0x1FE] != 0x55) || (buf[0x1FF] != 0xAA)) {
-        *is_boot = 0;
+    if (buf[0x1FE] != 0x55 || buf[0x1FF] != 0xAA) {
+        *is_boot = PF_FALSE;
     }
-    byte_per_sector = buf[0xB] | ((pf_u16)buf[0xC] << 8);
-    if ((byte_per_sector != 0x200) && (byte_per_sector != 0x400) && (byte_per_sector != 0x800) && (byte_per_sector != 0x1000)) {
-        *is_boot = 0;
+    byte_per_sector = PDM_U16_FROM_BUF(buf, 0xB);
+    if (byte_per_sector != 0x200 && byte_per_sector != 0x400 && byte_per_sector != 0x800 && byte_per_sector != 0x1000) {
+        *is_boot = PF_FALSE;
     }
     sector_per_cluster = buf[0xD];
-    if ((sector_per_cluster != 1) && (sector_per_cluster != 2) && (sector_per_cluster != 4) && (sector_per_cluster != 8) &&
-        (sector_per_cluster != 0x10) && (sector_per_cluster != 0x20) && (sector_per_cluster != 0x40) && (sector_per_cluster != 0x80)) {
-        *is_boot = 0;
+    if (sector_per_cluster != 1 && sector_per_cluster != 2 && sector_per_cluster != 4 && sector_per_cluster != 8 && sector_per_cluster != 0x10 &&
+        sector_per_cluster != 0x20 && sector_per_cluster != 0x40 && sector_per_cluster != 0x80) {
+        *is_boot = PF_FALSE;
     }
     media = buf[0x15];
-    if ((media != 0xF0) && (media != 0xF8) && (media != 0xF9) && (media != 0xFA) && (media != 0xFB) && (media != 0xFC) && (media != 0xFD) &&
-        (media != 0xFE) && (media != 0xFF)) {
-        *is_boot = 0;
+    if (media != 0xF0 && media != 0xF8 && media != 0xF9 && media != 0xFA && media != 0xFB && media != 0xFC && media != 0xFD && media != 0xFE &&
+        media != 0xFF) {
+        *is_boot = PF_FALSE;
     }
     return 0;
 }
 
-// DEBUG NON MATCHING
-pf_s32 VFipdm_bpb_check_fsinfo_sector(pf_u8* buf /* r3 */, pf_u32* is_fsinfo /* r4 */) {
-    // Local variables
-    pf_u32 lead_sig;    // r31
-    pf_u32 struct_sig;  // r30
-    pf_u32 trail_sig;   // r29
+pf_s32 VFipdm_bpb_check_fsinfo_sector(pf_u8* buf, pf_bool* is_fsinfo) {
+    pf_u32 lead_sig;
+    pf_u32 struct_sig;
+    pf_u32 trail_sig;
 
-    if ((buf == PF_NULL) || (is_fsinfo == PF_NULL)) {
+    if (buf == PF_NULL || is_fsinfo == PF_NULL) {
         return 1;
     }
-    lead_sig = (buf[0x3] << 0x18) | ((buf[0x2] << 0x10) | (buf[0x00] | (buf[0x1] << 8)));
-    struct_sig = (buf[0x1E7] << 0x18) | ((buf[0x1E6] << 0x10) | (buf[0x1E4] | (buf[0x1E5] << 8)));
-    trail_sig = (buf[0x1FF] << 0x18) | ((buf[0x1FE] << 0x10) | (buf[0x1FC] | (buf[0x1FD] << 8)));
+
+    lead_sig = PDM_U32_FROM_BUF(buf, 0x00);
+    struct_sig = PDM_U32_FROM_BUF(buf, 0x1E4);
+    trail_sig = PDM_U32_FROM_BUF(buf, 0x1FC);
     if (lead_sig == 'AaRR' && struct_sig == 'aArr' && trail_sig == 0xAA550000) {
-        *is_fsinfo = 1;
+        *is_fsinfo = PF_TRUE;
     } else {
-        *is_fsinfo = 0;
+        *is_fsinfo = PF_FALSE;
     }
     return 0;
 }

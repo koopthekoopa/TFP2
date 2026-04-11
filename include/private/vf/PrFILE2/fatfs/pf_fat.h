@@ -1,57 +1,60 @@
 #ifndef PRFILE2_VFMOD_PF_FAT_H
 #define PRFILE2_VFMOD_PF_FAT_H
 
-#include <private/vf/PrFILE2/fatfs/pf_cache.h>
 #include <private/vf/PrFILE2/common/pf_str.h>
+#include <private/vf/PrFILE2/fatfs/pf_cache.h>
 #include <private/vf/PrFILE2/pf_types.h>
 
+typedef enum {
+    FAT_12 = 0,
+    FAT_16 = 1,
+    FAT_32 = 2,
+    FAT_ERR = -1,
+} PF_FAT_TYPE;
+
+#define FAT_MAX 3
+
 typedef struct PF_LAST_CLUSTER {
-    // total size: 0x8
-    pf_u32 num_last_cluster;  // offset 0x0, size 0x4
-    pf_u32 max_chain_index;   // offset 0x4, size 0x4
+    pf_u32 num_last_cluster;  // 0x00
+    pf_u32 max_chain_index;   // 0x04
 } PF_LAST_CLUSTER;
 
 typedef struct PF_FAT_LAST_ACCESS {
-    // total size: 0x8
-    pf_u32 chain_index;  // offset 0x0, size 0x4
-    pf_u32 cluster;      // offset 0x4, size 0x4
+    pf_u32 chain_index;  // 0x00
+    pf_u32 cluster;      // 0x04
 } PF_FAT_LAST_ACCESS;
 
 typedef struct PF_CLUSTER_LINK {
-    // total size: 0x14
-    pf_u32* buffer;          // offset 0x0, size 0x4
-    pf_u16 interval;         // offset 0x4, size 0x2
-    pf_u16 interval_offset;  // offset 0x6, size 0x2
-    pf_u32 position;         // offset 0x8, size 0x4
-    pf_u32 max_count;        // offset 0xC, size 0x4
-    pf_u32 save_index;       // offset 0x10, size 0x4
+    pf_u32* buffer;          // 0x00
+    pf_u16 interval;         // 0x04
+    pf_u16 interval_offset;  // 0x06
+    pf_u32 position;         // 0x08
+    pf_u32 max_count;        // 0x0C
+    pf_u32 save_index;       // 0x10
 } PF_CLUSTER_LINK;
 
 typedef struct PF_FAT_HINT {
-    // total size: 0xC
-    pf_u32 chain_index;   // offset 0x0, size 0x4
-    pf_u32 cluster;       // offset 0x4, size 0x4
-    pf_u32 file_version;  // offset 0x8, size 0x4
+    pf_u32 chain_index;   // 0x00
+    pf_u32 cluster;       // 0x04
+    pf_u32 file_version;  // 0x08
 } PF_FAT_HINT;
 
 typedef struct PF_FFD {
-    // total size: 0x38
-    pf_u32 file_version;                            // offset 0x0, size 0x4
-    pf_u32 start_cluster;                           // offset 0x4, size 0x4
-    pf_u32* p_start_cluster;                        // offset 0x8, size 0x4
-    struct PF_LAST_CLUSTER last_cluster;            // offset 0xC, size 0x8
-    struct PF_FAT_LAST_ACCESS last_access_cluster;  // offset 0x14, size 0x8
-    struct PF_CLUSTER_LINK cluster_link;            // offset 0x1C, size 0x14
-    struct PF_FAT_HINT* p_hint;                     // offset 0x30, size 0x4
-    PF_VOLUME* p_vol;                               // offset 0x34, size 0x4
+    pf_u32 file_version;                     // 0x00
+    pf_u32 start_cluster;                    // 0x04
+    pf_u32* p_start_cluster;                 // 0x08
+    PF_LAST_CLUSTER last_cluster;            // 0x0C
+    PF_FAT_LAST_ACCESS last_access_cluster;  // 0x14
+    PF_CLUSTER_LINK cluster_link;            // 0x1C
+    PF_FAT_HINT* p_hint;                     // 0x30
+    PF_VOLUME* p_vol;                        // 0x34
 } PF_FFD;
 
 typedef struct PF_CLUSTER_LINK_VOL {
-    // total size: 0xC
-    pf_u16 flag;      // offset 0x0, size 0x2
-    pf_u16 interval;  // offset 0x2, size 0x2
-    pf_u32* buffer;   // offset 0x4, size 0x4
-    pf_u32 link_max;  // offset 0x8, size 0x4
+    pf_u16 flag;      // 0x00
+    pf_u16 interval;  // 0x02
+    pf_u32* buffer;   // 0x04
+    pf_u32 link_max;  // 0x08
 } PF_CLUSTER_LINK_VOL;
 
 pf_s32 VFiPFFAT_UpdateFATEntry(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_page);

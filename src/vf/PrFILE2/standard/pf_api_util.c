@@ -1,8 +1,12 @@
 #include <private/vf/PrFILE2/standard/pf_api_util.h>
+#include <revolution/vf/types.h>
 
-pf_s32 VFipf_error_to_api_error[] = {0x00, 0x16, 0x16, 0x02, 0x10, 0x5A, 0x1C, 0x08, 0x11, 0x08, 0x16, 0x0D, 0x58, 0x08,
-                                     0x08, 0x08, 0x0D, 0x05, 0x08, 0x0D, 0x02, 0x17, 0x18, 0x15, 0x0D, 0x01, 0x08, 0x08,
-                                     0x08, 0x08, 0x0C, 0x16, 0x16, 0x08, 0x02, 0x08, 0x08, 0x1B, 0x09, 0x2E};
+pf_s32 VFipf_error_to_api_error[] = {VF_ERR_SUCCESS, VF_ERR_EINVAL,  VF_ERR_EINVAL,  VF_ERR_ENOENT, VF_ERR_EBUSY,   VF_ERR_ENOTEMPTY, VF_ERR_ENOSPC,
+                                     VF_ERR_ENOEXEC, VF_ERR_EEXIST,  VF_ERR_ENOEXEC, VF_ERR_EINVAL, VF_ERR_EACCES,  VF_ERR_ENOSYS,    VF_ERR_ENOEXEC,
+                                     VF_ERR_ENOEXEC, VF_ERR_ENOEXEC, VF_ERR_EACCES,  VF_ERR_EIO,    VF_ERR_ENOEXEC, VF_ERR_EACCES,    VF_ERR_ENOENT,
+                                     VF_ERR_ENFILE,  VF_ERR_EMFILE,  VF_ERR_EISDIR,  VF_ERR_EACCES, VF_ERR_EPERM,   VF_ERR_ENOEXEC,   VF_ERR_ENOEXEC,
+                                     VF_ERR_ENOEXEC, VF_ERR_ENOEXEC, VF_ERR_ENOMEM,  VF_ERR_EINVAL, VF_ERR_EINVAL,  VF_ERR_ENOEXEC,   VF_ERR_ENOENT,
+                                     VF_ERR_ENOEXEC, VF_ERR_ENOEXEC, VF_ERR_EFBIG,   VF_ERR_EBADF,  VF_ERR_ENOLCK};
 
 pf_s32 VFiPFAPI_ParseOpenModeString(const char* mode_str) {
     pf_s32 open_mode = 0;
@@ -57,16 +61,16 @@ pf_s32 VFiPFAPI_ParseOpenModeString(const char* mode_str) {
 
 pf_s32 VFiPFAPI_convertError(pf_s32 err) {
     if (err == 0) {
-        return 0;
+        return VF_ERR_SUCCESS;
     }
     if (err == -1) {
-        return -1;
+        return VF_ERR_SYSTEM;
     }
-    if ((err > 0) && (err < 0xA0)) {
+    if (err > 0 && err < 0xA0) {
         return VFipf_error_to_api_error[err];
     }
     if (err == 0x1000) {
-        err = 5;
+        err = VF_ERR_EIO;
         return err;
     }
     return err;

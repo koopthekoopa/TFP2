@@ -15,62 +15,62 @@
 #include <revolution/sdi.h>
 
 typedef struct {
-    u32 status;     // offset 0x0, size 0x4
-    u32 err;        // offset 0x4, size 0x4
-    u32 type;       // offset 0x8, size 0x4
-    u32 sync_mode;  // offset 0xC, size 0x4
+    u32 status;     // 0x00
+    u32 err;        // 0x04
+    u32 type;       // 0x08
+    u32 sync_mode;  // 0x0C
 } VFSys_device;
 
 typedef struct {
-    MEMiHeapHead* heap_handle;        // offset 0x0, size 0x4
-    u32 cache_pages;                  // offset 0x4, size 0x4
-    PF_CACHE_PAGE* pf_cache_page_p;   // offset 0x8, size 0x4
-    PF_CACHE_BUFFER* pf_cache_buf_p;  // offset 0xC, size 0x4
+    MEMiHeapHead* heap_handle;        // 0x00
+    u32 cache_pages;                  // 0x04
+    PF_CACHE_PAGE* pf_cache_page_p;   // 0x08
+    PF_CACHE_BUFFER* pf_cache_buf_p;  // 0x0C
 } VFSys_cache;
 
 typedef struct {
-    void* file_p;                   // offset 0x0, size 0x4
-    PDM_DISK* pf_disk_p;            // offset 0x4, size 0x4
-    PF_DRV_TBL pf_drv;              // offset 0x8, size 0xC
-    PDM_PARTITION* pf_part_p;       // offset 0x14, size 0x4
-    VFSys_cache cache;              // offset 0x18, size 0x10
-    PF_CACHE_SETTING pf_cache_set;  // offset 0x28, size 0x14
-    u8 pf_filename[255];            // offset 0x3C, size 0xFF
+    void* file_p;                   // 0x00
+    PDM_DISK* pf_disk_p;            // 0x04
+    PF_DRV_TBL pf_drv;              // 0x08
+    PDM_PARTITION* pf_part_p;       // 0x14
+    VFSys_cache cache;              // 0x18
+    PF_CACHE_SETTING pf_cache_set;  // 0x28
+    u8 pf_filename[255];            // 0x3C
 } VFSys_drive;
 
 typedef struct {
-    VFSys_device* device_p;  // offset 0x0, size 0x4
-    VFSys_drive drive;       // offset 0x4, size 0x13C
+    VFSys_device* device_p;  // 0x00
+    VFSys_drive drive;       // 0x04
 } VFSys_handle;
 
 typedef struct {
-    VFSys_device base;  // offset 0x0, size 0x10
+    VFSys_device base;  // 0x00
 } VFSys_deviceBase;
 
 typedef struct {
-    VFSys_deviceBase device;  // offset 0x0, size 0x10
-    DVDFileInfo file_info;    // offset 0x10, size 0x3C
+    VFSys_deviceBase device;  // 0x00
+    DVDFileInfo file_info;    // 0x10
 } VFSys_deviceDvd;
 
 typedef struct {
-    VFSys_deviceBase device;  // offset 0x0, size 0x10
-    NANDFileInfo file_info;   // offset 0x10, size 0x8C
+    VFSys_deviceBase device;  // 0x00
+    NANDFileInfo file_info;   // 0x10
 } VFSys_deviceNand;
 
 typedef struct {
-    VFSys_device base;                 // offset 0x0, size 0x10
-    SDDev drive;                       // offset 0x20, size 0x28
-    SDDevEventCallback eventCallback;  // offset 0x48, size 0x4
-    u32 slotNo;                        // offset 0x4C, size 0x4
+    VFSys_device base;                 // 0x00
+    SDDev drive;                       // 0x20
+    SDDevEventCallback eventCallback;  // 0x48
+    u32 slotNo;                        // 0x4C
 } VFSys_deviceSD;
 
 typedef struct VFSysTime {
-    s32 sec;    // offset 0x0, size 0x4
-    s32 min;    // offset 0x4, size 0x4
-    s32 hour;   // offset 0x8, size 0x4
-    s32 day;    // offset 0xC, size 0x4
-    s32 month;  // offset 0x10, size 0x4
-    s32 year;   // offset 0x14, size 0x4
+    s32 sec;    // 0x00
+    s32 min;    // 0x04
+    s32 hour;   // 0x08
+    s32 day;    // 0x0C
+    s32 month;  // 0x10
+    s32 year;   // 0x14
 } VFSysTime;
 
 typedef void (*VFSysTimeStampCallback)(VFSysTime* time);

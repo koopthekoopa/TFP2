@@ -17,11 +17,11 @@ static pf_u32 VFiPFVOL_CheckContextRegistered(pf_s32 context_id) {
     pf_u32 i;
 
     for (i = 1; i < 1; i++) {
-        if ((VFipf_vol_set.context[i].stat &= 1) != 0 && (context_id == VFipf_vol_set.context[i].context_id)) {
+        if ((VFipf_vol_set.context[i].stat &= 1) != 0 && context_id == VFipf_vol_set.context[i].context_id) {
             return 1;
         }
     }
-    return 0U;
+    return 0;
 }
 
 static pf_s32 VFiPFVOL_SetUpVolumeForMount(PF_VOLUME* p_vol) {
@@ -33,13 +33,13 @@ static pf_s32 VFiPFVOL_InitCurrentDir(PF_VOLUME* p_vol) {
     pf_s32 context_id;
     pf_u32 i;
 
-    if ((p_vol->flags & 2) == 0) {
+    if ((p_vol->flags & 0x02) == 0) {
         return 9;
     }
     VFiPFSYS_GetCurrentContextID(&context_id);
-    p_vol->current_dir[0].stat |= 1;
+    p_vol->current_dir[0].stat |= 0x01;
     if (VFiPFVOL_CheckContextRegistered(context_id) != 0) {
-        p_vol->tail_entry.tracker_size |= 1;
+        p_vol->tail_entry.tracker_size |= 0x01;
         p_vol->tail_entry.tracker_buff[0] = context_id;
     }
 
@@ -55,7 +55,7 @@ static pf_s32 VFiPFVOL_InitCurrentDir(PF_VOLUME* p_vol) {
 static pf_s32 VFiPFVOL_FinalizeCurrentDir(PF_VOLUME* p_vol) {
     pf_u32 i;
 
-    if ((p_vol->flags & 2) == 0) {
+    if ((p_vol->flags & 0x02) == 0) {
         return 9;
     }
 
@@ -73,18 +73,18 @@ static pf_s32 VFiPFVOL_DoMountVolume(PF_VOLUME* p_vol) {
     if (err != 0) {
         return err;
     }
-    if ((p_vol->bpb.bytes_per_sector == 0) || ((p_vol->bpb.bytes_per_sector & 0x1FF) != 0)) {
-        return 0xF;
+    if (p_vol->bpb.bytes_per_sector == 0 || (p_vol->bpb.bytes_per_sector & 0x1FF) != 0) {
+        return 15;
     }
     err = VFiPFCACHE_InitCaches(p_vol);
     if (err != 0) {
         return err;
     }
-    p_vol->flags |= (pf_u16)2;
+    p_vol->flags |= (pf_u16)0x02;
     err = VFiPFVOL_InitCurrentDir(p_vol);
-    if ((err == 0) && ((p_vol->flags & 0x10) != 0)) {
+    if (err == 0 && (p_vol->flags & 0x010) != 0) {
         err = VFiPFDRV_format(p_vol, p_vol->format_param);
-        if ((err == 0) && ((p_vol->flags & 0x20) == 0)) {
+        if (err == 0 && (p_vol->flags & 0x20) == 0) {
             err = VFiPFFAT_InitFATRegion(p_vol);
             if (err == 0) {
                 err = VFiPFENT_MakeRootDir(p_vol);
@@ -92,7 +92,7 @@ static pf_s32 VFiPFVOL_DoMountVolume(PF_VOLUME* p_vol) {
         }
     }
     if (err != 0) {
-        p_vol->flags &= ~2;
+        p_vol->flags &= ~0x02;
     }
     return err;
 }
@@ -105,14 +105,11 @@ static pf_s32 VFiPFVOL_DoUnmountVolume(PF_VOLUME* p_vol, pf_u32 mode) {
         return err;
     }
     VFiPFVOL_FinalizeCurrentDir(p_vol);
-    p_vol->flags &= ~2;
+    p_vol->flags &= ~0x2;
     return 0;
 }
 
 static void VFiPFVOL_UnmountVolumeByEject(PF_VOLUME* p_vol) {
-    // References
-    // ->  PF_VOLUME_SET VFipf_vol_set;
-
     VFiPFFILE_FinalizeAllFiles(p_vol);
     VFiPFDIR_FinalizeAllDirs(p_vol);
     VFiPFCACHE_FreeAllCaches(p_vol);
@@ -123,7 +120,7 @@ static void VFiPFVOL_UnmountVolumeByEject(PF_VOLUME* p_vol) {
 static pf_s32 VFiPFVOL_p_attach(PF_VOLUME* p_vol, PF_DRV_TBL* p_drv, pf_s16 vol_idx) {
     pf_s32 err;
 
-    VFipf_memset(p_vol, 0, 0x1898);
+    VFipf_memset(p_vol, 0, sizeof(PF_VOLUME));
     p_vol->p_part = p_drv->p_part;
     p_vol->drv_char = vol_idx + 0x41;
     p_vol->tail_entry.tracker_size = 1;
@@ -151,14 +148,14 @@ static pf_s32 VFiPFVOL_p_detach(PF_VOLUME* p_vol) {
 static pf_s32 VFiPFVOL_p_mount(PF_VOLUME* p_vol) {
     pf_s32 err;
 
-    if ((p_vol->flags & 2) == 0) {
+    if ((p_vol->flags & 0x02) == 0) {
         err = VFiPFVOL_DoMountVolume(p_vol);
         if (err != 0) {
             return err;
         }
-        p_vol->fsi_flag &= ~1;
-        p_vol->fsi_flag &= ~2;
-        p_vol->fsi_flag &= ~4;
+        p_vol->fsi_flag &= ~0x01;
+        p_vol->fsi_flag &= ~0x02;
+        p_vol->fsi_flag &= ~0x04;
         VFipf_vol_set.num_mounted_volumes++;
     }
     return 0;
@@ -169,7 +166,7 @@ static pf_s32 VFiPFVOL_p_unmount(PF_VOLUME* p_vol, pf_u32 mode) {
     pf_s32 err2;
 
     err2 = 0;
-    if ((p_vol->flags & 2) == 0) {
+    if ((p_vol->flags & 0x02) == 0) {
         return 9;
     }
     VFiPFFILE_FinalizeAllFiles(p_vol);
@@ -178,14 +175,14 @@ static pf_s32 VFiPFVOL_p_unmount(PF_VOLUME* p_vol, pf_u32 mode) {
     if (err != 0) {
         err2 = err;
     }
-    if ((err == 0) || ((mode & 1) != 0)) {
+    if (err == 0 || (mode & 0x01) != 0) {
         VFiPFCACHE_FreeAllCaches(p_vol);
         err = VFiPFVOL_DoUnmountVolume(p_vol, mode);
-        if ((err != 0) && (err2 == 0)) {
+        if (err != 0 && err2 == 0) {
             err2 = err;
         }
     }
-    if ((err2 == 0) || ((mode & 1) != 0)) {
+    if ((err2 == 0) || (mode & 0x01) != 0) {
         VFipf_vol_set.num_mounted_volumes--;
     }
     return err2;
@@ -194,29 +191,26 @@ static pf_s32 VFiPFVOL_p_unmount(PF_VOLUME* p_vol, pf_u32 mode) {
 static pf_s32 VFiPFVOL_p_format(PF_VOLUME* p_vol, const pf_u8* param) {
     pf_s32 err;
     pf_u32 ecl;
-    pf_u32 is_mounted;
-    pf_u32 save_cache_mode;
-    pf_u16 save_fsi_flag;
+    pf_bool is_mounted = PF_FALSE;
+    pf_u32 save_cache_mode = 0;
+    pf_u16 save_fsi_flag = 0;
 
-    is_mounted = 0U;
-    save_cache_mode = 0;
-    save_fsi_flag = 0;
     if (p_vol == PF_NULL) {
-        return 0xA;
+        return 10;
     }
     if (VFiPFDRV_IsWProtected(p_vol) != 0) {
-        return 0xB;
+        return 11;
     }
     err = VFiPFDRV_format(p_vol, param);
     if (err != 0) {
         return err;
     }
-    if ((p_vol->flags & 2) != 0) {
-        is_mounted = 1U;
+    if ((p_vol->flags & 0x02) != 0) {
+        is_mounted = PF_TRUE;
         save_cache_mode = p_vol->cache.mode;
         save_fsi_flag = p_vol->fsi_flag;
         VFiPFCACHE_FreeAllCaches(p_vol);
-        err = VFiPFVOL_p_unmount(p_vol, 0U);
+        err = VFiPFVOL_p_unmount(p_vol, 0);
         if (err != 0) {
             return err;
         }
@@ -225,19 +219,19 @@ static pf_s32 VFiPFVOL_p_format(PF_VOLUME* p_vol, const pf_u8* param) {
     if (err != 0) {
         return err;
     }
-    if (is_mounted == 1U) {
+    if (is_mounted == PF_TRUE) {
         p_vol->cache.mode = save_cache_mode;
         p_vol->fsi_flag = save_fsi_flag;
     }
     if ((p_vol->flags & 0x20) != 0) {
-        if ((p_vol->bpb.fat_type == FAT_32) && ((p_vol->fsi_flag & 2) != 0)) {
-            p_vol->fsi_flag |= 4;
+        if (p_vol->bpb.fat_type == FAT_32 && (p_vol->fsi_flag & 0x02) != 0) {
+            p_vol->fsi_flag |= 0x04;
             VFiPFFAT_RefreshFSINFO(p_vol);
         } else {
-            p_vol->fsi_flag &= ~4;
+            p_vol->fsi_flag &= ~0x04;
             if (p_vol->bpb.fat_type != FAT_32) {
-                p_vol->fsi_flag &= ~1;
-                p_vol->fsi_flag &= ~2;
+                p_vol->fsi_flag &= ~0x01;
+                p_vol->fsi_flag &= ~0x2;
             }
             err = VFiPFFAT_CountFreeClusters(p_vol, &ecl);
             if (err != 0) {
@@ -255,10 +249,10 @@ static pf_s32 VFiPFVOL_p_format(PF_VOLUME* p_vol, const pf_u8* param) {
         return err;
     }
     if (p_vol->bpb.fat_type != FAT_32) {
-        p_vol->fsi_flag &= ~1;
-        p_vol->fsi_flag &= ~2;
+        p_vol->fsi_flag &= ~0x01;
+        p_vol->fsi_flag &= ~0x2;
     }
-    if ((p_vol->bpb.fat_type == FAT_32) && ((p_vol->fsi_flag & 2) != 0)) {
+    if ((p_vol->bpb.fat_type == FAT_32) && ((p_vol->fsi_flag & 0x02) != 0)) {
         err = VFiPFFAT_RefreshFSINFO(p_vol);
         if (err != 0) {
             return err;
@@ -283,7 +277,7 @@ static pf_s32 VFiPFVOL_CheckMediaInsert(PF_VOLUME* p_vol) {
 
     if (VFiPFDRV_IsInserted(p_vol) != 0) {
         if (VFiPFDRV_IsDetected(p_vol) != 0) {
-            if ((p_vol->flags & 2) != 0) {
+            if ((p_vol->flags & 0x02) != 0) {
                 VFiPFVOL_UnmountVolumeByEject(p_vol);
             }
             err = VFiPFVOL_p_mount(p_vol);
@@ -292,48 +286,48 @@ static pf_s32 VFiPFVOL_CheckMediaInsert(PF_VOLUME* p_vol) {
             }
         }
     } else {
-        if ((p_vol->flags & 2) != 0) {
+        if ((p_vol->flags & 0x02) != 0) {
             if (VFiPFDRV_IsDetected(p_vol) != 0) {
                 VFiPFVOL_UnmountVolumeByEject(p_vol);
             }
-            p_vol->flags &= ~2;
+            p_vol->flags &= ~0x2;
         }
     }
     return 0;
 }
 
 // DEBUG NON MATCH
-pf_s32 VFiPFVOL_InitModule(pf_u32 config /* r29 */, void* param /* r1+0x8 */) {
+pf_s32 VFiPFVOL_InitModule(pf_u32 config /* r29 */, void* param /* r1+0x08 */) {
     pf_s32 vol_idx;       // r31
-    PF_CHARCODE codeset;  // r1+0x10
+    PF_CHARCODE codeset;  // r1+0x010
     pf_u32 i;             // r30
 
     if ((config & 0xFFFCFFFF) != 0) {
-        return VFipf_vol_set.last_error = 0xA;
+        return VFipf_vol_set.last_error = 10;
     }
-    if ((config & 0x30000) == 0x30000) {
-        return VFipf_vol_set.last_error = 0xA;
+    if ((config & 0x030000) == 0x030000) {
+        return VFipf_vol_set.last_error = 10;
     }
-    if ((config & 0x10000) != 0) {
-        VFipf_vol_set.config |= 0x10000;
+    if ((config & 0x010000) != 0) {
+        VFipf_vol_set.config |= 0x010000;
     } else {
-        VFipf_vol_set.config &= ~0x10000;
+        VFipf_vol_set.config &= ~0x010000;
     }
     for (i = 0; i < 1; i++) {
         VFipf_vol_set.current_vol[i].p_vol = &VFipf_vol_set.volumes[0];
     }
-    VFipf_vol_set.current_vol[0].stat |= 1;
+    VFipf_vol_set.current_vol[0].stat |= 0x01;
     VFipf_vol_set.num_attached_drives = 0;
     VFipf_vol_set.num_mounted_volumes = 0;
-    if ((config & 0x10000) != 0) {
-        VFipf_vol_set.config |= 0x10000;
+    if ((config & 0x010000) != 0) {
+        VFipf_vol_set.config |= 0x010000;
     } else {
-        VFipf_vol_set.config &= ~0x10000;
+        VFipf_vol_set.config &= ~0x010000;
     }
     VFipf_vol_set.param = param;
     VFipf_vol_set.last_error = 0;
     VFipf_vol_set.last_driver_error = 0;
-    VFipf_vol_set.setting &= ~3;
+    VFipf_vol_set.setting &= ~0x3;
     VFipf_vol_set.setting = 1;
     codeset.oem2unicode = VFiPFCODE_CP932_OEM2Unicode;
     codeset.unicode2oem = VFiPFCODE_CP932_Unicode2OEM;
@@ -342,8 +336,8 @@ pf_s32 VFiPFVOL_InitModule(pf_u32 config /* r29 */, void* param /* r1+0x8 */) {
     codeset.unicode_char_width = VFiPFCODE_CP932_UnicodeCharWidth;
     codeset.is_unicode_mb_char = VFiPFCODE_CP932_isUnicodeMBchar;
     VFiPFVOL_p_setcode((PF_CHARCODE*)&codeset);
-    for (vol_idx = 0; vol_idx < 0x1A; vol_idx++) {
-        VFipf_memset(&VFipf_vol_set.volumes[vol_idx], 0, 0x1898);
+    for (vol_idx = 0; vol_idx < PF_DRIVE_COUNT; vol_idx++) {
+        VFipf_memset(&VFipf_vol_set.volumes[vol_idx], 0, 0x01898);
     }
     VFiPF_InitLockFile();
     return 0;
@@ -353,13 +347,13 @@ pf_s32 VFiPFVOL_CheckForRead(PF_VOLUME* p_vol) {
     pf_s32 err;
 
     if (p_vol == PF_NULL) {
-        return 0xA;
+        return 10;
     }
     err = VFiPFVOL_CheckMediaInsert(p_vol);
     if (err != 0) {
         return err;
     }
-    if ((p_vol->flags & 2) == 0) {
+    if ((p_vol->flags & 0x02) == 0) {
         return 9;
     }
     return 0;
@@ -369,17 +363,17 @@ pf_s32 VFiPFVOL_CheckForWrite(PF_VOLUME* p_vol) {
     pf_s32 err;
 
     if (p_vol == PF_NULL) {
-        return 0xA;
+        return 10;
     }
     err = VFiPFVOL_CheckMediaInsert(p_vol);
     if (err != 0) {
         return err;
     }
-    if ((p_vol->flags & 2) == 0) {
+    if ((p_vol->flags & 0x02) == 0) {
         return 9;
     }
     if (VFiPFDRV_IsWProtected(p_vol) != 0) {
-        return 0xB;
+        return 11;
     }
     return 0;
 }
@@ -391,14 +385,14 @@ pf_s32 VFiPFVOL_GetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_current_dir) {
 
     err = 0;
     if (p_vol == PF_NULL) {
-        return 0xA;
+        return 10;
     }
-    if ((p_vol->flags & 2) == 0) {
+    if ((p_vol->flags & 0x02) == 0) {
         return 9;
     }
     VFiPFSYS_GetCurrentContextID(&context_id);
-    for (i = 1; i < 1U; i++) {
-        if (((p_vol->current_dir[i].stat & 1) != 0) && (context_id == p_vol->current_dir[i].context_id)) {
+    for (i = 1; i < 1; i++) {
+        if (((p_vol->current_dir[i].stat & 0x01) != 0) && (context_id == p_vol->current_dir[i].context_id)) {
             *p_current_dir = p_vol->current_dir[i].directory;
             break;
         }
@@ -406,8 +400,8 @@ pf_s32 VFiPFVOL_GetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_current_dir) {
     if (i == 1) {
         if (VFiPFVOL_CheckContextRegistered(context_id) != 0) {
             for (i = 1; i < 1; i++) {
-                if ((p_vol->current_dir[i].stat & 1) == 0) {
-                    p_vol->current_dir[i].stat |= 1;
+                if ((p_vol->current_dir[i].stat & 0x01) == 0) {
+                    p_vol->current_dir[i].stat |= 0x01;
                     p_vol->current_dir[i].context_id = context_id;
                     *p_current_dir = p_vol->current_dir[i].directory;
                     break;
@@ -422,21 +416,21 @@ pf_s32 VFiPFVOL_GetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_current_dir) {
 
 // DEBUG NON MATCH
 void VFiPFVOL_SetCurrentVolume(PF_VOLUME* p_vol /* r30 */) {
-    pf_s32 context_id;  // r1+0x8
+    pf_s32 context_id;  // r1+0x08
     pf_u32 i;           // r31
 
     VFiPFSYS_GetCurrentContextID(&context_id);
 
     for (i = 1; i < 1; i++) {
-        if (((VFipf_vol_set.current_vol[i].stat & 1) != 0) && (context_id == VFipf_vol_set.current_vol[i].context_id)) {
+        if (((VFipf_vol_set.current_vol[i].stat & 0x01) != 0) && (context_id == VFipf_vol_set.current_vol[i].context_id)) {
             VFipf_vol_set.current_vol[i].p_vol = p_vol;
             break;
         }
     }
     if ((i == 1) && (VFiPFVOL_CheckContextRegistered(context_id) != 0)) {
         for (i = 1; i < 1; i++) {
-            if ((VFipf_vol_set.current_vol[i].stat & 1) == 0) {
-                VFipf_vol_set.current_vol[i].stat |= 1;
+            if ((VFipf_vol_set.current_vol[i].stat & 0x01) == 0) {
+                VFipf_vol_set.current_vol[i].stat |= 0x01;
                 VFipf_vol_set.current_vol[i].context_id = context_id;
                 VFipf_vol_set.current_vol[i].p_vol = p_vol;
                 break;
@@ -449,14 +443,14 @@ void VFiPFVOL_SetCurrentVolume(PF_VOLUME* p_vol /* r30 */) {
 // DEBUG NON MATCH
 PF_VOLUME* VFiPFVOL_GetCurrentVolume() {
     PF_VOLUME* p_vol;   // r30
-    pf_s32 context_id;  // r1+0x8
+    pf_s32 context_id;  // r1+0x08
     pf_u32 i;           // r31
 
     p_vol = PF_NULL;
     VFiPFSYS_GetCurrentContextID(&context_id);
 
     for (i = 1; i < 1; i++) {
-        if (((VFipf_vol_set.current_vol[i].stat & 1) != 0) && (context_id == VFipf_vol_set.current_vol[i].context_id)) {
+        if (((VFipf_vol_set.current_vol[i].stat & 0x01) != 0) && (context_id == VFipf_vol_set.current_vol[i].context_id)) {
             p_vol = VFipf_vol_set.current_vol[i].p_vol;
             break;
         }
@@ -464,8 +458,8 @@ PF_VOLUME* VFiPFVOL_GetCurrentVolume() {
     if (i == 1) {
         if (VFiPFVOL_CheckContextRegistered(context_id) != 0) {
             for (i = 1; i < 1; i++) {
-                if ((VFipf_vol_set.current_vol[i].stat & 1) == 0) {
-                    VFipf_vol_set.current_vol[i].stat |= 1;
+                if ((VFipf_vol_set.current_vol[i].stat & 0x01) == 0) {
+                    VFipf_vol_set.current_vol[i].stat |= 0x01;
                     VFipf_vol_set.current_vol[i].context_id = context_id;
                     p_vol = VFipf_vol_set.current_vol[i].p_vol;
                     break;
@@ -483,7 +477,7 @@ PF_VOLUME* VFiPFVOL_GetVolumeFromDrvChar(pf_s8 drv_char) {
     pf_s16 vol_idx;
 
     vol_idx = VFipf_toupper(drv_char) - 'A';
-    if ((vol_idx < 0) || (vol_idx >= 26)) {
+    if ((vol_idx < 0) || (vol_idx >= PF_DRIVE_COUNT)) {
         return PF_NULL;
     }
     p_vol = &VFipf_vol_set.volumes[vol_idx];
@@ -491,8 +485,8 @@ PF_VOLUME* VFiPFVOL_GetVolumeFromDrvChar(pf_s8 drv_char) {
 }
 
 void VFiPFVOL_LoadVolumeLabelFromBuf(const pf_u8* buf, PF_VOLUME* p_vol) {
-    VFipf_memcpy(p_vol->label, (pf_u8*)buf, 0xBU);
-    p_vol->label[0xB] = 0;
+    VFipf_memcpy(p_vol->label, (pf_u8*)buf, 11U);
+    p_vol->label[11] = 0;
 }
 
 pf_s32 VFiPFVOL_errnum() {
@@ -505,10 +499,10 @@ pf_s32 VFiPFVOL_getdev(pf_s8 drv_char, PF_DEV_INF* dev_inf) {
 
     p_vol = VFiPFVOL_GetVolumeFromDrvChar(drv_char);
     if (p_vol == PF_NULL) {
-        return VFipf_vol_set.last_error = 0xA;
+        return VFipf_vol_set.last_error = 10;
     }
     if (dev_inf == PF_NULL) {
-        return p_vol->last_error = VFipf_vol_set.last_error = 0xA;
+        return p_vol->last_error = VFipf_vol_set.last_error = 10;
     }
     err = VFiPFVOL_CheckForRead(p_vol);
     if (err != 0) {
@@ -530,10 +524,10 @@ pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv /* r31 */) {
     PF_VOLUME* p_vol;  // r30
     pf_s32 err;        // r28
 
-    if ((p_drv == PF_NULL) || (p_drv->cache->num_fat_pages < 1U) || (p_drv->cache->num_data_pages < 2U) ||
-        ((PF_CACHE_PAGE*)p_drv->cache->pages == PF_NULL) || (p_drv->cache->buffers == PF_NULL) || (((pf_u32)p_drv->cache->pages & 3) != 0) ||
-        (((pf_u32)p_drv->cache->buffers & 3) != 0)) {
-        return VFipf_vol_set.last_error = 0xA;
+    if ((p_drv == PF_NULL) || (p_drv->cache->num_fat_pages < 1) || (p_drv->cache->num_data_pages < 2U) ||
+        ((PF_CACHE_PAGE*)p_drv->cache->pages == PF_NULL) || (p_drv->cache->buffers == PF_NULL) || (((pf_u32)p_drv->cache->pages & 0x03) != 0) ||
+        (((pf_u32)p_drv->cache->buffers & 0x03) != 0)) {
+        return VFipf_vol_set.last_error = 10;
     }
     if (p_drv->cache->num_fat_buf_size == 0) {
         p_drv->cache->num_fat_buf_size = 1;
@@ -541,33 +535,33 @@ pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv /* r31 */) {
     if (p_drv->cache->num_data_buf_size == 0) {
         p_drv->cache->num_data_buf_size = 1;
     }
-    if ((p_drv->cache->num_fat_pages / p_drv->cache->num_fat_buf_size) < 1U) {
-        return VFipf_vol_set.last_error = 0xA;
+    if ((p_drv->cache->num_fat_pages / p_drv->cache->num_fat_buf_size) < 1) {
+        return VFipf_vol_set.last_error = 10;
     }
     if ((p_drv->cache->num_data_pages / p_drv->cache->num_data_buf_size) < 2U) {
-        return VFipf_vol_set.last_error = 0xA;
+        return VFipf_vol_set.last_error = 10;
     }
     p_drv->stat = 0;
     p_drv->drive = 0;
-    for (vol_idx = 0; vol_idx < 26; vol_idx++) {
+    for (vol_idx = 0; vol_idx < PF_DRIVE_COUNT; vol_idx++) {
         p_vol = &VFipf_vol_set.volumes[vol_idx];
-        if ((p_vol->flags & 1) == 0) {
+        if ((p_vol->flags & 0x01) == 0) {
             break;
         }
     }
 
-    if ((vol_idx < 0) || (vol_idx >= 0x1A) || (VFipf_vol_set.num_attached_drives < 0) || (VFipf_vol_set.num_attached_drives >= 0x1A)) {
+    if (vol_idx < 0 || vol_idx >= PF_DRIVE_COUNT || VFipf_vol_set.num_attached_drives < 0 || VFipf_vol_set.num_attached_drives >= PF_DRIVE_COUNT) {
         return VFipf_vol_set.last_error = 4;
     }
-    p_vol->num_free_clusters = -1U;
-    p_vol->last_free_cluster = -1U;
+    p_vol->num_free_clusters = -1;
+    p_vol->last_free_cluster = -1;
     err = VFiPFVOL_p_attach(p_vol, p_drv, vol_idx);
     if (err != 0) {
         VFipf_vol_set.last_error = err;
         return err;
     }
-    p_vol->flags |= (pf_u8)1;
-    p_drv->stat |= 1;
+    p_vol->flags |= (pf_u8)0x01;
+    p_drv->stat |= 0x01;
     p_vol->drv_char = vol_idx + 0x41;
     p_drv->drive = p_vol->drv_char;
     VFipf_vol_set.num_attached_drives += 1;
@@ -584,7 +578,7 @@ pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv /* r31 */) {
             p_vol->last_error = err;
             return 0;
         }
-        p_drv->stat |= 2;
+        p_drv->stat |= 0x2;
     }
     return 0;
 }
@@ -595,19 +589,19 @@ pf_s32 VFiPFVOL_detach(pf_s8 drv_char) {
 
     p_vol = VFiPFVOL_GetVolumeFromDrvChar(drv_char);
     if (p_vol == PF_NULL) {
-        return VFipf_vol_set.last_error = 0xA;
+        return VFipf_vol_set.last_error = 10;
     }
-    if ((p_vol->flags & 2) != 0) {
-        return p_vol->last_error = VFipf_vol_set.last_error = 0xA;
+    if ((p_vol->flags & 0x02) != 0) {
+        return p_vol->last_error = VFipf_vol_set.last_error = 10;
     }
-    if ((p_vol->flags & 1) == 0) {
-        return p_vol->last_error = VFipf_vol_set.last_error = 0xA;
+    if ((p_vol->flags & 0x01) == 0) {
+        return p_vol->last_error = VFipf_vol_set.last_error = 10;
     }
     err = VFiPFVOL_p_detach(p_vol);
     if (err != 0) {
         return p_vol->last_error = VFipf_vol_set.last_error = err;
     }
-    p_vol->flags &= ~1;
+    p_vol->flags &= ~0x01;
     VFipf_vol_set.num_attached_drives -= 1;
     return 0;
 }
@@ -618,13 +612,13 @@ pf_s32 VFiPFVOL_format(pf_s8 drv_char, const pf_u8* param) {
 
     p_vol = VFiPFVOL_GetVolumeFromDrvChar(drv_char);
     if (p_vol == PF_NULL) {
-        return VFipf_vol_set.last_error = 0xA;
+        return VFipf_vol_set.last_error = 10;
     }
-    if ((p_vol->flags & 1) == 0) {
-        return p_vol->last_error = VFipf_vol_set.last_error = 0xA;
+    if ((p_vol->flags & 0x01) == 0) {
+        return p_vol->last_error = VFipf_vol_set.last_error = 10;
     }
     if (VFiPFDRV_IsInserted(p_vol) == 0) {
-        return p_vol->last_error = VFipf_vol_set.last_error = 0xA;
+        return p_vol->last_error = VFipf_vol_set.last_error = 10;
     }
     if (p_vol->num_opened_files != 0) {
         VFiPFFILE_FinalizeAllFiles(p_vol);
@@ -637,7 +631,7 @@ pf_s32 VFiPFVOL_format(pf_s8 drv_char, const pf_u8* param) {
     if (err != 0) {
         return p_vol->last_error = VFipf_vol_set.last_error = err;
     }
-    p_vol->fsi_flag |= 4;
+    p_vol->fsi_flag |= 0x04;
     if (p_vol->bpb.fat_type == FAT_32) {
         p_vol->num_free_clusters = p_vol->bpb.num_clusters - 1;
     } else {
@@ -649,36 +643,36 @@ pf_s32 VFiPFVOL_format(pf_s8 drv_char, const pf_u8* param) {
 pf_s32 VFiPFVOL_unmount(pf_s8 drv_char, pf_u32 mode) {
     PF_VOLUME* p_vol;
     pf_s32 err;
-    pf_s32 err2;
+    pf_s32 err2 = 0;
 
-    err2 = 0;
     p_vol = VFiPFVOL_GetVolumeFromDrvChar(drv_char);
     if (p_vol == PF_NULL) {
-        return VFipf_vol_set.last_error = 0xA;
+        return VFipf_vol_set.last_error = 10;
     }
-    if ((p_vol->flags & 1) == 0) {
-        return VFipf_vol_set.last_error = 0xA;
+    if ((p_vol->flags & 0x01) == 0) {
+        return VFipf_vol_set.last_error = 10;
     }
-    if ((mode != 0) && ((mode & 1) == 0)) {
-        return p_vol->last_error = VFipf_vol_set.last_error = 0xA;
+    if (mode != 0 && (mode & 0x01) == 0) {
+        return p_vol->last_error = VFipf_vol_set.last_error = 10;
     }
-    if (((p_vol->flags & 2) != 0) & VFiPFDRV_IsDetected(p_vol)) {
+    // @bug typo
+    if (((p_vol->flags & 0x02) != 0) & VFiPFDRV_IsDetected(p_vol)) {
         VFiPFVOL_UnmountVolumeByEject(p_vol);
     }
-    if ((p_vol->flags & 2) == 0) {
+    if ((p_vol->flags & 0x02) == 0) {
         return 0;
     }
-    if ((p_vol->num_opened_files != 0) || (p_vol->num_opened_directories != 0)) {
-        p_vol->last_error = VFipf_vol_set.last_error = 0x13;
+    if (p_vol->num_opened_files != 0 || p_vol->num_opened_directories != 0) {
+        p_vol->last_error = VFipf_vol_set.last_error = 19;
         err2 = 1;
-        if ((mode & 1) == 0) {
-            return 0x13;
+        if ((mode & 0x01) == 0) {
+            return 19;
         }
     }
     err = VFiPFVOL_p_unmount(p_vol, mode);
-    if ((err != 0) && (err2 == 0)) {
+    if (err != 0 && err2 == 0) {
         p_vol->last_error = VFipf_vol_set.last_error = err;
-        if ((mode & 1) == 0) {
+        if ((mode & 0x01) == 0) {
             err2 = err;
         } else {
             err2 = 1;

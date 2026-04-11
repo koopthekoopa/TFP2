@@ -1,13 +1,14 @@
 #include <private/vf/PrFILE2/standard/pf_attach.h>
 
-#include <private/vf/PrFILE2/standard/pf_api_util.h>
 #include <private/vf/PrFILE2/fatfs/pf_volume.h>
+#include <private/vf/PrFILE2/standard/pf_api_util.h>
+
 
 pf_int32 VFipf2_attach(PF_DRV_TBL** drv_tbl) {
     pf_s32 err;
     if (drv_tbl == 0 || !*drv_tbl) {
-        err = 0xA;
-        VFipf_vol_set.last_error = 0xA;
+        err = 10;
+        VFipf_vol_set.last_error = 10;
     } else {
         while (*drv_tbl) {
             err = VFiPFVOL_attach(*drv_tbl);

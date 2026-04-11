@@ -1,14 +1,14 @@
 #ifndef PRFILE2_VFMOD_PF_STRING_H
 #define PRFILE2_VFMOD_PF_STRING_H
 
+#include <private/vf/PrFILE2/common/pf_code.h>
 #include <private/vf/PrFILE2/pf_types.h>
 
 typedef struct PF_STR {
-    // total size: 0x10
-    const pf_s8* p_head;   // offset 0x0, size 0x4
-    const pf_s8* p_tail;   // offset 0x4, size 0x4
-    const pf_s8* p_local;  // offset 0x8, size 0x4
-    pf_u32 code_mode;      // offset 0xC, size 0x4
+    const pf_s8* p_head;   // 0x00
+    const pf_s8* p_tail;   // 0x04
+    const pf_s8* p_local;  // 0x08
+    pf_u32 code_mode;      // 0x0C
 } PF_STR;
 
 void VFiPFSTR_SetCodeMode(PF_STR* p_str, pf_u32 code_mode);

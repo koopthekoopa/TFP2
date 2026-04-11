@@ -3,8 +3,7 @@
 pf_s32 VFipf_toupper(pf_s32 c) {
     if (c >= 'a' && c <= 'z') {
         return c + ('A' - 'a');
-    }
-    else {
+    } else {
         return c;
     }
 }
@@ -44,7 +43,7 @@ void* VFipf_memset(void* dst, pf_s32 c, pf_u32 length) {
     }
 
     ld = (pf_u32*)d;
-    lc = c | ((c << 8) | ((c << 24) | (c << 16)));
+    lc = (c << 24) | (c << 16) | (c << 8) | (c);
 
     while (length > 3) {
         *ld++ = lc;
@@ -62,14 +61,16 @@ void* VFipf_memset(void* dst, pf_s32 c, pf_u32 length) {
 pf_u32 VFipf_strlen(const pf_s8* s) {
     const pf_s8* t = s;
 
-    while (*t != 0) { t++; }
+    while (*t != 0) {
+        t++;
+    }
 
     return (pf_u32)(t - s);
 }
 
 pf_s8* VFipf_strcpy(pf_s8* dst, const pf_s8* src) {
     pf_s8* d = dst;
-    pf_s8* var_r30; // fakematch? unused and not in DWARF but needed to match...
+    pf_s8* var_r30;  // fakematch!! unused and not in DWARF but needed to match...
 
     while ((*d = *src) != 0) {
         src++;

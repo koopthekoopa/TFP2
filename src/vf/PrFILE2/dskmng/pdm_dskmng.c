@@ -9,17 +9,16 @@ PDM_DISK_SET VFipdm_disk_set;
 pf_s32 VFipdm_init_diskmanager(pf_u32 config, void* param) {
     pf_u32 i;
 
-    // Unused params, but needed to match
-    (void)config;
-    (void)param;
+    (void)config;  // unused
+    (void)param;   // unused
 
-    VFipf_memset(&VFipdm_disk_set, 0, 0xB64);
+    VFipf_memset(&VFipdm_disk_set, 0, sizeof(VFipdm_disk_set));
 
-    for (i = 0; i < 26; i++) {
+    for (i = 0; i < PDM_DRIVE_COUNT; i++) {
         VFipdm_disk_set.disk[i].disk_lock_handle = PF_NULL;
     }
 
-    for (i = 0; i < 26; i++) {
+    for (i = 0; i < PDM_DRIVE_COUNT; i++) {
         VFipdm_disk_set.partition[i].part_lock_handle = PF_NULL;
     }
     return 0;

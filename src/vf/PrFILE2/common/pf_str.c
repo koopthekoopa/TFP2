@@ -1,8 +1,8 @@
 #include <private/vf/PrFILE2/pf_types.h>
 
 #include <private/vf/PrFILE2/common/pf_clib.h>
-#include <private/vf/PrFILE2/fatfs/pf_volume.h>
 #include <private/vf/PrFILE2/common/pf_w_clib.h>
+#include <private/vf/PrFILE2/fatfs/pf_volume.h>
 
 #include <private/vf/PrFILE2/common/pf_str.h>
 
@@ -44,7 +44,7 @@ void VFiPFSTR_MoveStrPos(PF_STR* p_str, pf_s16 num_char) {
     if (VFiPFSTR_GetCodeMode(p_str) == 1) {
         p = (pf_s8*)p_str->p_head;
         while (num_char != 0) {
-            if (VFipf_vol_set.codeset.is_oem_mb_char((pf_s8)*p, 1) != 0) {
+            if (VFipf_vol_set.codeset.is_oem_mb_char((pf_s8)*p, PF_TRUE)) {
                 offset++;
             }
             offset++;
@@ -65,7 +65,7 @@ void VFiPFSTR_MoveStrPos(PF_STR* p_str, pf_s16 num_char) {
 
 pf_s32 VFiPFSTR_InitStr(PF_STR* p_str, const pf_s8* s, pf_u32 code_mode) {
     if (p_str == PF_NULL || s == PF_NULL) {
-        return 10;
+        return PF_ERR_10;
     }
 
     if (code_mode == 1) {
@@ -73,9 +73,9 @@ pf_s32 VFiPFSTR_InitStr(PF_STR* p_str, const pf_s8* s, pf_u32 code_mode) {
         p_str->p_tail = &s[VFipf_strlen(s)];
     } else if (code_mode == 2) {
         p_str->p_head = s;
-        p_str->p_tail = s + (VFipf_w_strlen((pf_u16*)s) * 2);
+        p_str->p_tail = s + (VFipf_w_strlen((pf_u16*)s) * sizeof(pf_u16));
     } else {
-        return 10;
+        return PF_ERR_10;
     }
 
     VFiPFSTR_SetCodeMode(p_str, code_mode);
@@ -99,7 +99,7 @@ pf_u16 VFiPFSTR_StrNumChar(PF_STR* p_str, pf_u32 target) {
 
     if (p_str->code_mode == 1) {
         for (cnt = 0; (pf_s8)*p != 0; cnt++) {
-            if (VFipf_vol_set.codeset.is_oem_mb_char((pf_s8)*p, 1) != 0) {
+            if (VFipf_vol_set.codeset.is_oem_mb_char((pf_s8)*p, PF_TRUE)) {
                 p++;
             }
             p++;
@@ -203,7 +203,7 @@ void VFiPFSTR_ToUpperNStr(PF_STR* p_str, pf_u16 num, pf_s8* dest) {
             wc = (*wp >= 'a' && *wp <= 'z') ? *wp + ('A' - 'a') : *wp;
             *(dest) = (pf_u8)wc;
             *(dest + 1) = (pf_u8)(wc >> 8);
-            dest += 2;
+            dest += sizeof(pf_u16);
         }
         *dest = 0;
     }

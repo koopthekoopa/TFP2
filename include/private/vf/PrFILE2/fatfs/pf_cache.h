@@ -3,34 +3,43 @@
 
 #include <private/vf/PrFILE2/pf_types.h>
 
+typedef pf_u8 PF_CACHE_BUFFER[512];
+
+typedef struct PF_CACHE_SETTING {
+    struct PF_CACHE_PAGE* pages;  // 0x00
+    PF_CACHE_BUFFER* buffers;     // 0x04
+    pf_u16 num_fat_pages;         // 0x08
+    pf_u16 num_data_pages;        // 0x0A
+    pf_u32 num_fat_buf_size;      // 0x0C
+    pf_u32 num_data_buf_size;     // 0x10
+} PF_CACHE_SETTING;
+
 typedef struct PF_CACHE_PAGE PF_CACHE_PAGE;
 struct PF_CACHE_PAGE {
-    // total size: 0x28
-    pf_u16 stat;            // offset 0x0, size 0x2
-    pf_u16 option;          // offset 0x2, size 0x2
-    pf_u8* buffer;          // offset 0x4, size 0x4
-    pf_u8* p_buf;           // offset 0x8, size 0x4
-    pf_u8* p_mod_sbuf;      // offset 0xC, size 0x4
-    pf_u8* p_mod_ebuf;      // offset 0x10, size 0x4
-    pf_u32 size;            // offset 0x14, size 0x4
-    pf_u32 sector;          // offset 0x18, size 0x4
-    void* signature;        // offset 0x1C, size 0x4
-    PF_CACHE_PAGE* p_next;  // offset 0x20, size 0x4
-    PF_CACHE_PAGE* p_prev;  // offset 0x24, size 0x4
+    pf_u16 stat;            // 0x00
+    pf_u16 option;          // 0x02
+    pf_u8* buffer;          // 0x04
+    pf_u8* p_buf;           // 0x08
+    pf_u8* p_mod_sbuf;      // 0x0C
+    pf_u8* p_mod_ebuf;      // 0x10
+    pf_u32 size;            // 0x14
+    pf_u32 sector;          // 0x18
+    void* signature;        // 0x1C
+    PF_CACHE_PAGE* p_next;  // 0x20
+    PF_CACHE_PAGE* p_prev;  // 0x24
 };
 
 typedef struct PF_SECTOR_CACHE {
-    // total size: 0x24
-    pf_u32 mode;                    // offset 0x0, size 0x4
-    pf_u16 num_fat_pages;           // offset 0x4, size 0x2
-    pf_u16 num_data_pages;          // offset 0x6, size 0x2
-    PF_CACHE_PAGE* pages;           // offset 0x8, size 0x4
-    PF_CACHE_PAGE* p_current_fat;   // offset 0xC, size 0x4
-    PF_CACHE_PAGE* p_current_data;  // offset 0x10, size 0x4
-    PF_CACHE_BUFFER* buffers;       // offset 0x14, size 0x4
-    pf_u32 fat_buff_size;           // offset 0x18, size 0x4
-    pf_u32 data_buff_size;          // offset 0x1C, size 0x4
-    void* signature;                // offset 0x20, size 0x4
+    pf_u32 mode;                    // 0x00
+    pf_u16 num_fat_pages;           // 0x04
+    pf_u16 num_data_pages;          // 0x06
+    PF_CACHE_PAGE* pages;           // 0x08
+    PF_CACHE_PAGE* p_current_fat;   // 0x0C
+    PF_CACHE_PAGE* p_current_data;  // 0x10
+    PF_CACHE_BUFFER* buffers;       // 0x14
+    pf_u32 fat_buff_size;           // 0x18
+    pf_u32 data_buff_size;          // 0x1C
+    void* signature;                // 0x20
 } PF_SECTOR_CACHE;
 
 void VFiPFCACHE_SetCache(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_cache_page, PF_CACHE_BUFFER* p_cache_buf, pf_u16 num_fat_pages, pf_u16 num_data_pages);

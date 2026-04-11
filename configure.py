@@ -326,7 +326,7 @@ config.libs = [
             Object(Matching,    "vf/PrFILE2/fatfs/pf_cluster.c"),
             Object(Equivalent,  "vf/PrFILE2/fatfs/pf_dir.c"),
             Object(Matching,    "vf/PrFILE2/fatfs/pf_entry.c"),
-            Object(Equivalent,  "vf/PrFILE2/fatfs/pf_entry_iterator.c"),
+            Object(Matching,    "vf/PrFILE2/fatfs/pf_entry_iterator.c"),
             Object(Equivalent,  "vf/PrFILE2/fatfs/pf_fat.c"),
             Object(Equivalent,  "vf/PrFILE2/fatfs/pf_fat12.c"),
             Object(Matching,    "vf/PrFILE2/fatfs/pf_fat16.c"),

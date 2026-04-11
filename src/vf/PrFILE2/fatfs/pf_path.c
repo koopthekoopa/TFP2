@@ -20,7 +20,7 @@ static pf_s32 VFiPFPATH_DoSplitPath(PF_STR* p_path, PF_STR* p_dir_path, PF_STR* 
     pf_s32 err;
 
     if (p_dir_path == PF_NULL) {
-        return 0xA;
+        return 10;
     }
     code_mode = VFiPFSTR_GetCodeMode(p_path);
     VFiPFSTR_SetCodeMode(p_dir_path, code_mode);
@@ -39,7 +39,7 @@ static pf_s32 VFiPFPATH_DoSplitPath(PF_STR* p_path, PF_STR* p_dir_path, PF_STR* 
     if (err != 0) {
         return err;
     }
-    if ((token.p_head == 0) || (VFiPFSTR_StrLen(&token) == 0)) {
+    if (token.p_head == PF_NULL || VFiPFSTR_StrLen(&token) == 0) {
         return 2;
     }
     if (p_path->p_tail < token.p_tail) {
@@ -76,7 +76,7 @@ static pf_s32 VFiPFPATH_DoSplitPath(PF_STR* p_path, PF_STR* p_dir_path, PF_STR* 
 }
 
 static pf_u32 VFiPFPATH_UNI_ConvertFWchar(pf_u16 src, pf_u16* dst) {
-    if ((src >= L'ａ') && (src <= L'ｚ')) {
+    if (src >= L'ａ' && src <= L'ｚ') {
         *dst = src - ' ';
         return 1;
     }
@@ -103,7 +103,7 @@ static pf_u16 VFiPFPATH_GetNextCharOfShortName(PF_FILE_NAME_ITER* p_name) {
     wc = p_name->buf[p_name->index++];
     if (VFipf_vol_set.codeset.is_oem_mb_char(wc, 1) != 0) {
         c = p_name->buf[p_name->index++];
-        wc = C_TO_WC(wc, c);
+        wc = PF_CODE_C_TO_WC(wc, c);
     }
 
     return (wc >= 'a') && (wc <= 'z') ? wc - ' ' : wc;
@@ -127,19 +127,19 @@ static pf_u16 VFiPFPATH_GetNextCharOfLongName(PF_FILE_NAME_ITER* p_name) {
 }
 
 static pf_u16 VFiPFPATH_GetNextCharOfFileName(PF_FILE_NAME_ITER* p_name) {
-    if (p_name->is_long_name != 0) {
+    if (p_name->is_long_name) {
         return VFiPFPATH_GetNextCharOfLongName(p_name);
     }
     return VFiPFPATH_GetNextCharOfShortName(p_name);
 }
 
-static pf_u16 VFiPFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u32 is_long_name) {
+static pf_u16 VFiPFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_bool is_long_name) {
     pf_u16 wc;
     pf_u16 tmp_wc;
     pf_s8 pattern[3];
     pf_u16 twc;
 
-    if (p_pattern->code_mode == PF_CODE_MODE_ASCII) {
+    if (p_pattern->code_mode == 1) {
         pattern[0] = *p_pattern->p_head++;
         pattern[1] = 0;
         if ((pattern[0] == 0) || (p_pattern->p_tail < p_pattern->p_head)) {
@@ -147,11 +147,11 @@ static pf_u16 VFiPFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u32 is_long_n
         }
         if (VFipf_vol_set.codeset.is_oem_mb_char(pattern[0], 1) != 0) {
             pattern[1] = *p_pattern->p_head++;
-            wc = C_TO_WC_ARR(pattern, 0);
+            wc = PF_CODE_C_TO_WC_ARR(pattern, 0);
         } else {
             wc = pattern[0];
         }
-        if (is_long_name != 0) {
+        if (is_long_name) {
             VFipf_vol_set.codeset.oem2unicode(&pattern[0], &wc);
         }
     } else {
@@ -174,7 +174,7 @@ static pf_u16 VFiPFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u32 is_long_n
         }
     }
     wc = (wc >= 'a') && (wc <= 'z') ? wc - ' ' : wc;
-    if (is_long_name != 0) {
+    if (is_long_name) {
         if (VFiPFPATH_UNI_ConvertFWchar((pf_u16)wc, &twc) == 1) {
             wc = twc;
         }
@@ -184,7 +184,7 @@ static pf_u16 VFiPFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u32 is_long_n
     return wc;
 }
 
-static pf_u32 VFiPFPATH_DoMatchFileNameWithPattern(pf_u16 c_name, PF_FILE_NAME_ITER* p_name, pf_u16 c_pat, PF_STR* p_pattern, pf_u32 is_long_name) {
+static pf_u32 VFiPFPATH_DoMatchFileNameWithPattern(pf_u16 c_name, PF_FILE_NAME_ITER* p_name, pf_u16 c_pat, PF_STR* p_pattern, pf_bool is_long_name) {
     PF_FILE_NAME_ITER name;
     PF_STR pattern;
 
@@ -210,8 +210,8 @@ static pf_u32 VFiPFPATH_DoMatchFileNameWithPattern(pf_u16 c_name, PF_FILE_NAME_I
                         name = *p_name;
                         pattern = *p_pattern;
                         c_name = VFiPFPATH_GetNextCharOfFileName((PF_FILE_NAME_ITER*)&name);
-                        c_pat = VFiPFPATH_GetNextCharOfPattern((PF_STR*)&pattern, is_long_name);
-                        if (VFiPFPATH_DoMatchFileNameWithPattern(c_name, (PF_FILE_NAME_ITER*)&name, c_pat, (PF_STR*)&pattern, is_long_name) != 0) {
+                        c_pat = VFiPFPATH_GetNextCharOfPattern(&pattern, is_long_name);
+                        if (VFiPFPATH_DoMatchFileNameWithPattern(c_name, (PF_FILE_NAME_ITER*)&name, c_pat, &pattern, is_long_name) != 0) {
                             return 1;
                         }
                     }
@@ -252,10 +252,10 @@ static pf_s32 VFiPFPATH_cmpNameImpl(const pf_s8* sName, const pf_s8* sPattern, p
         p = pw == 1 ? VFipf_toupper(*sPattern) : VFiPF_GET_LE_U16((pf_u8*)sPattern);
 
         n = nw == 1 ? VFipf_toupper(*sName) : VFiPF_GET_LE_U16((pf_u8*)sName);
-        if ((pw == 2) && (VFiPFPATH_OEM_ConvertFWchar(sPattern, &tp) == 1)) {
+        if (pw == 2 && VFiPFPATH_OEM_ConvertFWchar(sPattern, &tp) == 1) {
             p = tp;
         }
-        if ((nw == 2) && (VFiPFPATH_OEM_ConvertFWchar(sName, &tn) == 1)) {
+        if (nw == 2 && VFiPFPATH_OEM_ConvertFWchar(sName, &tn) == 1) {
             n = tn;
         }
         sPattern = &sPattern[pw];
@@ -279,7 +279,7 @@ static pf_s32 VFiPFPATH_cmpNameImpl(const pf_s8* sName, const pf_s8* sPattern, p
 
                         n = nw == 1 ? VFipf_toupper(*sName) : VFiPF_GET_LE_U16((pf_u8*)sName);
                     }
-                } while ((p == '?') || (p == '*'));
+                } while (p == '?' || p == '*');
                 if (p == 0) {
                     return 0;
                 }
@@ -323,7 +323,7 @@ pf_s32 VFiPFPATH_cmpNameUni(const pf_u16* p_name, PF_STR* sPattern) {
     return 1;
 }
 
-pf_s32 VFiPFPATH_cmpName(const pf_s8* sShort, PF_STR* p_pattern, pf_u32 is_short_search) {
+pf_s32 VFiPFPATH_cmpName(const pf_s8* sShort, PF_STR* p_pattern, pf_bool is_short_search) {
     pf_u32 is_end;
     pf_s8 tmpBuf[13];
     pf_s8* p_tmpBuf;
@@ -331,11 +331,10 @@ pf_s32 VFiPFPATH_cmpName(const pf_s8* sShort, PF_STR* p_pattern, pf_u32 is_short
 
     is_end = 0;
     p_tmpBuf = (pf_s8*)&tmpBuf;
-    sPattern = VFiPFSTR_GetStrPos(p_pattern, 3U);
+    sPattern = VFiPFSTR_GetStrPos(p_pattern, 3);
     VFipf_strcpy((pf_s8*)&tmpBuf, sShort);
-    if (((VFipf_vol_set.setting & 2) == 2) && (VFiPFSTR_GetCodeMode(p_pattern) == PF_CODE_MODE_UNICODE) &&
-        (VFipf_strcmp((pf_s8*)&tmpBuf, (pf_s8*)".") != 0) && (VFipf_strcmp((pf_s8*)&tmpBuf, (pf_s8*)"..") != 0) &&
-        (VFiPFPATH_CheckExtShortName(p_pattern, 3U, 1) == 0) && (is_short_search == 0)) {
+    if (((VFipf_vol_set.setting & 0x02) == 0x02) && (VFiPFSTR_GetCodeMode(p_pattern) == 2) && (VFipf_strcmp((pf_s8*)&tmpBuf, (pf_s8*)".") != 0) &&
+        (VFipf_strcmp((pf_s8*)&tmpBuf, (pf_s8*)"..") != 0) && (VFiPFPATH_CheckExtShortName(p_pattern, 3, 1) == 0) && (is_short_search == PF_FALSE)) {
         return 1;
     }
     if (VFipf_strcmp(sPattern, (pf_s8*)"*.") == 0) {
@@ -371,13 +370,13 @@ void VFiPFPATH_InitTokenOfPath(PF_STR* p_str, pf_s8* path, pf_u32 code_mode) {
     p_str->code_mode = code_mode;
 }
 
-pf_s32 VFiPFPATH_GetNextTokenOfPath(PF_STR* p_str, pf_u32 wildcard) {
+pf_s32 VFiPFPATH_GetNextTokenOfPath(PF_STR* p_str, pf_bool wildcard) {
     pf_u32 extsfn_len;
     pf_u32 code_mode;
 
     extsfn_len = 0;
     p_str->p_head = p_str->p_tail;
-    if (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"\0", 1, 0, 1) == 0) {
+    if (PF_IS_PATH_NULL(p_str, 1, 0)) {
         p_str->p_head = p_str->p_tail = PF_NULL;
         return 0;
     }
@@ -389,10 +388,10 @@ pf_s32 VFiPFPATH_GetNextTokenOfPath(PF_STR* p_str, pf_u32 wildcard) {
     }
     code_mode = VFiPFSTR_GetCodeMode(p_str);
     p_str->p_tail = p_str->p_head;
-    if ((VFipf_vol_set.setting & 2) == 2) {
+    if ((VFipf_vol_set.setting & 0x02) == 0x02) {
         extsfn_len = VFiPFPATH_CheckExtShortName(p_str, 2, wildcard);
         if (extsfn_len != 0) {
-            if (code_mode == PF_CODE_MODE_ASCII) {
+            if (code_mode == 1) {
                 p_str->p_tail += extsfn_len;
             } else {
                 p_str->p_tail += extsfn_len * sizeof(pf_u16);
@@ -400,8 +399,8 @@ pf_s32 VFiPFPATH_GetNextTokenOfPath(PF_STR* p_str, pf_u32 wildcard) {
         }
     }
     if (extsfn_len == 0) {
-        while (VFiPFSTR_StrNCmp(p_str, (const pf_s8*)"\0", 2, 0, 1) != 0) {
-            if ((code_mode == PF_CODE_MODE_ASCII) && (VFipf_vol_set.codeset.is_oem_mb_char(*p_str->p_tail, 1) != 0)) {
+        while (PF_IS_PATH_NOT_NULL(p_str, 2, 0)) {
+            if (code_mode == 1 && VFipf_vol_set.codeset.is_oem_mb_char(*p_str->p_tail, 1) != 0) {
                 p_str->p_tail++;
                 if ((VFipf_vol_set.codeset.is_oem_mb_char(*p_str->p_tail, 2) == 0) || (p_str->p_tail[0] == 0)) {
                     return 2;
@@ -411,16 +410,15 @@ pf_s32 VFiPFPATH_GetNextTokenOfPath(PF_STR* p_str, pf_u32 wildcard) {
                     break;
                 }
                 if ((VFipf_vol_set.config & 0x10000) == 0) {
-                    if ((code_mode == PF_CODE_MODE_ASCII && !VALID_PATH_CHAR(*p_str->p_tail, 1)) ||
-                        (code_mode == PF_CODE_MODE_UNICODE && VALID_PATH_WCHAR(C_TO_WC_ARR(p_str->p_tail, 0), 1) == PF_FALSE)) {
-                        if ((wildcard == 0) ||
-                            ((VFiPFSTR_StrNCmp(p_str, (pf_s8*)"*", 2, 0, 1) != 0) && (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"?", 2, 0, 1) != 0))) {
+                    if ((code_mode == 1 && !VALID_PATH_CHAR(*p_str->p_tail, 0x01)) ||
+                        (code_mode == 2 && VALID_PATH_WCHAR(PF_CODE_C_TO_WC_ARR(p_str->p_tail, 0), 0x01) == PF_FALSE)) {
+                        if (wildcard == PF_FALSE || !PF_IS_PATH_WILDCARD(p_str, 2, 0)) {
                             return 2;
                         }
                     }
                 }
             }
-            code_mode == PF_CODE_MODE_ASCII ? p_str->p_tail++ : (p_str->p_tail += sizeof(pf_u16));
+            code_mode == 1 ? p_str->p_tail++ : (p_str->p_tail += sizeof(pf_u16));
         }
     }
     return 0;
@@ -437,7 +435,7 @@ PF_VOLUME* VFiPFPATH_GetVolumeFromPath(PF_STR* p_path) {
     if (VFiPFSTR_StrLen(p_path) == 0) {
         return PF_NULL;
     }
-    if ((VFiPFSTR_StrNumChar(p_path, 1) >= 2) && (VFiPFSTR_StrNCmp(p_path, (pf_s8*)":", 1, 1, 1) == 0)) {
+    if (VFiPFSTR_StrNumChar(p_path, 1) >= 2 && VFiPFSTR_StrNCmp(p_path, (pf_s8*)":", 1, 1, 1) == 0) {
         VFiPFSTR_ToUpperNStr(p_path, 1, drv_char);
         p_vol = VFiPFVOL_GetVolumeFromDrvChar(*drv_char);
     } else {
@@ -446,12 +444,12 @@ PF_VOLUME* VFiPFPATH_GetVolumeFromPath(PF_STR* p_path) {
     return p_vol;
 }
 
-pf_u32 VFiPFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_pattern, pf_u32 is_long_name) {
+pf_u32 VFiPFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_pattern, pf_bool is_long_name) {
     pf_u16 c_name;
     pf_u16 c_pat;
     PF_FILE_NAME_ITER name;
     PF_STR pattern;
-    pf_u32 is_match = 1;
+    pf_bool is_match = PF_TRUE;
     pf_s8 sig[2] = {1, 2};
 
     name.buf = file_name;
@@ -461,20 +459,20 @@ pf_u32 VFiPFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_patt
 
     pattern = *p_pattern;
 
-    if (VFiPFSTR_GetCodeMode(p_pattern) == PF_CODE_MODE_ASCII) {
-        if ((is_long_name == 0) && ((VFipf_vol_set.setting & 2) == 2) && (VFiPFPATH_CheckExtShortNameSignature((PF_STR*)&pattern) == 1) &&
-            (VFipf_strncmp(file_name, (pf_s8*)&sig, 2) == 0)) {
+    if (VFiPFSTR_GetCodeMode(p_pattern) == 1) {
+        if (is_long_name == PF_FALSE && (VFipf_vol_set.setting & 0x02) == 0x02 && VFiPFPATH_CheckExtShortNameSignature(&pattern) == 1 &&
+            VFipf_strncmp(file_name, (pf_s8*)&sig, 2) == 0) {
             name.index += 2;
             pattern.p_head += 2;
         }
-    } else if (((VFipf_vol_set.setting & 2) == 2) && (is_long_name == 0) && (VFiPFSTR_StrNCmp(p_pattern, (pf_s8*)".", 1, 0, 1) != 0) &&
-               (VFiPFSTR_StrNCmp(p_pattern, (pf_s8*)"..", 1, 0, 2) != 0) && (VFiPFPATH_CheckExtShortName(p_pattern, 1, 0) == 0)) {
-        is_match = 0;
+    } else if ((VFipf_vol_set.setting & 0x02) == 0x02 && is_long_name == PF_FALSE && VFiPFSTR_StrNCmp(p_pattern, (pf_s8*)".", 1, 0, 1) != 0 &&
+               VFiPFSTR_StrNCmp(p_pattern, (pf_s8*)"..", 1, 0, 2) != 0 && VFiPFPATH_CheckExtShortName(p_pattern, 1, PF_FALSE) == 0) {
+        is_match = PF_FALSE;
     }
     if (is_match == 1) {
         c_name = VFiPFPATH_GetNextCharOfFileName((PF_FILE_NAME_ITER*)&name);
-        c_pat = VFiPFPATH_GetNextCharOfPattern((PF_STR*)&pattern, is_long_name);
-        is_match = VFiPFPATH_DoMatchFileNameWithPattern(c_name, (PF_FILE_NAME_ITER*)&name, c_pat, (PF_STR*)&pattern, is_long_name);
+        c_pat = VFiPFPATH_GetNextCharOfPattern(&pattern, is_long_name);
+        is_match = VFiPFPATH_DoMatchFileNameWithPattern(c_name, (PF_FILE_NAME_ITER*)&name, c_pat, &pattern, is_long_name);
     }
     return is_match;
 }
@@ -482,31 +480,31 @@ pf_u32 VFiPFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_patt
 pf_s32 VFiPFPATH_putShortName(pf_u8* pDirEntry, const pf_s8* short_name, pf_u8 attr) {
     pf_s32 i = 0;
 
-    for (i = 0; (i < 8) && (*short_name != 0) && (*short_name != '.'); i++) {
+    for (i = 0; (i < 8) && *short_name != 0 && *short_name != '.'; i++) {
         *pDirEntry++ = *short_name++;
     }
     if (i == 0) {
-        for (i = 0; (i < 2) && (*short_name != 0); i++) {
+        for (i = 0; i < 2 && *short_name != 0; i++) {
             *pDirEntry++ = *short_name++;
         }
     }
     if (i > 8) {
-        return 0xA;
+        return 10;
     }
-    if ((attr & 8) == 0) {
+    if ((attr & 0x08) == 0) {
         for (; i < 8; i++) {
             *pDirEntry++ = ' ';
         }
     }
     if (*short_name != 0) {
-        if ((attr & 8) == 0) {
+        if ((attr & 0x08) == 0) {
             short_name++;
         }
         for (; *short_name != 0; i++) {
             *pDirEntry++ = *short_name++;
         }
     }
-    for (; i < 0xB; i++) {
+    for (; i < 11; i++) {
         *pDirEntry++ = ' ';
     }
     return 0;
@@ -524,16 +522,16 @@ pf_s32 VFiPFPATH_getShortName(pf_s8* short_name, const pf_u8* pDirEntry, pf_u8 a
     nLen++;
     short_name += nLen;
     if (nLen == 0) {
-        return 0xA;
+        return 10;
     }
     nLen = 7;
-    for (i = 8; i < 0xB; i++) {
+    for (i = 8; i < 11; i++) {
         if (pDirEntry[i] != ' ') {
             nLen = i;
         }
     }
     if (nLen > 7) {
-        if ((attr & 8) == 0) {
+        if ((attr & 0x08) == 0) {
             *short_name = '.';
             short_name++;
         }
@@ -550,10 +548,10 @@ void VFiPFPATH_getLongNameformShortName(pf_s8* short_name, pf_s8* long_name, pf_
     pf_s32 j = 0;
 
     for (i = 0; i < 8; i++) {
-        if ((short_name[i] == 0) || (short_name[i] == '.')) {
+        if (short_name[i] == 0 || short_name[i] == '.') {
             break;
         }
-        if (((flag & 8) != 0) && (short_name[i] >= 'A') && (short_name[i] <= 'Z')) {
+        if ((flag & 0x08) != 0 && short_name[i] >= 'A' && short_name[i] <= 'Z') {
             long_name[i] = short_name[i] + ' ';
         } else {
             long_name[i] = short_name[i];
@@ -567,7 +565,7 @@ void VFiPFPATH_getLongNameformShortName(pf_s8* short_name, pf_s8* long_name, pf_
         if (short_name[i] == 0) {
             break;
         }
-        if (((flag & 0x10) != 0) && (short_name[i] >= 'A') && (short_name[i] <= 'Z')) {
+        if ((flag & 0x10) != 0 && short_name[i] >= 'A' && short_name[i] <= 'Z') {
             long_name[i] = short_name[i] + ' ';
         } else {
             long_name[i] = short_name[i];
@@ -611,14 +609,13 @@ pf_u32 VFiPFPATH_GetLengthFromUnicode(const pf_u16* sSrc) {
 pf_s32 VFiPFPATH_transformFromUnicodeToNormal(pf_s8* sDest, const pf_u16* sSrc) {
     pf_s32 i;
     pf_s32 width;
-    pf_u32 szStr;
+    pf_u32 szStr = 0;  // unused
     pf_s16 oem_width;
     pf_s16 uni_width;
     pf_u16 dot_buf[2];
     pf_u16 space_buf[2];
 
-    szStr = 0;  // unused
-    if ((VFipf_vol_set.setting & 2) == 2) {
+    if ((VFipf_vol_set.setting & 0x02) == 0x02) {
         dot_buf[0] = '.';
         dot_buf[1] = 0;
         space_buf[0] = ' ';
@@ -674,8 +671,8 @@ pf_s32 VFiPFPATH_transformInUnicode(pf_u16* sDestStr, const pf_s8* sSrcStr) {
 pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
     pf_s32 width;
     const pf_s8* p_cur_src;
-    pf_u32 is_create_pf_s32;
-    pf_u32 is_create_tail;
+    pf_bool is_create_long = PF_FALSE;
+    pf_bool is_create_tail = PF_FALSE;
     pf_u16* p_name_cnt;
     pf_u16 num_base;
     pf_u16 num_ext;
@@ -691,13 +688,11 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
     pf_u16 wchar;
     pf_u16 t_wchar;
 
-    is_create_pf_s32 = 0;
-    is_create_tail = 0;
-    p_cur_src = VFiPFSTR_GetStrPos(p_pattern, 3U);
-    if ((VFipf_vol_set.setting & 2) == 0) {
+    p_cur_src = VFiPFSTR_GetStrPos(p_pattern, 3);
+    if ((VFipf_vol_set.setting & 0x02) == 0) {
         while (*p_cur_src == ' ' || *p_cur_src == '.') {
             p_cur_src++;
-            is_create_tail = 1;
+            is_create_tail = PF_TRUE;
         }
         src_dot = 0;
         prev_src_dot = 0;
@@ -709,11 +704,11 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
                 src_dot = src_pos;
             }
         }
-        if ((src_dot != 0) && (p_cur_src[src_dot + 1] == 0)) {
+        if (src_dot != 0 && p_cur_src[src_dot + 1] == 0) {
             if (prev_src_dot != 0) {
                 src_dot = prev_src_dot;
             }
-            is_create_tail = 1;
+            is_create_tail = PF_TRUE;
         }
         dst_pos = 0;
         src_pos = 0;
@@ -722,16 +717,16 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
         p_name_cnt = &num_base;
         last_width = 1;
         prev_last_width = 1;
-        while ((num_ext < 3U) && (p_cur_src[src_pos] != 0)) {
-            if (((num_base != 8) && ((src_dot == 0) || (src_pos != src_dot))) || (p_name_cnt == &num_ext)) {
-                if ((p_cur_src[src_pos] != ' ') && (p_cur_src[src_pos] != '.')) {
+        while (num_ext < 3 && p_cur_src[src_pos] != 0) {
+            if ((num_base != 8 && (src_dot == 0 || src_pos != src_dot)) || p_name_cnt == &num_ext) {
+                if (p_cur_src[src_pos] != ' ' && p_cur_src[src_pos] != '.') {
                     width = VFipf_vol_set.codeset.oem_char_width((pf_s8*)&p_cur_src[src_pos]);
                     if (width != 1) {
-                        if (((src_pos < src_dot) || (src_dot == 0)) && ((num_base + width) > 8)) {
-                            is_create_tail = 1;
+                        if ((src_pos < src_dot || src_dot == 0) && (num_base + width) > 8) {
+                            is_create_tail = PF_TRUE;
                         } else {
-                            if ((src_dot != 0) && (src_pos > src_dot) && ((num_ext + width) > 3)) {
-                                is_create_tail = 1;
+                            if (src_dot != 0 && src_pos > src_dot && (num_ext + width) > 3) {
+                                is_create_tail = PF_TRUE;
                                 break;
                             }
                             if (p_name_cnt == &num_base) {
@@ -742,7 +737,7 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
                                 wchar = ((pf_u8)p_cur_src[src_pos] << 8) + (pf_u8)p_cur_src[src_pos + 1];
                                 if (VFiPFPATH_OEM_ConvertFWchar(&p_cur_src[src_pos], &t_wchar) != 0) {
                                     wchar = t_wchar;
-                                    is_create_pf_s32 = 1;
+                                    is_create_long = PF_TRUE;
                                 }
                                 pDest[dst_pos] = (pf_u8)(wchar >> 8);
                                 pDest[dst_pos + 1] = (pf_u8)wchar;
@@ -755,25 +750,25 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
                             prev_last_width = last_width;
                             last_width = 1;
                         }
-                        if (((VFipf_vol_set.config & 0x10000) != 0) || VALID_PATH_CHAR(p_cur_src[src_pos], 2)) {
+                        if ((VFipf_vol_set.config & 0x10000) != 0 || VALID_PATH_CHAR(p_cur_src[src_pos], 0x02)) {
                             pDest[dst_pos++] = VFipf_toupper(p_cur_src[src_pos]);
                             (*p_name_cnt)++;
-                            if ((p_cur_src[src_pos] >= 'a') && (p_cur_src[src_pos] <= 'z')) {
-                                is_create_pf_s32 = 1;
+                            if (p_cur_src[src_pos] >= 'a' && p_cur_src[src_pos] <= 'z') {
+                                is_create_long = PF_TRUE;
                             }
                         } else {
                             pDest[dst_pos++] = '_';
                             (*p_name_cnt)++;
-                            is_create_tail = 1;
+                            is_create_tail = PF_TRUE;
                         }
                     }
                 } else {
-                    is_create_tail = 1;
+                    is_create_tail = PF_TRUE;
                 }
             } else {
                 p_name_cnt = &num_ext;
-                if ((p_cur_src[src_pos] != 0) && (p_cur_src[src_pos] != '.')) {
-                    is_create_tail = 1;
+                if (p_cur_src[src_pos] != 0 && p_cur_src[src_pos] != '.') {
+                    is_create_tail = PF_TRUE;
                 }
                 if (src_dot != 0) {
                     pDest[dst_pos++] = '.';
@@ -784,8 +779,8 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
             }
             src_pos++;
         }
-        if ((num_ext == 3) && (p_cur_src[src_pos] != 0)) {
-            is_create_tail = 1;
+        if (num_ext == 3 && p_cur_src[src_pos] != 0) {
+            is_create_tail = PF_TRUE;
         }
         pDest[dst_pos] = 0;
         if (is_create_tail != 0) {
@@ -812,7 +807,7 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
                 }
             }
             if (num_base != 0) {
-                if ((VFipf_vol_set.setting & 2) != 2) {
+                if ((VFipf_vol_set.setting & 0x02) != 0x02) {
                     pDest[dst_pos++] = '~';
                     pDest[dst_pos++] = '1';
                 } else {
@@ -820,19 +815,19 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
                     pDest[dst_pos++] = '_';
                 }
             }
-            is_create_pf_s32 = 1;
+            is_create_long = PF_TRUE;
         }
-        if (VFiPFSTR_GetCodeMode(p_pattern) == PF_CODE_MODE_UNICODE) {
-            is_create_pf_s32 = 1;
+        if (VFiPFSTR_GetCodeMode(p_pattern) == 2) {
+            is_create_long = PF_TRUE;
         }
     } else {
-        while ((*p_cur_src != 0) && (is_create_tail == 0)) {
-            if ((*p_cur_src != '.') && (*p_cur_src != ' ')) {
-                is_create_tail = 1;
+        while (*p_cur_src != 0 && !is_create_tail) {
+            if (*p_cur_src != '.' && *p_cur_src != ' ') {
+                is_create_tail = PF_TRUE;
             }
             p_cur_src++;
         }
-        if (is_create_tail != 0) {
+        if (is_create_tail) {
             pDest[0] = 1;
             pDest[1] = 2;
             pDest[2] = '0';
@@ -845,9 +840,9 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
         } else {
             *pDest = 0;
         }
-        is_create_pf_s32 = 1;
+        is_create_long = PF_TRUE;
     }
-    return is_create_pf_s32;
+    return is_create_long;
 }
 
 pf_s32 VFiPFPATH_parseShortNameNumeric(pf_s8* p_char, pf_u32 count) {
@@ -864,10 +859,10 @@ pf_s32 VFiPFPATH_parseShortNameNumeric(pf_s8* p_char, pf_u32 count) {
     }
     for (pos_tail = 1; p_char[pos_tail] != '~'; pos_tail++) {
     }
-    for (pos_dot = pos_tail + 1; (p_char[pos_dot] != '.') && (p_char[pos_dot] != 0); pos_dot++) {
+    for (pos_dot = pos_tail + 1; p_char[pos_dot] != '.' && p_char[pos_dot] != 0; pos_dot++) {
     }
     pos_ext = pos_dot + 1;
-    if ((p_char[pos_dot] == '.') && (p_char[pos_ext] != 0)) {
+    if (p_char[pos_dot] == '.' && p_char[pos_ext] != 0) {
         for (pos_end = pos_ext + 1; p_char[pos_end] != 0; pos_end++) {
         }
     } else {
@@ -875,7 +870,7 @@ pf_s32 VFiPFPATH_parseShortNameNumeric(pf_s8* p_char, pf_u32 count) {
     }
     for (numeric_cnt = 0; count != 0; numeric_cnt++) {
         numeric[numeric_cnt] = (count % 10) + '0';
-        count /= 0xA;
+        count /= 10;
     }
     if ((pos_tail + numeric_cnt) >= pos_ext) {
         pos_slide = pos_tail + numeric_cnt + 1;
@@ -901,7 +896,7 @@ pf_s32 VFiPFPATH_parseShortNameNumeric(pf_s8* p_char, pf_u32 count) {
 void VFiPFPATH_SetSearchPattern(pf_s8* p_buf_local, pf_u16* p_buf_unicode, PF_STR* p_pattern) {
     pf_u16 wc[2];
 
-    if (VFiPFSTR_GetCodeMode(p_pattern) == PF_CODE_MODE_ASCII) {
+    if (VFiPFSTR_GetCodeMode(p_pattern) == 1) {
         if (VFipf_strcmp(p_pattern->p_head, (pf_s8*)"*.*") == 0) {
             VFipf_strcpy(p_buf_local, (pf_s8*)"*");
             return;
@@ -916,12 +911,12 @@ void VFiPFPATH_SetSearchPattern(pf_s8* p_buf_local, pf_u16* p_buf_unicode, PF_ST
     } else {
         VFipf_w_strcpy(p_buf_unicode, (pf_u16*)p_pattern->p_head);
     }
-    if ((VFipf_vol_set.setting & 2) == 2) {
-        VFipf_vol_set.setting &= ~3;
-        VFipf_vol_set.setting |= 1;
+    if ((VFipf_vol_set.setting & 0x02) == 0x02) {
+        VFipf_vol_set.setting &= ~(0x01 | 0x02);
+        VFipf_vol_set.setting |= 0x01;
         VFiPFPATH_transformFromUnicodeToNormal(p_buf_local, p_buf_unicode);
-        VFipf_vol_set.setting &= ~3;
-        VFipf_vol_set.setting |= 2;
+        VFipf_vol_set.setting &= ~(0x01 | 0x02);
+        VFipf_vol_set.setting |= 0x02;
         return;
     }
     VFiPFPATH_transformFromUnicodeToNormal(p_buf_local, p_buf_unicode);
@@ -932,7 +927,7 @@ pf_u32 VFiPFPATH_CheckExtShortNameSignature(PF_STR* p_str) {
     pf_s8 sig[2] = {1, 2};
 
     if (p_str == PF_NULL) {
-        return 0xA;
+        return 10;
     }
     if (VFiPFSTR_StrNCmp(p_str, sig, 1, 0, 2) == 0) {
         result = 1;
@@ -940,46 +935,46 @@ pf_u32 VFiPFPATH_CheckExtShortNameSignature(PF_STR* p_str) {
     return result;
 }
 
-pf_u32 VFiPFPATH_CheckExtShortName(PF_STR* p_str, pf_u32 target, pf_u32 wildcard) {
+pf_u32 VFiPFPATH_CheckExtShortName(PF_STR* p_str, pf_u32 target, pf_bool wildcard) {
     pf_u32 result = 0;
     pf_s16 i;
     pf_s16 num;
-    pf_u32 is_wildcard = 0;
+    pf_bool is_wildcard = PF_FALSE;
     pf_s8 sig[2] = {1, 2};
     pf_s8* p_c;
     pf_u16* p_wc;
 
     if (p_str == PF_NULL) {
-        return 0xA;
+        return 10;
     }
-    if ((VFiPFSTR_StrNCmp(p_str, sig, target, 0, 2) == 0) ||
-        ((VFiPFSTR_StrNCmp(p_str, (pf_s8*)"?", target, 0, 1) == 0) &&
-         ((VFiPFSTR_StrNCmp(p_str, (pf_s8*)"?", target, 1, 1) == 0) || (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"*", target, 0, 1) == 0))) ||
-        (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"*", target, 0, 1) == 0)) {
-        for (i = 2; i < 8 && PF_IS_PATH_SEPERATOR(p_str, target, i) == PF_FALSE && (VFiPFSTR_StrNCmp(p_str, (pf_s8*)" ", target, i, 1) != 0) &&
-                    (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"\0", target, i, 1) != 0);
+    if (VFiPFSTR_StrNCmp(p_str, sig, target, 0, 2) == 0 ||
+        (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"?", target, 0, 1) == 0 &&
+         (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"?", target, 1, 1) == 0 || VFiPFSTR_StrNCmp(p_str, (pf_s8*)"*", target, 0, 1) == 0)) ||
+        VFiPFSTR_StrNCmp(p_str, (pf_s8*)"*", target, 0, 1) == 0) {
+        for (i = 2; i < 8 && PF_IS_PATH_SEPERATOR(p_str, target, i) == PF_FALSE && VFiPFSTR_StrNCmp(p_str, (pf_s8*)" ", target, i, 1) != 0 &&
+                    PF_IS_PATH_NOT_NULL(p_str, target, i);
              i++) {
-            if (VFiPFSTR_GetCodeMode(p_str) == PF_CODE_MODE_ASCII) {
+            if (VFiPFSTR_GetCodeMode(p_str) == 1) {
                 p_c = VFiPFSTR_GetStrPos(p_str, target);
                 num = p_c[i] - '0';
             } else {
                 p_wc = (pf_u16*)VFiPFSTR_GetStrPos(p_str, target);
                 num = p_wc[i] - '0';
             }
-            if ((num < 0) || (num > 9)) {
-                if (wildcard == 0) {
+            if (num < 0 || num > 9) {
+                if (!wildcard) {
                     break;
                 }
-                if (((VFiPFSTR_StrNCmp(p_str, (pf_s8*)"*", target, i, 1) == 0) || (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"?", target, i, 1) == 0))) {
-                    if ((wildcard == 1) && (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"*", target, i, 1) == 0)) {
-                        is_wildcard = 1;
+                if (PF_IS_PATH_WILDCARD(p_str, target, i)) {
+                    if (wildcard == PF_TRUE && VFiPFSTR_StrNCmp(p_str, (pf_s8*)"*", target, i, 1) == 0) {
+                        is_wildcard = PF_TRUE;
                     }
                 } else {
                     break;
                 }
             }
         }
-        if ((i == 8) || (is_wildcard == 1)) {
+        if (i == 8 || is_wildcard == PF_TRUE) {
             if (VFiPFSTR_StrNCmp(p_str, (pf_s8*)" ", target, i, 1) == 0 || PF_IS_PATH_SEPERATOR(p_str, target, i) == 0 ||
                 VFiPFSTR_StrNCmp(p_str, (pf_s8*)"\0", target, i, 1) == 0) {
                 result = i;
@@ -990,7 +985,7 @@ pf_u32 VFiPFPATH_CheckExtShortName(PF_STR* p_str, pf_u32 target, pf_u32 wildcard
 }
 
 pf_u32 VFiPFPATH_GetExtShortNameIndex(PF_STR* p_str, pf_u32* p_index) {
-    pf_u32 result = 0;
+    pf_bool result = PF_FALSE;
     pf_s16 i;
     pf_s16 num;
     pf_u32 index;
@@ -999,13 +994,13 @@ pf_u32 VFiPFPATH_GetExtShortNameIndex(PF_STR* p_str, pf_u32* p_index) {
     pf_u16* p_wc;
 
     if ((p_str == PF_NULL) || (p_index == PF_NULL)) {
-        return 0xA;
+        return 10;
     }
     if (VFiPFSTR_StrNCmp(p_str, sig, 1, 0, 2) == 0) {
         index = 0;
 
-        for (i = 2; (i < 8) || (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"\0", 1, i, 1) != 0); i++) {
-            if (VFiPFSTR_GetCodeMode(p_str) == PF_CODE_MODE_ASCII) {
+        for (i = 2; i < 8 || PF_IS_PATH_NOT_NULL(p_str, 1, i); i++) {
+            if (VFiPFSTR_GetCodeMode(p_str) == 1) {
                 p_c = VFiPFSTR_GetStrPos(p_str, 1);
                 num = p_c[i] - '0';
             } else {
@@ -1013,16 +1008,16 @@ pf_u32 VFiPFPATH_GetExtShortNameIndex(PF_STR* p_str, pf_u32* p_index) {
                 num = p_wc[i] - '0';
             }
             if ((num >= 0) && (num <= 9)) {
-                index *= 0xA;
+                index *= 10;
                 index += num;
             } else {
                 break;
             }
         }
         if (i == 8) {
-            if ((PF_IS_PATH_SEPERATOR(p_str, 1, i) == 0) || (VFiPFSTR_StrNCmp(p_str, PF_NULL, 1, i, 1) == 0)) {
+            if (PF_IS_PATH_SEPERATOR(p_str, 1, i) == 0 || VFiPFSTR_StrNCmp(p_str, PF_NULL, 1, i, 1) == 0) {
                 *p_index = index;
-                result = 1;
+                result = PF_TRUE;
             }
         }
     }
@@ -1037,10 +1032,10 @@ pf_s32 VFiPFPATH_AdjustExtShortName(pf_s8* pName, pf_u32 position) {
 
     position = position;
     if (pName == PF_NULL) {
-        return 0xA;
+        return 10;
     }
 
-    for (i = 7, div1 = 0xA, div2 = 1; (i > 1) && (position != 0); i--, div1 *= 0xA, div2 *= 0xA) {
+    for (i = 7, div1 = 10, div2 = 1; i > 1 && position != 0; i--, div1 *= 10, div2 *= 10) {
         num = position % div1;
         if (num != 0) {
             position -= num;

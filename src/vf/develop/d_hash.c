@@ -29,7 +29,7 @@ static u32 _StrLenW(const u16* i_Name) {
 static u16 l_tmpWName[8];
 
 static BOOL _MakeWStr(const char* i_Name) {
-    if (_StrLen(i_Name) < 8U) {
+    if (_StrLen(i_Name) < 8) {
         u32 len = _StrLen(i_Name);
         int Id = 0;
         int next2nd = 0;
@@ -37,7 +37,7 @@ static BOOL _MakeWStr(const char* i_Name) {
         for (; Id < len; Id++) {
             if (next2nd != 0) {
                 next2nd = 0;
-            } else if (VFipf_vol_set.codeset.is_oem_mb_char(i_Name[Id], 1U) != 0) {
+            } else if (VFipf_vol_set.codeset.is_oem_mb_char(i_Name[Id], 1) != 0) {
                 next2nd = 1;
                 l_tmpWName[Id] = i_Name[Id + 1];
                 l_tmpWName[Id] |= i_Name[Id] << 8;
@@ -55,10 +55,12 @@ static u16* _GetWStr() {
     return l_tmpWName;
 }
 
-static dHash_Cell hashTable[31];
+#define HASH_CELL_COUNT 31
+
+static dHash_Cell hashTable[HASH_CELL_COUNT];
 
 static void _DeleteDataByIdx(int i_Idx) {
-    if ((i_Idx >= 0) && (i_Idx < 0x1F)) {
+    if (i_Idx >= 0 && i_Idx < HASH_CELL_COUNT) {
         dHash_Cell* pHashCell;
         pHashCell = &hashTable[i_Idx];
         pHashCell->Name[0] = 0;
@@ -72,7 +74,7 @@ void dHash_InitHashTable() {
 
     pHashCell = hashTable;
 
-    for (i = 0; i < 31; i++) {
+    for (i = 0; i < HASH_CELL_COUNT; i++) {
         pHashCell->Name[0] = 0;
         pHashCell->arg = 0;
         pHashCell++;
@@ -89,12 +91,12 @@ static s32 dHash_CalcFirstHashW(const u16* i_Name) {
         u32 weight;
         s32 firstHash;
         for (n = weight = hash = 0; n < len; n++, weight++) {
-            if (weight > 7U) {
+            if (weight > 7) {
                 weight = 0;
             }
             hash += i_Name[n] << (weight * 4);
         }
-        firstHash = hash % 31;
+        firstHash = hash % HASH_CELL_COUNT;
         return firstHash;
     }
     return -1;
@@ -105,7 +107,7 @@ static s32 dHash_CalcRehash(u32 i_FirstHash) {
     u32 k;
 
     for (k = 1; k < 15; k++) {
-        hashval = (i_FirstHash + (k * k)) % 31;
+        hashval = (i_FirstHash + (k * k)) % HASH_CELL_COUNT;
         if (hashTable[hashval].Name[0] == 0) {
             return hashval;
         }
@@ -128,20 +130,19 @@ static s32 dHash_GetNewHashW(const u16* i_Name) {
 }
 
 static s32 dHash_SearchHashW(const u16* i_Name) {
-    s32 firstHash;
+    s32 firstHash = dHash_CalcFirstHashW(i_Name);
 
-    firstHash = dHash_CalcFirstHashW(i_Name);
     if (firstHash != -1) {
-        int len;
+        int len = _StrLenW(i_Name);
         int i;
         int hashval;
         int k;
         const u16* str0_p;
         const u16* str1_p;
         int len2;
-        len = _StrLenW(i_Name);
+
         for (k = 0; k < 15; k++) {
-            hashval = (firstHash + (k * k)) % 31;
+            hashval = (firstHash + (k * k)) % HASH_CELL_COUNT;
             len2 = _StrLenW(hashTable[hashval].Name);
             if (len == len2) {
                 BOOL success = TRUE;

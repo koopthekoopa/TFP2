@@ -114,27 +114,26 @@ pf_s32 VFiPFDRV_GetFSINFOInformation(PF_VOLUME* p_vol) {
 }
 
 pf_s32 VFiPFDRV_StoreFreeCountToFSINFO(PF_VOLUME* p_vol) {
-    pf_s32 err;
+    pf_s32 err = 0;
     PF_CACHE_PAGE* p_page;
     pf_u32 num_success;
 
-    err = 0;
     err = VFiPFCACHE_AllocateDataPage(p_vol, -1, &p_page);
     if (err != 0) {
         return err;
     }
     err = VFiPFDRV_lread(p_vol, p_page->p_buf, p_vol->bpb.fs_info_sector, 1, &num_success);
-    if ((err != 0) || (num_success != 1)) {
-        err = 0x11;
+    if (err != 0 || num_success != 1) {
+        err = 17;
     }
 
     if (err == 0) {
         p_page->p_buf[0x1E8] = p_vol->num_free_clusters;
         p_page->p_buf[0x1E9] = p_vol->num_free_clusters >> 8;
-        p_page->p_buf[0x1EA] = p_vol->num_free_clusters >> 0x10;
-        p_page->p_buf[0x1EB] = p_vol->num_free_clusters >> 0x18;
+        p_page->p_buf[0x1EA] = p_vol->num_free_clusters >> 16;
+        p_page->p_buf[0x1EB] = p_vol->num_free_clusters >> 24;
         err = VFiPFDRV_lwrite(p_vol, p_page->p_buf, p_vol->bpb.fs_info_sector, 1, &num_success);
-        if (!(err == 0) || num_success != 1) {
+        if (err != 0 || num_success != 1) {
             err = 17;
         }
     }
@@ -142,20 +141,20 @@ pf_s32 VFiPFDRV_StoreFreeCountToFSINFO(PF_VOLUME* p_vol) {
     return err;
 }
 
-pf_u32 VFiPFDRV_IsInserted(PF_VOLUME* p_vol) {
-    pf_u32 is_insert;
+pf_bool VFiPFDRV_IsInserted(PF_VOLUME* p_vol) {
+    pf_bool is_insert;
     VFipdm_part_check_media_insert(p_vol->p_part, &is_insert);
     return is_insert;
 }
 
-pf_u32 VFiPFDRV_IsDetected(PF_VOLUME* p_vol) {
-    pf_u32 is_detect;
+pf_bool VFiPFDRV_IsDetected(PF_VOLUME* p_vol) {
+    pf_bool is_detect;
     VFipdm_part_check_media_detect(p_vol->p_part, &is_detect);
     return is_detect;
 }
 
-pf_u32 VFiPFDRV_IsWProtected(PF_VOLUME* p_vol) {
-    pf_u32 is_wprotect;
+pf_bool VFiPFDRV_IsWProtected(PF_VOLUME* p_vol) {
+    pf_bool is_wprotect;
     VFipdm_part_check_media_write_protect(p_vol->p_part, &is_wprotect);
     return is_wprotect;
 }
@@ -185,7 +184,7 @@ pf_s32 VFiPFDRV_mount(PF_VOLUME* p_vol) {
     PF_CACHE_PAGE* p_page;
     pf_u32 nSector;
     PDM_DISK_INFO disk_inf;
-    pf_u32 is_valid;
+    pf_bool is_valid;
 
     if (p_vol == PF_NULL) {
         return 10;
@@ -207,10 +206,10 @@ pf_s32 VFiPFDRV_mount(PF_VOLUME* p_vol) {
         VFipdm_part_release_permission(p_vol->p_part, 1);
         return -1;
     }
-    if ((disk_inf.media_attr & 2) != 0) {
+    if ((disk_inf.media_attr & 0x02) != 0) {
         VFiPFDRV_notifyExecuteFormatAfterMount(p_vol, disk_inf.format_param);
     }
-    if ((disk_inf.media_attr & 8) != 0) {
+    if ((disk_inf.media_attr & 0x08) != 0) {
         VFiPFDRV_notifyNoExecuteLogicalFormat(p_vol);
     }
     err = VFiPFCACHE_AllocateDataPage(p_vol, -1, &p_page);
@@ -234,7 +233,7 @@ pf_s32 VFiPFDRV_mount(PF_VOLUME* p_vol) {
         VFipdm_part_release_permission(p_vol->p_part, 1);
         return -1;
     }
-    if (is_valid == 0) {
+    if (!is_valid) {
         VFiPFCACHE_FreeDataPage(p_vol, p_page);
         VFipdm_part_release_permission(p_vol->p_part, 1);
         return 7;
@@ -283,10 +282,10 @@ pf_s32 VFiPFDRV_format(PF_VOLUME* p_vol, const pf_u8* param) {
         return 10;
     }
 
-    if ((p_vol->flags & 2) == 0) {
+    if ((p_vol->flags & 0x02) == 0) {
         err = VFipdm_part_get_permission(p_vol->p_part);
         if (err != 0) {
-            if (err == 0x15) {
+            if (err == 21) {
                 err = VFipdm_part_get_driver_error_code(p_vol->p_part);
                 VFipf_vol_set.last_driver_error = err;
                 p_vol->last_driver_error = err;
@@ -297,7 +296,7 @@ pf_s32 VFiPFDRV_format(PF_VOLUME* p_vol, const pf_u8* param) {
     }
     err = VFipdm_part_format(p_vol->p_part, param);
     if (err != 0) {
-        if (err == 0x15) {
+        if (err == 21) {
             err = VFipdm_part_get_driver_error_code(p_vol->p_part);
             VFipf_vol_set.last_driver_error = err;
             p_vol->last_driver_error = err;
@@ -305,10 +304,10 @@ pf_s32 VFiPFDRV_format(PF_VOLUME* p_vol, const pf_u8* param) {
         }
         return -1;
     }
-    if ((p_vol->flags & 2) == 0) {
+    if ((p_vol->flags & 0x02) == 0) {
         err = VFipdm_part_release_permission(p_vol->p_part, 1);
         if (err != 0) {
-            if (err == 0x15) {
+            if (err == 21) {
                 err = VFipdm_part_get_driver_error_code(p_vol->p_part);
                 VFipf_vol_set.last_driver_error = err;
                 p_vol->last_driver_error = err;
@@ -329,7 +328,7 @@ pf_s32 VFiPFDRV_lread(PF_VOLUME* p_vol, pf_u8* buf, pf_u32 sector, pf_u32 num_se
 
     err = VFipdm_part_logical_read(p_vol->p_part, buf, sector, num_sectors, p_vol->bpb.bytes_per_sector, p_num_success);
     if (err != 0) {
-        if (err == 0x15) {
+        if (err == 21) {
             err = VFipdm_part_get_driver_error_code(p_vol->p_part);
             VFipf_vol_set.last_driver_error = err;
             p_vol->last_driver_error = err;
@@ -349,7 +348,7 @@ pf_s32 VFiPFDRV_lwrite(PF_VOLUME* p_vol, const pf_u8* buf, pf_u32 sector, pf_u32
 
     err = VFipdm_part_logical_write(p_vol->p_part, buf, sector, num_sectors, p_vol->bpb.bytes_per_sector, p_num_success);
     if (err != 0) {
-        if (err == 0x15) {
+        if (err == 21) {
             err = VFipdm_part_get_driver_error_code(p_vol->p_part);
             VFipf_vol_set.last_driver_error = err;
             p_vol->last_driver_error = err;

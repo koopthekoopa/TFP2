@@ -1,3 +1,4 @@
+#include <private/vf/develop/d_time.h>
 #include <private/vf/develop/d_vf_sys.h>
 
 #include <revolution/os.h>
@@ -15,6 +16,7 @@ void dTM_GetNowTime(PF_SYS_DATE* sdate, PF_SYS_TIME* stime) {
     if (getTimeCallBack != 0) {
         VFSysTime time;
         getTimeCallBack(&time);
+
         sdate->sys_year = time.year;
         sdate->sys_month = time.month;
         sdate->sys_day = time.day;
@@ -24,6 +26,7 @@ void dTM_GetNowTime(PF_SYS_DATE* sdate, PF_SYS_TIME* stime) {
     } else {
         OSCalendarTime CalenderTime;
         OSTicksToCalendarTime(OSGetTime(), &CalenderTime);
+
         sdate->sys_year = CalenderTime.year;
         sdate->sys_month = CalenderTime.mon + 1;
         sdate->sys_day = CalenderTime.mday;

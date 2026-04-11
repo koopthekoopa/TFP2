@@ -265,7 +265,7 @@ void VFiPFENT_loadEntryNumericFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf)
     p_ent->modify_time = PF_SWAP_16(*(pf_u16*)&buf[0x16]);
     p_ent->modify_date = PF_SWAP_16(*(pf_u16*)&buf[0x18]);
     p_ent->file_size = PF_SWAP_32(*(pf_u32*)&buf[0x1C]);
-    p_ent->start_cluster = ((pf_u16)PF_SWAP_16(*(pf_u16*)&buf[0x14]) << 0x10) | (pf_u16)(PF_SWAP_16(*(pf_u16*)&buf[0x1A]));
+    p_ent->start_cluster = ((pf_u16)PF_SWAP_16(*(pf_u16*)&buf[0x14]) << 16) | (pf_u16)(PF_SWAP_16(*(pf_u16*)&buf[0x1A]));
 }
 
 void VFiPFENT_StoreEntryNumericFieldsToBuf(pf_u8* buf, const PF_DIR_ENT* p_ent) {
@@ -277,7 +277,7 @@ void VFiPFENT_StoreEntryNumericFieldsToBuf(pf_u8* buf, const PF_DIR_ENT* p_ent) 
     *(pf_u16*)&buf[0x12] = PF_SWAP_16(p_ent->access_date);
     *(pf_u16*)&buf[0x16] = PF_SWAP_16(p_ent->modify_time);
     *(pf_u16*)&buf[0x18] = PF_SWAP_16(p_ent->modify_date);
-    *(pf_u16*)&buf[0x14] = PF_SWAP_16((pf_u16)(p_ent->start_cluster >> 0x10));
+    *(pf_u16*)&buf[0x14] = PF_SWAP_16((pf_u16)(p_ent->start_cluster>> 16));
     *(pf_u16*)&buf[0x1A] = PF_SWAP_16((pf_u16)(p_ent->start_cluster));
     *(pf_u32*)&buf[0x1C] = PF_SWAP_32(p_ent->file_size);
 }

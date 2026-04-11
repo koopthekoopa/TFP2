@@ -3,7 +3,7 @@
 
 #include <revolution/types.h>
 
-/* Some apps have ErrInfoTbl which have all of the errors. */
+/* Some apps have ErrInfoTbl which have all of the errors codes. */
 enum {
     VF_ERR_SUCCESS = 0,     // Success
     VF_ERR_EPERM = 1,       // "Operation is not possible"
