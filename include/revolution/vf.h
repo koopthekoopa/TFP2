@@ -21,7 +21,7 @@ s32 VFMountDriveNANDFlash(const char* drive, const char* sys_file_name);
 s32 VFMountDriveNANDFlashEx(const char* drive, const char* sys_file_name);
 s32 VFUnmountDrive(const char* drive);
 
-VF_FILE* VFOpenFile(const char* iath, const char* mode, u32 attr);
+VF_FILE* VFOpenFile(const char* path, const char* mode, u32 attr);
 s32 VFCloseFile(VF_FILE* file);
 
 s32 VFSeekFile(VF_FILE* file, s32 offset, s32 origin);

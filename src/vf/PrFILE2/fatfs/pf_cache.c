@@ -288,7 +288,7 @@ static pf_s32 VFiPFCACHE_DoAllocatePage(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_hea
                 (*pp_page)->p_buf = &(*pp_page)->buffer[(sector % (*pp_page)->size) << p_vol->bpb.log2_bytes_per_sector];
             } else {
                 if (p_vol->bpb.fat_type == FAT_32) {
-                    if ((sector >= p_vol->bpb.first_data_sector) && (sector < p_vol->bpb.total_sectors)) {
+                    if (sector >= p_vol->bpb.first_data_sector && sector < p_vol->bpb.total_sectors) {
                         data_start_sector = p_vol->bpb.first_data_sector;
                     } else if (sector == p_vol->bpb.fs_info_sector) {
                         data_start_sector = p_vol->bpb.fs_info_sector;
@@ -336,7 +336,7 @@ static pf_s32 VFiPFCACHE_DoReadPage(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, p
             VFiPFCACHE_DoFreeCachePage(pp_head, *pp_page);
             return err;
         }
-        if ((num_success != (*pp_page)->size) && (p_vol->bpb.total_sectors != ((*pp_page)->sector + num_success))) {
+        if (num_success != (*pp_page)->size && p_vol->bpb.total_sectors != ((*pp_page)->sector + num_success)) {
             VFiPFCACHE_DoFreeCachePage(pp_head, *pp_page);
             return 17;
         }

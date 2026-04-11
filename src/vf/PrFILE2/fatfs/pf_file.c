@@ -514,8 +514,8 @@ static PF_SFD* VFiPFFILE_GetSFD(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent) {
             }
             continue;
         }
-        if ((p_ent->p_vol == p_vol->sfds[i].dir_entry.p_vol) && (p_ent->entry_sector == p_vol->sfds[i].dir_entry.entry_sector) &&
-            (p_ent->entry_offset == p_vol->sfds[i].dir_entry.entry_offset)) {
+        if (p_ent->p_vol == p_vol->sfds[i].dir_entry.p_vol && p_ent->entry_sector == p_vol->sfds[i].dir_entry.entry_sector &&
+            p_ent->entry_offset == p_vol->sfds[i].dir_entry.entry_offset) {
             p_vol->sfds[i].num_handlers++;
             return &p_vol->sfds[i];
         }
@@ -802,7 +802,7 @@ static pf_s32 VFiPFFILE_p_fread(PF_VOLUME* p_vol, pf_u8* p_buf, pf_u32 size, pf_
     if ((p_file->open_mode & 0x08) == 0 && ((p_file->open_mode & 0x01) != 0 || (p_file->open_mode & 0x04) != 0)) {
         return 10;
     }
-    if ((p_file->p_sfd->lock.mode & 0x3) != 0 && (p_file->lock_count == 0)) {
+    if ((p_file->p_sfd->lock.mode & 0x3) != 0 && p_file->lock_count == 0) {
         return 25;
     }
     if (VFiPFFILE_Cursor_IsOutOfFile(p_file) != 0) {

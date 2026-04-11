@@ -245,7 +245,7 @@ VFSys_handle* VFSysVol2HandleP(PF_VOLUME* i_vol_p) {
         VFSys_handle* handle_end_p = &handle_p[l_vfsys_vol_max];
 
         for (; handle_p != handle_end_p; handle_p++) {
-            if ((handle_p->device_p != NULL) && (handle_p->drive.pf_drv.drive == i_vol_p->drv_char)) {
+            if (handle_p->device_p != NULL && handle_p->drive.pf_drv.drive == i_vol_p->drv_char) {
                 return handle_p;
             }
         }

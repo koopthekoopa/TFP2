@@ -315,7 +315,7 @@ void dCommon_setLastDeviceErrorToDisk(PDM_DISK* p_disk, s32 i_lastDevErr) {
 }
 
 void dCommon_setLastDeviceErrorToDisk2(s32 i_handleIdx, s32 i_lastDevErr) {
-    if ((i_handleIdx >= 0) && (i_handleIdx < PF_DRIVE_COUNT)) {
+    if (i_handleIdx >= 0 && i_handleIdx < PF_DRIVE_COUNT) {
         l_driveInfo[i_handleIdx].last_device_error = i_lastDevErr;
     }
 }

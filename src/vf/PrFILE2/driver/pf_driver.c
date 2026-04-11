@@ -48,10 +48,10 @@ static pf_s32 VFiPFDRV_LoadFSINFOInformation(pf_u8* p_buf, PF_VOLUME* p_vol) {
         return 7;
     }
 
-    if ((fsinfo.free_count >= 2) && (fsinfo.free_count < (p_vol->bpb.num_clusters + 2))) {
+    if (fsinfo.free_count >= 2 && fsinfo.free_count < (p_vol->bpb.num_clusters + 2)) {
         p_vol->num_free_clusters = fsinfo.free_count;
     }
-    if ((fsinfo.next_free >= 2) && (fsinfo.next_free < (p_vol->bpb.num_clusters + 2))) {
+    if (fsinfo.next_free >= 2 && fsinfo.next_free < (p_vol->bpb.num_clusters + 2)) {
         p_vol->last_free_cluster = fsinfo.next_free;
     }
 

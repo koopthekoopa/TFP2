@@ -151,7 +151,7 @@ static pf_s32 VFipdm_part_get_handle(PDM_DISK* p_disk, pf_u16 part_id, PDM_PARTI
             }
             continue;
         }
-        if ((part_id == VFipdm_disk_set.partition[part_no].part_id) && ((PDM_DISK*)VFipdm_disk_set.partition[part_no].p_disk == p_disk)) {
+        if (part_id == VFipdm_disk_set.partition[part_no].part_id && VFipdm_disk_set.partition[part_no].p_disk == p_disk) {
             *pp_part = &VFipdm_disk_set.partition[part_no];
             *p_part_no = part_no;
             return 0;

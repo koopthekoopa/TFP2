@@ -517,7 +517,7 @@ pf_bool VFiPFENT_ITER_IsAtLogicalEnd(PF_ENT_ITER* p_iter) {
 pf_s32 VFiPFENT_ITER_MoveTo(PF_ENT_ITER* p_iter, pf_u32 index, pf_u32 may_allocate) {
     pf_s32 err;
 
-    if ((p_iter->index != index) || (VFiPFENT_ITER_IsAtPhysicalEnd(p_iter) == 0) || (may_allocate == 0)) {
+    if (p_iter->index != index || VFiPFENT_ITER_IsAtPhysicalEnd(p_iter) == PF_FALSE || may_allocate == PF_FALSE) {
         err = VFiPFENT_ITER_DoMoveTo(p_iter, index, may_allocate);
         if (err != 0) {
             return err;
@@ -561,7 +561,7 @@ pf_s32 VFiPFENT_ITER_Retreat(PF_ENT_ITER* p_iter, pf_u32 may_allocate) {
         }
         p_iter->index--;
         p_iter->file_sector_index--;
-        if ((p_iter->p_vol->bpb.fat_type == FAT_32) || (*p_iter->ffd.p_start_cluster > 1 && p_iter->p_vol->bpb.first_data_sector <= p_iter->sector)) {
+        if (p_iter->p_vol->bpb.fat_type == FAT_32 || *p_iter->ffd.p_start_cluster > 1 && p_iter->p_vol->bpb.first_data_sector <= p_iter->sector) {
             p_iter->sector = (p_iter->p_vol->bpb.first_data_sector + ((before_cluster - 2) << p_iter->p_vol->bpb.log2_sectors_per_cluster)) +
                              (p_iter->file_sector_index & (p_iter->p_vol->bpb.sectors_per_cluster - 1));
         } else {

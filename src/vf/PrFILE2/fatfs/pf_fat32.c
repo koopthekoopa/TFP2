@@ -174,7 +174,7 @@ pf_s32 VFiPFFAT32_WriteFATEntryPage(PF_VOLUME* p_vol, pf_u32 cluster, pf_u32 val
             }
             result = ((PF_VOLUME_CB)p_vol->p_callback)(p_vol->last_driver_error);
             if (result != 0) {
-                if ((result == 1) && (p_vol->bpb.num_active_FATs >= 2) && (current_fat < p_vol->bpb.num_active_FATs)) {
+                if (result == 1 && p_vol->bpb.num_active_FATs >= 2 && current_fat < p_vol->bpb.num_active_FATs) {
                     current_fat++;
                     fat_sector += p_vol->bpb.sectors_per_FAT;
                 } else {

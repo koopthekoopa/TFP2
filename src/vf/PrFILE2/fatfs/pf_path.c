@@ -142,7 +142,7 @@ static pf_u16 VFiPFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_bool is_long_
     if (p_pattern->code_mode == 1) {
         pattern[0] = *p_pattern->p_head++;
         pattern[1] = 0;
-        if ((pattern[0] == 0) || (p_pattern->p_tail < p_pattern->p_head)) {
+        if (pattern[0] == 0 || p_pattern->p_tail < p_pattern->p_head) {
             return 0;
         }
         if (VFipf_vol_set.codeset.is_oem_mb_char(pattern[0], 1) != 0) {
@@ -402,7 +402,7 @@ pf_s32 VFiPFPATH_GetNextTokenOfPath(PF_STR* p_str, pf_bool wildcard) {
         while (PF_IS_PATH_NOT_NULL(p_str, 2, 0)) {
             if (code_mode == 1 && VFipf_vol_set.codeset.is_oem_mb_char(*p_str->p_tail, 1) != 0) {
                 p_str->p_tail++;
-                if ((VFipf_vol_set.codeset.is_oem_mb_char(*p_str->p_tail, 2) == 0) || (p_str->p_tail[0] == 0)) {
+                if (VFipf_vol_set.codeset.is_oem_mb_char(*p_str->p_tail, 2) == 0 || p_str->p_tail[0] == 0) {
                     return 2;
                 }
             } else {

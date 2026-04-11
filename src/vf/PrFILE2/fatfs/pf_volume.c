@@ -105,7 +105,7 @@ static pf_s32 VFiPFVOL_DoUnmountVolume(PF_VOLUME* p_vol, pf_u32 mode) {
         return err;
     }
     VFiPFVOL_FinalizeCurrentDir(p_vol);
-    p_vol->flags &= ~0x2;
+    p_vol->flags &= ~0x02;
     return 0;
 }
 
@@ -231,7 +231,7 @@ static pf_s32 VFiPFVOL_p_format(PF_VOLUME* p_vol, const pf_u8* param) {
             p_vol->fsi_flag &= ~0x04;
             if (p_vol->bpb.fat_type != FAT_32) {
                 p_vol->fsi_flag &= ~0x01;
-                p_vol->fsi_flag &= ~0x2;
+                p_vol->fsi_flag &= ~0x02;
             }
             err = VFiPFFAT_CountFreeClusters(p_vol, &ecl);
             if (err != 0) {
@@ -250,9 +250,9 @@ static pf_s32 VFiPFVOL_p_format(PF_VOLUME* p_vol, const pf_u8* param) {
     }
     if (p_vol->bpb.fat_type != FAT_32) {
         p_vol->fsi_flag &= ~0x01;
-        p_vol->fsi_flag &= ~0x2;
+        p_vol->fsi_flag &= ~0x02;
     }
-    if ((p_vol->bpb.fat_type == FAT_32) && ((p_vol->fsi_flag & 0x02) != 0)) {
+    if (p_vol->bpb.fat_type == FAT_32 && (p_vol->fsi_flag & 0x02) != 0) {
         err = VFiPFFAT_RefreshFSINFO(p_vol);
         if (err != 0) {
             return err;
@@ -290,7 +290,7 @@ static pf_s32 VFiPFVOL_CheckMediaInsert(PF_VOLUME* p_vol) {
             if (VFiPFDRV_IsDetected(p_vol) != 0) {
                 VFiPFVOL_UnmountVolumeByEject(p_vol);
             }
-            p_vol->flags &= ~0x2;
+            p_vol->flags &= ~0x02;
         }
     }
     return 0;
@@ -305,13 +305,13 @@ pf_s32 VFiPFVOL_InitModule(pf_u32 config /* r29 */, void* param /* r1+0x08 */) {
     if ((config & 0xFFFCFFFF) != 0) {
         return VFipf_vol_set.last_error = 10;
     }
-    if ((config & 0x030000) == 0x030000) {
+    if ((config & 0x30000) == 0x30000) {
         return VFipf_vol_set.last_error = 10;
     }
-    if ((config & 0x010000) != 0) {
-        VFipf_vol_set.config |= 0x010000;
+    if ((config & 0x10000) != 0) {
+        VFipf_vol_set.config |= 0x10000;
     } else {
-        VFipf_vol_set.config &= ~0x010000;
+        VFipf_vol_set.config &= ~0x10000;
     }
     for (i = 0; i < 1; i++) {
         VFipf_vol_set.current_vol[i].p_vol = &VFipf_vol_set.volumes[0];
@@ -319,10 +319,10 @@ pf_s32 VFiPFVOL_InitModule(pf_u32 config /* r29 */, void* param /* r1+0x08 */) {
     VFipf_vol_set.current_vol[0].stat |= 0x01;
     VFipf_vol_set.num_attached_drives = 0;
     VFipf_vol_set.num_mounted_volumes = 0;
-    if ((config & 0x010000) != 0) {
-        VFipf_vol_set.config |= 0x010000;
+    if ((config & 0x10000) != 0) {
+        VFipf_vol_set.config |= 0x10000;
     } else {
-        VFipf_vol_set.config &= ~0x010000;
+        VFipf_vol_set.config &= ~0x10000;
     }
     VFipf_vol_set.param = param;
     VFipf_vol_set.last_error = 0;
@@ -477,7 +477,7 @@ PF_VOLUME* VFiPFVOL_GetVolumeFromDrvChar(pf_s8 drv_char) {
     pf_s16 vol_idx;
 
     vol_idx = VFipf_toupper(drv_char) - 'A';
-    if ((vol_idx < 0) || (vol_idx >= PF_DRIVE_COUNT)) {
+    if (vol_idx < 0 || vol_idx >= PF_DRIVE_COUNT) {
         return PF_NULL;
     }
     p_vol = &VFipf_vol_set.volumes[vol_idx];
@@ -524,9 +524,9 @@ pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv /* r31 */) {
     PF_VOLUME* p_vol;  // r30
     pf_s32 err;        // r28
 
-    if ((p_drv == PF_NULL) || (p_drv->cache->num_fat_pages < 1) || (p_drv->cache->num_data_pages < 2U) ||
-        ((PF_CACHE_PAGE*)p_drv->cache->pages == PF_NULL) || (p_drv->cache->buffers == PF_NULL) || (((pf_u32)p_drv->cache->pages & 0x03) != 0) ||
-        (((pf_u32)p_drv->cache->buffers & 0x03) != 0)) {
+    if (p_drv == PF_NULL || p_drv->cache->num_fat_pages < 1 || p_drv->cache->num_data_pages < 2 ||
+        p_drv->cache->pages == PF_NULL || p_drv->cache->buffers == PF_NULL || ((pf_u32)p_drv->cache->pages & 0x03) != 0 ||
+        ((pf_u32)p_drv->cache->buffers & 0x03) != 0) {
         return VFipf_vol_set.last_error = 10;
     }
     if (p_drv->cache->num_fat_buf_size == 0) {
@@ -538,7 +538,7 @@ pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv /* r31 */) {
     if ((p_drv->cache->num_fat_pages / p_drv->cache->num_fat_buf_size) < 1) {
         return VFipf_vol_set.last_error = 10;
     }
-    if ((p_drv->cache->num_data_pages / p_drv->cache->num_data_buf_size) < 2U) {
+    if ((p_drv->cache->num_data_pages / p_drv->cache->num_data_buf_size) < 2) {
         return VFipf_vol_set.last_error = 10;
     }
     p_drv->stat = 0;
@@ -578,7 +578,7 @@ pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv /* r31 */) {
             p_vol->last_error = err;
             return 0;
         }
-        p_drv->stat |= 0x2;
+        p_drv->stat |= 0x02;
     }
     return 0;
 }
