@@ -2,7 +2,6 @@
 #include <revolution/ssl.h>
 
 #include <private/ios.h>
-#include <private/ipc.h>
 
 #include <revolution/os.h>
 

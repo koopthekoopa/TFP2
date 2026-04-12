@@ -251,11 +251,11 @@ cflags_sdk = [
     "-g",
 ]
 
-cflags_rfl = [
+cflags_atok = [
     *cflags_base,
     "-opt off",
-    "-cpp_exceptions off",
     "-inline off",
+    "-sdata 0",
     "-g",
 ]
 
@@ -360,11 +360,11 @@ config.libs = [
     {
         "lib": "ATOKDict",
         "mw_version": config.linker_version,
-        "cflags": cflags_sdk,
+        "cflags": cflags_atok,
         "progress_category": "atok",  # str | List[str]
         "objects": [
-            Object(NonMatching, "atok/build/atok.c"),
-            Object(NonMatching, "atok/Src/atok_eng.c"),
+            Object(Matching,    "atok/atok.c"),
+            Object(NonMatching, "atok/atok_eng.c"),
             Object(NonMatching, "atok/MonPE/ApLib.c"),
             Object(NonMatching, "atok/MonPE/ApAICore.c"),
             Object(NonMatching, "atok/MonPE/ApAIDic.c"),
