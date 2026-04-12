@@ -12,7 +12,9 @@ typedef struct PF_FILE_NAME_ITER {
 } PF_FILE_NAME_ITER;
 
 #define PF_IS_PATH_SEPERATOR(s, t, i) ((VFiPFSTR_StrNCmp(s, (pf_s8*)"\\", t, i, 1) == 0 || VFiPFSTR_StrNCmp(s, (pf_s8*)"/", t, i, 1) == 0))
+
 #define PF_IS_PATH_WILDCARD(s, t, i) ((VFiPFSTR_StrNCmp(s, (pf_s8*)"*", t, i, 1) == 0) || (VFiPFSTR_StrNCmp(p_str, (pf_s8*)"?", t, i, 1) == 0))
+
 #define PF_IS_PATH_NULL(s, t, i) (VFiPFSTR_StrNCmp(s, (pf_s8*)"\0", t, i, 1) == 0)
 #define PF_IS_PATH_NOT_NULL(s, t, i) (VFiPFSTR_StrNCmp(s, (pf_s8*)"\0", t, i, 1) != 0)
 

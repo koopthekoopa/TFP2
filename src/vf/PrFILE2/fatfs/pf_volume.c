@@ -122,7 +122,7 @@ static pf_s32 VFiPFVOL_p_attach(PF_VOLUME* p_vol, PF_DRV_TBL* p_drv, pf_s16 vol_
 
     VFipf_memset(p_vol, 0, sizeof(PF_VOLUME));
     p_vol->p_part = p_drv->p_part;
-    p_vol->drv_char = vol_idx + 0x41;
+    p_vol->drv_char = vol_idx + 'A';
     p_vol->tail_entry.tracker_size = 1;
     p_vol->tail_entry.tracker_bits = p_vol->tail_entry.tracker_buff;
     err = VFiPFDRV_init(p_vol);
@@ -562,7 +562,7 @@ pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv /* r31 */) {
     }
     p_vol->flags |= (pf_u8)0x01;
     p_drv->stat |= 0x01;
-    p_vol->drv_char = vol_idx + 0x41;
+    p_vol->drv_char = vol_idx + 'A';
     p_drv->drive = p_vol->drv_char;
     VFipf_vol_set.num_attached_drives += 1;
     err = VFiPFVOL_CheckMediaInsert(p_vol);

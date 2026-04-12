@@ -12,6 +12,9 @@ A decompilation of the debug build of Tokyo Friend Park 2.
 
 This repository does **not** contain any game assets or assembly whatsoever. An existing copy of the game is required.
 
+>  [!NOTE]
+> This decompilation primarily focuses on the SDK libraries linked into the game.
+
 Supported versions:
 
 - `R89JEL`: Revision 0 (Japan)  

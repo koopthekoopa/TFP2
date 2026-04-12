@@ -47,7 +47,7 @@ static pf_s32 VFiPFPATH_DoSplitPath(PF_STR* p_path, PF_STR* p_dir_path, PF_STR* 
     }
     token_prev = token;
     while (PF_TRUE) {
-        if (VFiPFSTR_StrNCmp(&token, (pf_s8*)"\0", 2, 0, 1) == 0) {
+        if (PF_IS_PATH_NULL(&token, 2, 0)) {
             p_tail_prev = (pf_s8*)token_prev.p_tail;
             break;
         }
@@ -976,7 +976,7 @@ pf_u32 VFiPFPATH_CheckExtShortName(PF_STR* p_str, pf_u32 target, pf_bool wildcar
         }
         if (i == 8 || is_wildcard == PF_TRUE) {
             if (VFiPFSTR_StrNCmp(p_str, (pf_s8*)" ", target, i, 1) == 0 || PF_IS_PATH_SEPERATOR(p_str, target, i) == 0 ||
-                VFiPFSTR_StrNCmp(p_str, (pf_s8*)"\0", target, i, 1) == 0) {
+                PF_IS_PATH_NULL(p_str, target, i)) {
                 result = i;
             }
         }
