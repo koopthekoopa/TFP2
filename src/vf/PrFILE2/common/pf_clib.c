@@ -66,12 +66,9 @@ pf_u32 VFipf_strlen(const pf_s8* s) {
 }
 
 pf_s8* VFipf_strcpy(pf_s8* dst, const pf_s8* src) {
-    pf_s8* d = dst;
-    pf_s8* var_r30;  // fakematch!! unused and not in DWARF but needed to match...
+    pf_s8* d;
 
-    while ((*d = *src) != 0) {
-        src++;
-        var_r30 = d++;
+    for (d = dst; (*d = *src) != 0; src++, d++) {
     }
 
     return dst;
