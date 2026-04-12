@@ -188,7 +188,7 @@ static pf_u32 VFiPFPATH_DoMatchFileNameWithPattern(pf_u16 c_name, PF_FILE_NAME_I
     PF_FILE_NAME_ITER name;
     PF_STR pattern;
 
-    while (c_pat != 0) {
+    for (; c_pat != 0; c_pat = VFiPFPATH_GetNextCharOfPattern(p_pattern, is_long_name)) {
         switch (c_pat) {
             case '?': {
                 if (c_name == 0) {
@@ -197,15 +197,14 @@ static pf_u32 VFiPFPATH_DoMatchFileNameWithPattern(pf_u16 c_name, PF_FILE_NAME_I
                 break;
             }
             case '*': {
-                c_pat = VFiPFPATH_GetNextCharOfPattern(p_pattern, is_long_name);
-                while (c_pat == '*' || c_pat == '?') {
-                    c_pat = VFiPFPATH_GetNextCharOfPattern(p_pattern, is_long_name);
+                for (c_pat = VFiPFPATH_GetNextCharOfPattern(p_pattern, is_long_name); c_pat == '*' || c_pat == '?';
+                     c_pat = VFiPFPATH_GetNextCharOfPattern(p_pattern, is_long_name)) {
                 }
                 if (c_pat == 0) {
                     return 1;
                 }
 
-                while (c_name != 0) {
+                for (; c_name != 0; c_name = VFiPFPATH_GetNextCharOfFileName(p_name)) {
                     if (c_name == c_pat) {
                         name = *p_name;
                         pattern = *p_pattern;
@@ -215,7 +214,6 @@ static pf_u32 VFiPFPATH_DoMatchFileNameWithPattern(pf_u16 c_name, PF_FILE_NAME_I
                             return 1;
                         }
                     }
-                    c_name = VFiPFPATH_GetNextCharOfFileName(p_name);
                 }
                 return 0;
                 break;
@@ -229,7 +227,6 @@ static pf_u32 VFiPFPATH_DoMatchFileNameWithPattern(pf_u16 c_name, PF_FILE_NAME_I
         }
 
         c_name = VFiPFPATH_GetNextCharOfFileName(p_name);
-        c_pat = VFiPFPATH_GetNextCharOfPattern(p_pattern, is_long_name);
     }
     if (c_name != 0) {
         return 0;
@@ -283,7 +280,7 @@ static pf_s32 VFiPFPATH_cmpNameImpl(const pf_s8* sName, const pf_s8* sPattern, p
                 if (p == 0) {
                     return 0;
                 }
-                while (n != 0) {
+                for (; n != 0; n = nw == 1 ? VFipf_toupper(*sName) : VFiPF_GET_LE_U16((pf_u8*)sName)) {
                     sName = &sName[nw];
                     if (n == p) {
                         ret = VFiPFPATH_cmpNameImpl(sName, sPattern, p_is_end);
@@ -295,8 +292,6 @@ static pf_s32 VFiPFPATH_cmpNameImpl(const pf_s8* sName, const pf_s8* sPattern, p
                         }
                     }
                     nw = VFipf_vol_set.codeset.oem_char_width((pf_s8*)sName);
-
-                    n = nw == 1 ? VFipf_toupper(*sName) : VFiPF_GET_LE_U16((pf_u8*)sName);
                 }
                 if ((*sName == 0) || (*sPattern == 0)) {
                     *p_is_end = 1;
@@ -338,8 +333,7 @@ pf_s32 VFiPFPATH_cmpName(const pf_s8* sShort, PF_STR* p_pattern, pf_bool is_shor
         return 1;
     }
     if (VFipf_strcmp(sPattern, (pf_s8*)"*.") == 0) {
-        while ((*p_tmpBuf != 0) && (*p_tmpBuf != '.')) {
-            p_tmpBuf++;
+        for (; *p_tmpBuf != 0 && *p_tmpBuf != '.'; p_tmpBuf++) {
         }
         if (*p_tmpBuf == 0) {
             *p_tmpBuf = '.';
@@ -717,7 +711,7 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
         p_name_cnt = &num_base;
         last_width = 1;
         prev_last_width = 1;
-        while (num_ext < 3 && p_cur_src[src_pos] != 0) {
+        for (; num_ext < 3 && p_cur_src[src_pos] != 0; src_pos++) {
             if ((num_base != 8 && (src_dot == 0 || src_pos != src_dot)) || p_name_cnt == &num_ext) {
                 if (p_cur_src[src_pos] != ' ' && p_cur_src[src_pos] != '.') {
                     width = VFipf_vol_set.codeset.oem_char_width((pf_s8*)&p_cur_src[src_pos]);
@@ -777,7 +771,6 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
                     break;
                 }
             }
-            src_pos++;
         }
         if (num_ext == 3 && p_cur_src[src_pos] != 0) {
             is_create_tail = PF_TRUE;
@@ -821,11 +814,10 @@ pf_u32 VFiPFPATH_parseShortName(pf_s8* pDest, PF_STR* p_pattern) {
             is_create_long = PF_TRUE;
         }
     } else {
-        while (*p_cur_src != 0 && !is_create_tail) {
+        for (; *p_cur_src != 0 && !is_create_tail; p_cur_src++) {
             if (*p_cur_src != '.' && *p_cur_src != ' ') {
                 is_create_tail = PF_TRUE;
             }
-            p_cur_src++;
         }
         if (is_create_tail) {
             pDest[0] = 1;

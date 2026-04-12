@@ -585,7 +585,7 @@ static pf_s32 VFiPFFAT_GetClusterInChain(PF_FFD* p_ffd /* r31 */, pf_u32 chain_i
     pf_u32 search_index;              // r27
     pf_u32* p_chain_start;            // r26
     pf_u32 chain_start;               // r1+0x10
-    pf_u32 check_use;                 // r1+0xC
+    pf_bool check_use;                 // r1+0xC
     PF_CACHE_PAGE* p_page = PF_NULL;  // r1+0x8
 
     bad = fat_special_values[p_ffd->p_vol->bpb.fat_type].bad;
@@ -629,7 +629,7 @@ static pf_s32 VFiPFFAT_GetClusterInChain(PF_FFD* p_ffd /* r31 */, pf_u32 chain_i
             return err;
         }
         p_page->option = 0;
-        check_use = 1;
+        check_use = PF_TRUE;
         while (trace_cnt-- != 0 && (current_cluster < bad)) {
             if (current_cluster != 0) {
                 err = VFiPFFAT_ReadClusterPage(p_ffd, current_cluster, search_index, &next_cluster, &check_use, &p_page);

@@ -428,7 +428,7 @@ static pf_s32 VFiPFFILE_Cursor_Write(PF_FILE* p_file, pf_u8* p_buf, pf_u32 size,
         size -= size_write;
     }
 
-    while ((size_request != 0) && (size >= p_vol->bpb.bytes_per_sector)) {
+    while (size_request != 0 && size >= p_vol->bpb.bytes_per_sector) {
         err = VFiPFFILE_Cursor_Write_Append(p_vol, p_file, &p_buf[*p_size_write], size_request, &size_write, &append_size);
         *p_size_write += size_write;
         if (err != 0) {

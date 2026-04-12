@@ -132,12 +132,11 @@ static PF_CACHE_PAGE* VFiPFCACHE_SearchForUsedPage(PF_VOLUME* p_vol, PF_CACHE_PA
         }
     }
 
-    while ((lp_page->stat & 0x01) != 0) {
+    for (; (lp_page->stat & 0x01) != 0; lp_page = lp_page->p_next) {
         if (lp_page->sector != 0xFFFFFFFF) {
             lp_page->p_buf = lp_page->buffer;
             return lp_page;
         }
-        lp_page = lp_page->p_next;
     }
 
     return PF_NULL;
@@ -146,7 +145,7 @@ static PF_CACHE_PAGE* VFiPFCACHE_SearchForUsedPage(PF_VOLUME* p_vol, PF_CACHE_PA
 static pf_bool VFiPFCACHE_SearchForFreePage(PF_CACHE_PAGE* p_head, PF_CACHE_PAGE** pp_page) {
     PF_CACHE_PAGE* p_page = p_head->p_prev;
 
-    while (p_page != p_head) {
+    for (; p_page != p_head; p_page = p_page->p_prev) {
         if ((p_page->stat & 0x01) == 0) {
             *pp_page = p_page;
             return PF_TRUE;
@@ -155,7 +154,6 @@ static pf_bool VFiPFCACHE_SearchForFreePage(PF_CACHE_PAGE* p_head, PF_CACHE_PAGE
             *pp_page = p_page;
             return PF_FALSE;
         }
-        p_page = p_page->p_prev;
     }
 
     if ((p_page->stat & 0x01) == 0) {

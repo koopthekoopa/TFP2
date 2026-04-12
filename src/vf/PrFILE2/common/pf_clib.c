@@ -16,9 +16,8 @@ void* VFipf_memcpy(void* dst, void* src, pf_u32 length) {
     const pf_u32* ls = (pf_u32*)src;
 
     if (((pf_u32)ld & 3) == 0 && ((pf_u32)ls & 3) == 0) {
-        while (length > 3) {
+        for (; length > 3; length -= 4) {
             *ld++ = *ls++;
-            length -= 4;
         }
     }
 
@@ -37,17 +36,15 @@ void* VFipf_memset(void* dst, pf_s32 c, pf_u32 length) {
     pf_u32* ld;
     pf_u32 lc;
 
-    while (((pf_u32)d & 3) != 0 && length != 0) {
+    for (; ((pf_u32)d & 3) != 0 && length != 0; length--) {
         *d++ = c;
-        length--;
     }
 
     ld = (pf_u32*)d;
     lc = (c << 24) | (c << 16) | (c << 8) | (c);
 
-    while (length > 3) {
+    for (; length > 3; length -= 4) {
         *ld++ = lc;
-        length -= 4;
     }
 
     d = (pf_s8*)ld;

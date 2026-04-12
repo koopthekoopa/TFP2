@@ -261,26 +261,6 @@ cflags_rfl = [
 
 config.linker_version = "GC/3.0a5.2"
 
-
-# Helper function for SDK libraries
-def ATOKLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
-    return {
-        "lib": lib_name,
-        "mw_version": config.linker_version,
-        "cflags": cflags_sdk,
-        "progress_category": "atok",
-        "objects": objects,
-    }
-
-def VFLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
-    return {
-        "lib": lib_name,
-        "mw_version": config.linker_version,
-        "cflags": cflags_sdk,
-        "progress_category": "vf",
-        "objects": objects,
-    }
-
 Matching = True                   # Object matches and should be linked
 NonMatching = False               # Object does not match and should not be linked
 Equivalent = config.non_matching  # Object should be linked when configured with --non-matching
@@ -309,7 +289,7 @@ config.libs = [
         "lib": "vf",
         "mw_version": config.linker_version,
         "cflags": cflags_sdk,
-        "progress_category": "vf",  # str | List[str]
+        "progress_category": "revoex",  # str | List[str]
         "objects": [
             Object(Matching,    "vf/PrFILE2/common/pf_clib.c"),
             Object(Matching,    "vf/PrFILE2/common/pf_code.c"),
@@ -366,6 +346,18 @@ config.libs = [
     },
     
     {
+        "lib": "ssl",
+        "mw_version": config.linker_version,
+        "cflags": cflags_sdk,
+        "progress_category": "revoex",  # str | List[str]
+        "objects": [
+            Object(Matching,    "ssl/ssl_api.c"),
+            Object(Matching,    "ssl/ssl_mutex.c"),
+            Object(Matching,    "ssl/ssl_print.c"),
+        ],
+    },
+    
+    {
         "lib": "ATOKDict",
         "mw_version": config.linker_version,
         "cflags": cflags_sdk,
@@ -404,7 +396,7 @@ def link_order_callback(module_id: int, objects: List[str]) -> List[str]:
 # Optional extra categories for progress tracking
 # Adjust as desired for your project
 config.progress_categories = [
-    ProgressCategory("vf", "Virtual Filesystem + Mod of eSOL's PrFILE2"),
+    ProgressCategory("revoex", "Revolution Extension"),
     ProgressCategory("atok", "JustSystem's ATOK Dictionary"),
     ProgressCategory("mw", "Metroworks code"),
 ]

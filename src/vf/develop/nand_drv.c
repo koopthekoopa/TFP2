@@ -361,14 +361,12 @@ static s32 _CreatePrfFile(u32 i_fileSize, char* i_fullpath_p, u16 i_version, u8 
     }
     VFipf_memset(&work, 0, 0x200);
 
-    while (restSize >= 0x200) {
+    for (; restSize >= 0x200; restSize -= 0x200) {
         nandError = VFi_NandWrite(&fileInfo, &work, 0x200);
         if (nandError < NAND_RESULT_OK) {
             VFi_NandClose(&fileInfo);
             VFi_NandDeleteSp(i_fullpath_p, i_handleIdx);
             return nandError;
-        } else {
-            restSize -= 0x200;
         }
     }
     if (restSize != 0) {
