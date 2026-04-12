@@ -47,7 +47,7 @@ SSLId SSLNew(u32 i_verifyOption, const char* i_serverName) {
         return SSL_RESULT_INVALID;
     } else {
         IOSIoVector vec[MAX_IOS_VECS] ALIGN32;
-        char server_name[256];
+        char server_name[SSL_SERVER_NAME_LENGTH];
         u32 name_len = SSL_strnlen(i_serverName, sizeof(server_name));
         SSLId ssl_id[SSL_MAX] ALIGN32;
         u32 verify_option[SSL_MAX] ALIGN32;
@@ -58,8 +58,8 @@ SSLId SSLNew(u32 i_verifyOption, const char* i_serverName) {
         }
 
         memset(server_name, 0, sizeof(server_name));
-        if (name_len > sizeof(server_name)) {
-            name_len = sizeof(server_name);
+        if (name_len > SSL_SERVER_NAME_LENGTH) {
+            name_len = SSL_SERVER_NAME_LENGTH;
         }
 
         memcpy(server_name, i_serverName, name_len);
@@ -137,7 +137,7 @@ SSLResult SSLDoHandshake(SSLId i_sslId) {
     }
 }
 
-static char l_cert_data[4096] = {0};
+static char l_cert_data[SSL_CLIENT_CERT_LENGTH] ALIGN32;
 
 SSLResult SSLRead(SSLId i_sslId, char* o_buf, u32 i_bufSize) {
     s32 fd = OPEN_SSL_IOS();
@@ -146,7 +146,7 @@ SSLResult SSLRead(SSLId i_sslId, char* o_buf, u32 i_bufSize) {
     if (fd < 0) {
         return SSL_RESULT_INVALID;
     } else {
-        u32 bufSize = i_bufSize > 0x8000 ? 0x8000 : i_bufSize;
+        u32 bufSize = i_bufSize > SSL_BUFFER_MAX_LENGTH ? SSL_BUFFER_MAX_LENGTH : i_bufSize;
         char tmp[32] ALIGN32;
         u32 align = (u32)o_buf & 31;
         u32 front_bytes = align != 0 ? (32 - align) : 0;
@@ -267,7 +267,7 @@ SSLResult SSLWrite(SSLId i_sslId, const char* i_buf, u32 i_bufSize) {
         }
         if (rest != 0) {
             u32 body_bytes = (rest & ~31);
-            if ((body_bytes != 0)) {
+            if (body_bytes != 0) {
                 ret = SSL_write(fd, i_sslId, i_buf, body_bytes);
                 if (ret > 0) {
                     total_write += ret;
@@ -340,7 +340,7 @@ SSLResult SSLShutdown(SSLId i_sslId) {
     }
 }
 
-static char l_private_key_data[4096] = {0};
+static char l_private_key_data[SSL_PRIVATE_KEY_LENGTH] ALIGN32;
 
 SSLResult SSLSetClientCert(SSLId i_sslId, const char* i_clientCertData, u32 i_clientCertSize, const char* i_privateKeyData, u32 i_privateKeySize) {
     s32 fd = OPEN_SSL_IOS();
@@ -380,7 +380,7 @@ SSLResult SSLSetClientCert(SSLId i_sslId, const char* i_clientCertData, u32 i_cl
     }
 }
 
-static char l_root_ca[4096] = {0};
+static char l_root_ca[SSL_ROOT_CA_LENGTH] ALIGN32;
 
 SSLResult SSLSetRootCA(SSLId i_sslId, const char* i_rootCAData, u32 i_rootCASize) {
     s32 fd = OPEN_SSL_IOS();
@@ -519,15 +519,15 @@ static SSLResult SSL_write(s32 fd, SSLId i_sslId, const char* i_buf, u32 i_bufSi
     return *result;
 }
 
-static OSMutex l_mutex = {0};
+static OSMutex l_mutex ALIGN32;
 
 static void SSL_lock() {
     BOOL enabled = OSDisableInterrupts();
     if (!l_initialized) {
         SSL_InitMutex(&l_mutex);
-        memset(l_cert_data, 0, 0x1000);
-        memset(l_private_key_data, 0, 0x1000);
-        memset(l_root_ca, 0, 0x1000);
+        memset(l_cert_data, 0, SSL_CLIENT_CERT_LENGTH);
+        memset(l_private_key_data, 0, SSL_PRIVATE_KEY_LENGTH);
+        memset(l_root_ca, 0, SSL_ROOT_CA_LENGTH);
         l_initialized = TRUE;
     }
     OSRestoreInterrupts(enabled);

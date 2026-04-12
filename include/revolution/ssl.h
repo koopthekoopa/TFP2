@@ -13,6 +13,14 @@ typedef int SSLId;
 
 #define SSL_MAX 8
 
+#define SSL_ROOT_CA_LENGTH 4096
+#define SSL_PRIVATE_KEY_LENGTH 4096
+#define SSL_CLIENT_CERT_LENGTH 4096
+
+#define SSL_BUFFER_MAX_LENGTH 32768
+
+#define SSL_SERVER_NAME_LENGTH 256
+
 SSLId SSLNew(u32 verifyOption, const char* serverName);
 SSLResult SSLConnect(SSLId sslId, SSLSocket socket);
 
