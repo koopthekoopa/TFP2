@@ -5,13 +5,13 @@ const char* __JUSTSYSTEMS_ATOKVersion = "<< RVL_MWM - JUSTSYSTEMS_ATOK \tdebug b
 
 s32 ATOKOpen(void* openPack) {
     OSRegisterVersion(__JUSTSYSTEMS_ATOKVersion);
-    ATOK_open(openPack);
+    return ATOK_open(openPack);
 }
 
 s32 ATOKClose() {
-    ATOK_close();
+    return ATOK_close();
 }
 
 s32 ATOKDrive(void* commandPack) {
-    ATOK_drive(commandPack);
+    return ATOK_drive(commandPack);
 }
