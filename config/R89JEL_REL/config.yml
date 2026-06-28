@@ -1,0 +1,5 @@
+name: 'main'
+object_base: orig
+object: main.dol
+symbols: config/R89JEL_REL/symbols.txt
+splits: config/R89JEL_REL/splits.txt

@@ -1,0 +1,5 @@
+name: 'main'
+object_base: orig
+object: mainD.dol
+symbols: config/R89JEL_DBG/symbols.txt
+splits: config/R89JEL_DBG/splits.txt

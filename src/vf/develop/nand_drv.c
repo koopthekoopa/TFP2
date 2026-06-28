@@ -529,10 +529,17 @@ static s32 nanddrv_mount(PDM_DISK* p_disk) {
 }
 
 static s32 nanddrv_format(PDM_DISK* p_disk, const u8* param) {
+#ifdef DEBUG
     if (p_disk == NULL) {
         return -20;
     }
     return 0;
+#else
+    if (p_disk != NULL) {
+        return 0;
+    }
+    return -20;
+#endif
 }
 
 static s32 nanddrv_pread(PDM_DISK* p_disk, u8* p_buf, u32 block, u32 num_blocks, u32* p_num_success) {

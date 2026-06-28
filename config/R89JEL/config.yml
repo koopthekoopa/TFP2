@@ -1,6 +1,0 @@
-name: 'main'
-object_base: orig/R89JEL
-object: mainD.dol
-symbols: config/R89JEL/symbols.txt
-splits: config/R89JEL/splits.txt
-

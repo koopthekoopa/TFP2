@@ -58,7 +58,9 @@ void VFInitEx(void* i_heap_start_address_p, u32 i_size) {
     _VFUnlockMutex();
 }
 
-static char l_vf_drive_work[0x68000] ALIGN32;
+// supposed to be static
+// but it seems that everything is relocating it :/ (even functions)
+/*static*/ char l_vf_drive_work[0x68000] ALIGN32;
 
 void VFInit() {
     VFInitEx(l_vf_drive_work, sizeof(l_vf_drive_work));

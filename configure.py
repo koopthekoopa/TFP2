@@ -31,7 +31,8 @@ from tools.project import (
 # Game versions
 DEFAULT_VERSION = 0
 VERSIONS = [
-    "R89JEL",  # 0
+    "R89JEL_DBG",  # 0
+    "R89JEL_REL",  # 0
 ]
 
 parser = argparse.ArgumentParser()
@@ -213,9 +214,28 @@ cflags_base = [
     "-i include/Runtime.PPCEABI.H",
     "-enc SJIS",
     '-pragma "cats off"',
-    '-pragma "warn_notinlined off"',
-    "-DDEBUG=1"
+    '-pragma "warn_notinlined off"'
 ]
+
+# Main flags (todo)
+cflags_dbg = [
+    *cflags_base,
+    "-opt off",
+    "-inline off",
+    "-DDEBUG",
+    "-g",
+]
+cflags_rel = [
+    *cflags_base,
+    "-O4,p",
+    "-ipa file",
+    "-inline auto",
+]
+
+if config.version.endswith("DBG"):
+    cflags_use = cflags_dbg
+else:
+    cflags_use = cflags_rel
 
 # Debug flags
 if args.debug:
@@ -243,21 +263,13 @@ cflags_runtime = [
     "-inline auto",
 ]
 
-# SDK library flags (todo)
-cflags_sdk = [
-    *cflags_base,
-    "-opt off",
-    "-inline off",
-    "-g",
+cflags_atok = [
+    *cflags_use,
+    "-sdata 0",
 ]
 
-cflags_atok = [
-    *cflags_base,
-    "-opt off",
-    "-inline off",
-    "-sdata 0",
-    "-g",
-]
+if config.version.endswith("REL"):
+    cflags_atok.append("-str readonly")
 
 config.linker_version = "GC/3.0a5.2"
 
@@ -288,59 +300,59 @@ config.libs = [
     {
         "lib": "vf",
         "mw_version": config.linker_version,
-        "cflags": cflags_sdk,
+        "cflags": cflags_use,
         "progress_category": "revoex",  # str | List[str]
         "objects": [
-            Object(Matching,    "vf/PrFILE2/common/pf_clib.c"),
-            Object(Matching,    "vf/PrFILE2/common/pf_code.c"),
-            Object(Matching,    "vf/PrFILE2/common/pf_service.c"),
-            Object(Matching,    "vf/PrFILE2/common/pf_str.c"),
-            Object(Matching,    "vf/PrFILE2/common/pf_w_clib.c"),
-            Object(Matching,    "vf/PrFILE2/driver/pf_driver.c"),
-            Object(Equivalent,  "vf/PrFILE2/dskmng/pdm_bpb.c"),
-            Object(Matching,    "vf/PrFILE2/dskmng/pdm_disk.c"),
-            Object(Matching,    "vf/PrFILE2/dskmng/pdm_partition.c"),
-            Object(Matching,    "vf/PrFILE2/dskmng/pdm_mbr.c"),
-            Object(Matching,    "vf/PrFILE2/dskmng/pdm_dskmng.c"),
-            Object(Matching,    "vf/PrFILE2/fatfs/pf_cache.c"),
-            Object(Matching,    "vf/PrFILE2/fatfs/pf_cluster.c"),
-            Object(Equivalent,  "vf/PrFILE2/fatfs/pf_dir.c"),
-            Object(Matching,    "vf/PrFILE2/fatfs/pf_entry.c"),
-            Object(Matching,    "vf/PrFILE2/fatfs/pf_entry_iterator.c"),
-            Object(Equivalent,  "vf/PrFILE2/fatfs/pf_fat.c"),
-            Object(Equivalent,  "vf/PrFILE2/fatfs/pf_fat12.c"),
-            Object(Matching,    "vf/PrFILE2/fatfs/pf_fat16.c"),
-            Object(Matching,    "vf/PrFILE2/fatfs/pf_fat32.c"),
-            Object(Matching,    "vf/PrFILE2/fatfs/pf_fatfs.c"),
-            Object(Matching,    "vf/PrFILE2/fatfs/pf_file.c"),
-            Object(Matching,    "vf/PrFILE2/fatfs/pf_path.c"),
-            Object(Matching,    "vf/PrFILE2/fatfs/pf_sector.c"),
-            Object(Equivalent,  "vf/PrFILE2/fatfs/pf_volume.c"),
-            Object(Matching,    "vf/PrFILE2/local/pf_cp932.c", shift_jis = False, extra_cflags = ["-enc UTF-8"]),
-            Object(Matching,    "vf/PrFILE2/standard/pf_api_util.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_attach.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_detach.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_errnum.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_fclose.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_finfo.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_fopen.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_format.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_fread.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_fseek.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_fwrite.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_getdev.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_init_prfile2.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_mkdir.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_remove.c"),
-            Object(Matching,    "vf/PrFILE2/standard/pf_unmount.c"),
-            Object(Matching,    "vf/PrFILE2/system/pf_filelock.c"),
-            Object(Matching,    "vf/PrFILE2/system/pf_system.c"),
+            Object(Matching,    "vf/common/pf_clib.c"),
+            Object(Matching,    "vf/common/pf_code.c"),
+            Object(Matching,    "vf/common/pf_service.c"),
+            Object(Matching,    "vf/common/pf_str.c"),
+            Object(Matching,    "vf/common/pf_w_clib.c"),
+            Object(Matching,    "vf/driver/pf_driver.c"),
+            Object(MatchingFor("R89JEL_REL"), "vf/dskmng/pdm_bpb.c"),
+            Object(Matching,    "vf/dskmng/pdm_disk.c"),
+            Object(Matching,    "vf/dskmng/pdm_partition.c"),
+            Object(Matching,    "vf/dskmng/pdm_mbr.c"),
+            Object(Matching,    "vf/dskmng/pdm_dskmng.c"),
+            Object(Matching,    "vf/fatfs/pf_cache.c"),
+            Object(Matching,    "vf/fatfs/pf_cluster.c"),
+            Object(Equivalent,  "vf/fatfs/pf_dir.c"),
+            Object(Matching,    "vf/fatfs/pf_entry.c"),
+            Object(MatchingFor("R89JEL_DBG"), "vf/fatfs/pf_entry_iterator.c"),
+            Object(MatchingFor("R89JEL_REL"), "vf/fatfs/pf_fat.c"),
+            Object(MatchingFor("R89JEL_REL"), "vf/fatfs/pf_fat12.c"),
+            Object(Matching,    "vf/fatfs/pf_fat16.c"),
+            Object(Matching,    "vf/fatfs/pf_fat32.c"),
+            Object(Matching,    "vf/fatfs/pf_fatfs.c"),
+            Object(Matching,    "vf/fatfs/pf_file.c"),
+            Object(Matching,    "vf/fatfs/pf_path.c"),
+            Object(Matching,    "vf/fatfs/pf_sector.c"),
+            Object(MatchingFor("R89JEL_REL"), "vf/fatfs/pf_volume.c"),
+            Object(MatchingFor("R89JEL_DBG"), "vf/local/pf_cp932.c", shift_jis = False, extra_cflags = ["-enc UTF-8"]),
+            Object(Matching,    "vf/standard/pf_api_util.c"),
+            Object(Matching,    "vf/standard/pf_attach.c"),
+            Object(Matching,    "vf/standard/pf_detach.c"),
+            Object(Matching,    "vf/standard/pf_errnum.c"),
+            Object(Matching,    "vf/standard/pf_fclose.c"),
+            Object(Matching,    "vf/standard/pf_finfo.c"),
+            Object(Matching,    "vf/standard/pf_fopen.c"),
+            Object(Matching,    "vf/standard/pf_format.c"),
+            Object(Matching,    "vf/standard/pf_fread.c"),
+            Object(Matching,    "vf/standard/pf_fseek.c"),
+            Object(Matching,    "vf/standard/pf_fwrite.c"),
+            Object(Matching,    "vf/standard/pf_getdev.c"),
+            Object(Matching,    "vf/standard/pf_init_prfile2.c"),
+            Object(Matching,    "vf/standard/pf_mkdir.c"),
+            Object(Matching,    "vf/standard/pf_remove.c"),
+            Object(Matching,    "vf/standard/pf_unmount.c"),
+            Object(Matching,    "vf/system/pf_filelock.c"),
+            Object(Matching,    "vf/system/pf_system.c"),
             Object(Matching,    "vf/develop/d_vf.c"),
-            Object(Matching,    "vf/develop/d_vf_sys.c"),
+            Object(MatchingFor("R89JEL_DBG"), "vf/develop/d_vf_sys.c"),
             Object(Matching,    "vf/develop/d_hash.c"),
             Object(Matching,    "vf/develop/d_time.c"),
             Object(Matching,    "vf/develop/d_common.c"),
-            Object(Equivalent,  "vf/develop/nand_drv.c"),
+            Object(MatchingFor("R89JEL_REL"), "vf/develop/nand_drv.c"),
             Object(Matching,    "vf/develop/sd_drv.c"),
         ],
     },
@@ -348,7 +360,7 @@ config.libs = [
     {
         "lib": "ssl",
         "mw_version": config.linker_version,
-        "cflags": cflags_sdk,
+        "cflags": cflags_use,
         "progress_category": "revoex",  # str | List[str]
         "objects": [
             Object(Matching,    "ssl/ssl_api.c"),

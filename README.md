@@ -1,4 +1,4 @@
-Tokyo Friend Park 2 - Debug  
+Tokyo Friend Park 2  
 [![Build Status]][actions] [![Discord Badge]][discord]
 =============
 
@@ -8,7 +8,7 @@ Tokyo Friend Park 2 - Debug
 [Discord Badge]: https://img.shields.io/discord/727908905392275526?color=%237289DA&logo=discord&logoColor=%23FFFFFF
 [discord]: https://discord.gg/hKx3FJJgrV
 
-A decompilation of the debug build of Tokyo Friend Park 2.
+A decompilation of the libraries from of Tokyo Friend Park 2.
 
 This repository does **not** contain any game assets or assembly whatsoever. An existing copy of the game is required.
 
@@ -17,7 +17,8 @@ This repository does **not** contain any game assets or assembly whatsoever. An 
 
 Supported versions:
 
-- `R89JEL`: Revision 0 (Japan)  
+- `R89JEL_DBG`: Debug Build  
+- `R89JEL_REL`: Release Build  
 
 Dependencies
 ============
@@ -64,13 +65,15 @@ Building
   - Replace `R89JEL.iso` with the path to your copy of *Tokyo Friend Park 2*.
 
   ```sh
-  dtk vfs cp R89JEL.iso/bin/RBL/Debug/mainD.elf orig/R89JEL/
+  dtk vfs cp R89JEL.iso/bin/RVL/Debug/mainD.elf orig/
+  dtk vfs cp R89JEL.iso/bin/RVL/Release/main.elf orig/
   ```
 
   - Convert the ELF to DOL.
 
   ```sh
-  dtk elf2dol orig/R89JEL/mainD.elf orig/R89JEL/mainD.dol
+  dtk elf2dol orig/mainD.elf orig/mainD.dol
+  dtk elf2dol orig/main.elf orig/main.dol
   ```
 
 - Configure:

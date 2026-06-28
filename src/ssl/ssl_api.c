@@ -24,7 +24,11 @@ enum {
 
 #define MAX_IOS_VECS 4
 
+#ifdef DEBUG
 const char* __SSLVersion = "<< RVL_SDK - SSL \tdebug build: Mar 31 2008 01:32:22 (0x4199_60831) >>";
+#else
+const char* __SSLVersion = "<< RVL_SDK - SSL \trelease build: Mar 31 2008 01:32:26 (0x4199_60831) >>";
+#endif
 
 static BOOL sslRegistered = FALSE;
 static s32 l_initialized = 0;
