@@ -20,8 +20,6 @@ typedef struct _SDDev {
     u32 SDState;       // offset 0x24, size 0x4
 } SDDev;
 
-typedef void (*SDDevEventCallback)(u32);
-
 #ifdef __cplusplus
 }
 #endif

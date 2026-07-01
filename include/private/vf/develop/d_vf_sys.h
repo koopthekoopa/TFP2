@@ -14,6 +14,8 @@
 #include <revolution/nand.h>
 #include <revolution/sdi.h>
 
+typedef void (*VFSys_SD_callback)(u32);
+
 typedef struct {
     u32 status;     // 0x00
     u32 err;        // 0x04
@@ -58,10 +60,10 @@ typedef struct {
 } VFSys_deviceNand;
 
 typedef struct {
-    VFSys_device base;                 // 0x00
-    SDDev drive;                       // 0x20
-    SDDevEventCallback eventCallback;  // 0x48
-    u32 slotNo;                        // 0x4C
+    VFSys_device base;                // 0x00
+    SDDev drive;                      // 0x20
+    VFSys_SD_callback eventCallback;  // 0x48
+    u32 slotNo;                       // 0x4C
 } VFSys_deviceSD;
 
 typedef struct VFSysTime {
