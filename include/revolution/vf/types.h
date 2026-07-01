@@ -3,9 +3,8 @@
 
 #include <revolution/types.h>
 
-/* Some apps have ErrInfoTbl which have all of the errors codes. */
 enum {
-    VF_ERR_SUCCESS = 0,     // Success
+    VF_ERR_SUCCESS = 0,  // Success
 
     // PrFILE2 errors
     VF_ERR_EPERM = 1,       // "Operation is not possible"
@@ -39,6 +38,11 @@ enum {
     VF_ERR_SYSTEM = -1  // "system error(general error)"
 };
 
-typedef void VF_FILE;
+typedef s32 VFErr;
+
+typedef void VFFile;
+
+// only used by d_vf_sys
+typedef void (*VFSDCallback)(u32);
 
 #endif  // REVOLUTION_VF_TYPES_H
